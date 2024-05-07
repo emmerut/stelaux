@@ -1,0 +1,7 @@
+header .navbar-nav .megamenu {
+    left: -40vw;
+}
+
+.btn-link {
+    --bs-btn-color: var(--bs-light);
+}
