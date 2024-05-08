@@ -9,7 +9,7 @@ import { PropTypes } from "prop-types";
 import Buttons from '../Button/Buttons'
 
 // Data
-import { InteractiveBannersData15 } from '../../Components/InteractiveBanners/InteractiveBannersData';
+import { InteractiveBannersData15 } from '../../../components/business/InteractiveBanners/InteractiveBannersData';
 
 const InteractiveBanners15 = (props) => {
     return (

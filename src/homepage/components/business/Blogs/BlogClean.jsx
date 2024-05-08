@@ -20,7 +20,7 @@ const BlogClean = (props) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    import("../../Functions/Utilities").then(module => {
+    import("../../../functions/Utilities").then(module => {
       const grid = module.initializeIsotop(blogWrapper.current)
       grid.on('arrangeComplete', () => setLoading(false));
     })
