@@ -1,5 +1,5 @@
 import BaseLayout from "./homepage/layouts/BaseLayout";
-import CrmBaseLayout from "./stelaux/layouts/BaseLayout";
+import CrmBaseLayout from "./stelaux/layout/BaseLayout";
 
 const layoutMapping = {
   "": BaseLayout,
