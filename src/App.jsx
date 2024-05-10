@@ -147,7 +147,7 @@ function App() {
         </Route>
         <Route path="/*" element={<Layout />}>
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="ecommerce" element={<Ecommerce />} />
+          <Route path="console" element={<Ecommerce />} />
           <Route path="crm" element={<CrmPage />} />
           <Route path="project" element={<ProjectPage />} />
           <Route path="banking" element={<BankingPage />} />

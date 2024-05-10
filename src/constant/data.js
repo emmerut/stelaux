@@ -1,85 +1,362 @@
 export const menuItems = [
   {
     isHeadr: true,
-    title: "menu",
+    title: "Website Control",
   },
 
   {
-    title: "Dashboard",
-    icon: "heroicons-outline:home",
-    isOpen: true,
-    isHide: true,
+    title: "Contenido",
+    icon: "heroicons:shopping-bag",
+    link: "#",
     child: [
+      // {
+      //   childtitle: "Stock",
+
+      //   multi_menu: [
+      //     {
+      //       multiTitle: "Products",
+      //       multiLink: "products",
+      //     },
+      //     {
+      //       multiTitle: "Products Details",
+      //       multiLink: "products/1",
+      //     },
+
+      //     {
+      //       multiTitle: "Cart",
+      //       multiLink: "cart",
+      //     },
+      //     {
+      //       multiTitle: "Wishlist",
+      //       multiLink: "wishlist",
+      //     },
+      //   ],
+      // },
       {
-        childtitle: "Analytics Dashboard",
-        childlink: "dashboard",
-      },
-      {
-        childtitle: "Ecommerce Dashboard",
-        childlink: "ecommerce",
-      },
-      {
-        childtitle: "Project  Dashbaord",
-        childlink: "project",
-      },
-      {
-        childtitle: " CRM Dashbaord",
-        childlink: "crm",
-      },
-      {
-        childtitle: "Banking Dashboard",
-        childlink: "banking",
+        childtitle: "Carga",
+
+        multi_menu: [
+          {
+            multiTitle: "Orders",
+            multiLink: "orders",
+            
+          },
+
+          {
+            multiTitle: "Add Product",
+            multiLink: "add-product",
+            
+          },
+          {
+            multiTitle: "Edit Product",
+            multiLink: "edit-product",
+            
+          },
+          {
+            multiTitle: "Customers",
+            multiLink: "customers",
+            
+          },
+          {
+            multiTitle: "Sellers",
+            multiLink: "sellers",
+            
+          },
+          {
+            multiTitle: "Invoice",
+            multiLink: "invoice-ecommerce",
+            
+          },
+        ],
       },
     ],
   },
   {
-    title: "changelog",
-    icon: "heroicons:arrow-trending-up",
-    link: "changelog",
-    isHide: false,
-    badge: "1.0.0",
+    title: "Inventario",
+    icon: "heroicons:shopping-bag",
+    link: "#",
+    child: [
+      // {
+      //   childtitle: "Stock",
+
+      //   multi_menu: [
+      //     {
+      //       multiTitle: "Products",
+      //       multiLink: "products",
+      //     },
+      //     {
+      //       multiTitle: "Products Details",
+      //       multiLink: "products/1",
+      //     },
+
+      //     {
+      //       multiTitle: "Cart",
+      //       multiLink: "cart",
+      //     },
+      //     {
+      //       multiTitle: "Wishlist",
+      //       multiLink: "wishlist",
+      //     },
+      //   ],
+      // },
+      {
+        childtitle: "Carga",
+
+        multi_menu: [
+          {
+            multiTitle: "Orders",
+            multiLink: "orders",
+            
+          },
+
+          {
+            multiTitle: "Add Product",
+            multiLink: "add-product",
+            
+          },
+          {
+            multiTitle: "Edit Product",
+            multiLink: "edit-product",
+            
+          },
+          {
+            multiTitle: "Customers",
+            multiLink: "customers",
+            
+          },
+          {
+            multiTitle: "Sellers",
+            multiLink: "sellers",
+            
+          },
+          {
+            multiTitle: "Invoice",
+            multiLink: "invoice-ecommerce",
+            
+          },
+        ],
+      },
+    ],
   },
+  {
+    title: "Finanzas",
+    icon: "heroicons:shopping-bag",
+    link: "#",
+    child: [
+      // {
+      //   childtitle: "Stock",
+
+      //   multi_menu: [
+      //     {
+      //       multiTitle: "Products",
+      //       multiLink: "products",
+      //     },
+      //     {
+      //       multiTitle: "Products Details",
+      //       multiLink: "products/1",
+      //     },
+
+      //     {
+      //       multiTitle: "Cart",
+      //       multiLink: "cart",
+      //     },
+      //     {
+      //       multiTitle: "Wishlist",
+      //       multiLink: "wishlist",
+      //     },
+      //   ],
+      // },
+      {
+        childtitle: "Carga",
+
+        multi_menu: [
+          {
+            multiTitle: "Orders",
+            multiLink: "orders",
+            
+          },
+
+          {
+            multiTitle: "Add Product",
+            multiLink: "add-product",
+            
+          },
+          {
+            multiTitle: "Edit Product",
+            multiLink: "edit-product",
+            
+          },
+          {
+            multiTitle: "Customers",
+            multiLink: "customers",
+            
+          },
+          {
+            multiTitle: "Sellers",
+            multiLink: "sellers",
+            
+          },
+          {
+            multiTitle: "Invoice",
+            multiLink: "invoice-ecommerce",
+            
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Usuarios",
+    icon: "heroicons:shopping-bag",
+    link: "#",
+    child: [
+      // {
+      //   childtitle: "Stock",
+
+      //   multi_menu: [
+      //     {
+      //       multiTitle: "Products",
+      //       multiLink: "products",
+      //     },
+      //     {
+      //       multiTitle: "Products Details",
+      //       multiLink: "products/1",
+      //     },
+
+      //     {
+      //       multiTitle: "Cart",
+      //       multiLink: "cart",
+      //     },
+      //     {
+      //       multiTitle: "Wishlist",
+      //       multiLink: "wishlist",
+      //     },
+      //   ],
+      // },
+      {
+        childtitle: "Carga",
+
+        multi_menu: [
+          {
+            multiTitle: "Orders",
+            multiLink: "orders",
+            
+          },
+
+          {
+            multiTitle: "Add Product",
+            multiLink: "add-product",
+            
+          },
+          {
+            multiTitle: "Edit Product",
+            multiLink: "edit-product",
+            
+          },
+          {
+            multiTitle: "Customers",
+            multiLink: "customers",
+            
+          },
+          {
+            multiTitle: "Sellers",
+            multiLink: "sellers",
+            
+          },
+          {
+            multiTitle: "Invoice",
+            multiLink: "invoice-ecommerce",
+            
+          },
+        ],
+      },
+    ],
+  },
+  
+  //APPS
   {
     isHeadr: true,
-    title: "apps",
+    title: "stela ultimate",
   },
-
+ 
+  // {
+  //   title: "Email",
+  //   isHide: true,
+  //   icon: "heroicons-outline:mail",
+  //   link: "email",
+  // },
+  // {
+  //   title: "Kanban",
+  //   isHide: true,
+  //   icon: "heroicons-outline:view-boards",
+  //   link: "kanban",
+  // },
   {
-    title: "Chat",
-    isHide: true,
-    icon: "heroicons-outline:chat",
-    link: "chat",
-  },
-
-  {
-    title: "Email",
-    isHide: true,
-    icon: "heroicons-outline:mail",
-    link: "email",
-  },
-
-  {
-    title: "Kanban",
-    isHide: true,
-    icon: "heroicons-outline:view-boards",
-    link: "kanban",
-  },
-  {
-    title: "Calender",
+    title: "Post Pro",
     isHide: true,
     icon: "heroicons-outline:calendar",
     link: "calender",
   },
-
   {
-    title: "Todo",
+    title: "Smart Marketing",
+    icon: "heroicons-outline:document",
+    link: "#",
     isHide: true,
-    icon: "heroicons-outline:clipboard-check",
-    link: "todo",
+    child: [
+      {
+        childtitle: "Google Analythics",
+        childlink: "projects",
+      },
+      {
+        childtitle: "Meta Business",
+        childlink: "project-details",
+      },
+      {
+        childtitle: "Youtube Studio",
+        childlink: "project-details",
+      },
+      {
+        childtitle: "Tiktok Manager",
+        childlink: "project-details",
+      },
+      {
+        childtitle: "Trends",
+        childlink: "project-details",
+      },
+    ],
   },
-
+  // {
+  //   title: "Todo",
+  //   isHide: true,
+  //   icon: "heroicons-outline:clipboard-check",
+  //   link: "todo",
+  // },
   {
-    title: "Projects",
+    title: "Kairos Scout",
+    icon: "heroicons-outline:document",
+    link: "#",
+    isHide: true,
+    child: [
+      {
+        childtitle: "Amazon Products",
+        childlink: "projects",
+      },
+      {
+        childtitle: "Alibaba",
+        childlink: "project-details",
+      },
+      {
+        childtitle: "Ali Express",
+        childlink: "project-details",
+      },
+      {
+        childtitle: "Walmart",
+        childlink: "project-details",
+      },
+    ],
+  },
+  {
+    title: "Finyx Contabilidad",
     icon: "heroicons-outline:document",
     link: "#",
     isHide: true,
@@ -95,72 +372,19 @@ export const menuItems = [
     ],
   },
   {
-    title: "Ecommerce",
-    icon: "heroicons:shopping-bag",
-    link: "#",
-    child: [
-      {
-        childtitle: "User App",
-
-        multi_menu: [
-          {
-            multiTitle: "Products",
-            multiLink: "products",
-          },
-          {
-            multiTitle: "Products Details",
-            multiLink: "products/1",
-          },
-
-          {
-            multiTitle: "Cart",
-            multiLink: "cart",
-          },
-          {
-            multiTitle: "Wishlist",
-            multiLink: "wishlist",
-          },
-        ],
-      },
-      {
-        childtitle: "Admin App",
-
-        multi_menu: [
-          {
-            multiTitle: "Orders",
-            multiLink: "orders",
-            badge: "soon",
-          },
-
-          {
-            multiTitle: "Add Product",
-            multiLink: "add-product",
-            badge: "soon",
-          },
-          {
-            multiTitle: "Edit Product",
-            multiLink: "edit-product",
-            badge: "soon",
-          },
-          {
-            multiTitle: "Customers",
-            multiLink: "customers",
-            badge: "soon",
-          },
-          {
-            multiTitle: "Sellers",
-            multiLink: "sellers",
-            badge: "soon",
-          },
-          {
-            multiTitle: "Invoice",
-            multiLink: "invoice-ecommerce",
-            badge: "soon",
-          },
-        ],
-      },
-    ],
+    title: "Stela IA",
+    isHide: true,
+    icon: "heroicons-outline:calendar",
+    link: "todo",
   },
+  {
+    title: "Whatsapp Manager",
+    isHide: true,
+    icon: "heroicons-outline:chat",
+    link: "chat",
+  },
+  /** 
+  //PAGES
   {
     isHeadr: true,
     title: "Pages",
@@ -273,6 +497,7 @@ export const menuItems = [
       },
     ],
   },
+  //ELEMENTS
   {
     isHeadr: true,
     title: "Elements",
@@ -495,9 +720,11 @@ export const menuItems = [
       },
     ],
   },
+  */
 ];
 
 export const topMenu = [
+  /*
   {
     title: "Dashboard",
     icon: "heroicons-outline:home",
@@ -530,298 +757,299 @@ export const topMenu = [
       },
     ],
   },
-  {
-    title: "App",
-    icon: "heroicons-outline:chip",
-    link: "/app/home",
-    child: [
-      {
-        childtitle: "Calendar",
-        childlink: "calender",
-        childicon: "heroicons-outline:calendar",
-      },
-      {
-        childtitle: "Kanban",
-        childlink: "kanban",
-        childicon: "heroicons-outline:view-boards",
-      },
-      {
-        childtitle: "Todo",
-        childlink: "todo",
-        childicon: "heroicons-outline:clipboard-check",
-      },
-      {
-        childtitle: "Projects",
-        childlink: "projects",
-        childicon: "heroicons-outline:document",
-      },
-    ],
-  },
-  {
-    title: "Pages",
-    icon: "heroicons-outline:view-boards",
-    link: "/app/home",
-    megamenu: [
-      {
-        megamenutitle: "Authentication",
-        megamenuicon: "heroicons-outline:user",
-        singleMegamenu: [
-          {
-            m_childtitle: "Signin One",
-            m_childlink: "/",
-          },
-          {
-            m_childtitle: "Signin Two",
-            m_childlink: "/login2",
-          },
-          {
-            m_childtitle: "Signin Three",
-            m_childlink: "/login3",
-          },
-          {
-            m_childtitle: "Signup One",
-            m_childlink: "/register",
-          },
-          {
-            m_childtitle: "Signup Two",
-            m_childlink: "/register/register2",
-          },
-          {
-            m_childtitle: "Signup Three",
-            m_childlink: "/register/register3",
-          },
-          {
-            m_childtitle: "Forget Password One",
-            m_childlink: "/forgot-password",
-          },
-          {
-            m_childtitle: "Forget Password Two",
-            m_childlink: "/forgot-password2",
-          },
-          {
-            m_childtitle: "Forget Password Three",
-            m_childlink: "/forgot-password3",
-          },
-          {
-            m_childtitle: "Lock Screen One",
-            m_childlink: "/lock-screen",
-          },
-          {
-            m_childtitle: "Lock Screen Two",
-            m_childlink: "/lock-screen2",
-          },
-          {
-            m_childtitle: "Lock Screen Three",
-            m_childlink: "/lock-screen3",
-          },
-        ],
-      },
+  */
+  // {
+  //   title: "App",
+  //   icon: "heroicons-outline:chip",
+  //   link: "/app/home",
+  //   child: [
+  //     {
+  //       childtitle: "Calendar",
+  //       childlink: "calender",
+  //       childicon: "heroicons-outline:calendar",
+  //     },
+  //     {
+  //       childtitle: "Kanban",
+  //       childlink: "kanban",
+  //       childicon: "heroicons-outline:view-boards",
+  //     },
+  //     {
+  //       childtitle: "Todo",
+  //       childlink: "todo",
+  //       childicon: "heroicons-outline:clipboard-check",
+  //     },
+  //     {
+  //       childtitle: "Projects",
+  //       childlink: "projects",
+  //       childicon: "heroicons-outline:document",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Pages",
+  //   icon: "heroicons-outline:view-boards",
+  //   link: "/app/home",
+  //   megamenu: [
+  //     {
+  //       megamenutitle: "Authentication",
+  //       megamenuicon: "heroicons-outline:user",
+  //       singleMegamenu: [
+  //         {
+  //           m_childtitle: "Signin One",
+  //           m_childlink: "/",
+  //         },
+  //         {
+  //           m_childtitle: "Signin Two",
+  //           m_childlink: "/login2",
+  //         },
+  //         {
+  //           m_childtitle: "Signin Three",
+  //           m_childlink: "/login3",
+  //         },
+  //         {
+  //           m_childtitle: "Signup One",
+  //           m_childlink: "/register",
+  //         },
+  //         {
+  //           m_childtitle: "Signup Two",
+  //           m_childlink: "/register/register2",
+  //         },
+  //         {
+  //           m_childtitle: "Signup Three",
+  //           m_childlink: "/register/register3",
+  //         },
+  //         {
+  //           m_childtitle: "Forget Password One",
+  //           m_childlink: "/forgot-password",
+  //         },
+  //         {
+  //           m_childtitle: "Forget Password Two",
+  //           m_childlink: "/forgot-password2",
+  //         },
+  //         {
+  //           m_childtitle: "Forget Password Three",
+  //           m_childlink: "/forgot-password3",
+  //         },
+  //         {
+  //           m_childtitle: "Lock Screen One",
+  //           m_childlink: "/lock-screen",
+  //         },
+  //         {
+  //           m_childtitle: "Lock Screen Two",
+  //           m_childlink: "/lock-screen2",
+  //         },
+  //         {
+  //           m_childtitle: "Lock Screen Three",
+  //           m_childlink: "/lock-screen3",
+  //         },
+  //       ],
+  //     },
 
-      {
-        megamenutitle: "Components",
-        megamenuicon: "heroicons-outline:user",
-        singleMegamenu: [
-          {
-            m_childtitle: "typography",
-            m_childlink: "typography",
-          },
-          {
-            m_childtitle: "colors",
-            m_childlink: "colors",
-          },
-          {
-            m_childtitle: "alert",
-            m_childlink: "alert",
-          },
-          {
-            m_childtitle: "button",
-            m_childlink: "button",
-          },
-          {
-            m_childtitle: "card",
-            m_childlink: "card",
-          },
-          {
-            m_childtitle: "carousel",
-            m_childlink: "carousel",
-          },
-          {
-            m_childtitle: "dropdown",
-            m_childlink: "dropdown",
-          },
-          {
-            m_childtitle: "image",
-            m_childlink: "image",
-          },
-          {
-            m_childtitle: "modal",
-            m_childlink: "modal",
-          },
-          {
-            m_childtitle: "Progress bar",
-            m_childlink: "progress-bar",
-          },
-          {
-            m_childtitle: "Placeholder",
-            m_childlink: "placeholder",
-          },
+  //     {
+  //       megamenutitle: "Components",
+  //       megamenuicon: "heroicons-outline:user",
+  //       singleMegamenu: [
+  //         {
+  //           m_childtitle: "typography",
+  //           m_childlink: "typography",
+  //         },
+  //         {
+  //           m_childtitle: "colors",
+  //           m_childlink: "colors",
+  //         },
+  //         {
+  //           m_childtitle: "alert",
+  //           m_childlink: "alert",
+  //         },
+  //         {
+  //           m_childtitle: "button",
+  //           m_childlink: "button",
+  //         },
+  //         {
+  //           m_childtitle: "card",
+  //           m_childlink: "card",
+  //         },
+  //         {
+  //           m_childtitle: "carousel",
+  //           m_childlink: "carousel",
+  //         },
+  //         {
+  //           m_childtitle: "dropdown",
+  //           m_childlink: "dropdown",
+  //         },
+  //         {
+  //           m_childtitle: "image",
+  //           m_childlink: "image",
+  //         },
+  //         {
+  //           m_childtitle: "modal",
+  //           m_childlink: "modal",
+  //         },
+  //         {
+  //           m_childtitle: "Progress bar",
+  //           m_childlink: "progress-bar",
+  //         },
+  //         {
+  //           m_childtitle: "Placeholder",
+  //           m_childlink: "placeholder",
+  //         },
 
-          {
-            m_childtitle: "Tab & Accordion",
-            m_childlink: "tab-accordion",
-          },
-        ],
-      },
-      {
-        megamenutitle: "Forms",
-        megamenuicon: "heroicons-outline:user",
-        singleMegamenu: [
-          {
-            m_childtitle: "Input",
-            m_childlink: "input",
-          },
-          {
-            m_childtitle: "Input group",
-            m_childlink: "input-group",
-          },
-          {
-            m_childtitle: "Input layout",
-            m_childlink: "input-layout",
-          },
-          {
-            m_childtitle: "Form validation",
-            m_childlink: "form-validation",
-          },
-          {
-            m_childtitle: "Wizard",
-            m_childlink: "form-wizard",
-          },
-          {
-            m_childtitle: "Input mask",
-            m_childlink: "input-mask",
-          },
-          {
-            m_childtitle: "File input",
-            m_childlink: "file-input",
-          },
-          {
-            m_childtitle: "Form repeater",
-            m_childlink: "form-repeater",
-          },
-          {
-            m_childtitle: "Textarea",
-            m_childlink: "textarea",
-          },
-          {
-            m_childtitle: "Checkbox",
-            m_childlink: "checkbox",
-          },
-          {
-            m_childtitle: "Radio button",
-            m_childlink: "radio-button",
-          },
-          {
-            m_childtitle: "Switch",
-            m_childlink: "switch",
-          },
-        ],
-      },
-      {
-        megamenutitle: "Utility",
-        megamenuicon: "heroicons-outline:user",
-        singleMegamenu: [
-          {
-            m_childtitle: "Invoice",
-            m_childlink: "invoice",
-          },
-          {
-            m_childtitle: "Pricing",
-            m_childlink: "pricing",
-          },
+  //         {
+  //           m_childtitle: "Tab & Accordion",
+  //           m_childlink: "tab-accordion",
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       megamenutitle: "Forms",
+  //       megamenuicon: "heroicons-outline:user",
+  //       singleMegamenu: [
+  //         {
+  //           m_childtitle: "Input",
+  //           m_childlink: "input",
+  //         },
+  //         {
+  //           m_childtitle: "Input group",
+  //           m_childlink: "input-group",
+  //         },
+  //         {
+  //           m_childtitle: "Input layout",
+  //           m_childlink: "input-layout",
+  //         },
+  //         {
+  //           m_childtitle: "Form validation",
+  //           m_childlink: "form-validation",
+  //         },
+  //         {
+  //           m_childtitle: "Wizard",
+  //           m_childlink: "form-wizard",
+  //         },
+  //         {
+  //           m_childtitle: "Input mask",
+  //           m_childlink: "input-mask",
+  //         },
+  //         {
+  //           m_childtitle: "File input",
+  //           m_childlink: "file-input",
+  //         },
+  //         {
+  //           m_childtitle: "Form repeater",
+  //           m_childlink: "form-repeater",
+  //         },
+  //         {
+  //           m_childtitle: "Textarea",
+  //           m_childlink: "textarea",
+  //         },
+  //         {
+  //           m_childtitle: "Checkbox",
+  //           m_childlink: "checkbox",
+  //         },
+  //         {
+  //           m_childtitle: "Radio button",
+  //           m_childlink: "radio-button",
+  //         },
+  //         {
+  //           m_childtitle: "Switch",
+  //           m_childlink: "switch",
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       megamenutitle: "Utility",
+  //       megamenuicon: "heroicons-outline:user",
+  //       singleMegamenu: [
+  //         {
+  //           m_childtitle: "Invoice",
+  //           m_childlink: "invoice",
+  //         },
+  //         {
+  //           m_childtitle: "Pricing",
+  //           m_childlink: "pricing",
+  //         },
 
-          // {
-          //   m_childtitle: "Testimonial",
-          //   m_childlink: "testimonial",
-          // },
-          {
-            m_childtitle: "FAQ",
-            m_childlink: "faq",
-          },
-          {
-            m_childtitle: "Blank page",
-            m_childlink: "blank-page",
-          },
-          {
-            m_childtitle: "Blog",
-            m_childlink: "blog",
-          },
-          {
-            m_childtitle: "404 page",
-            m_childlink: "/404",
-          },
-          {
-            m_childtitle: "Coming Soon",
-            m_childlink: "/coming-soon",
-          },
-          {
-            m_childtitle: "Under Maintanance page",
-            m_childlink: "/under-construction",
-          },
-        ],
-      },
-    ],
-  },
+  //         // {
+  //         //   m_childtitle: "Testimonial",
+  //         //   m_childlink: "testimonial",
+  //         // },
+  //         {
+  //           m_childtitle: "FAQ",
+  //           m_childlink: "faq",
+  //         },
+  //         {
+  //           m_childtitle: "Blank page",
+  //           m_childlink: "blank-page",
+  //         },
+  //         {
+  //           m_childtitle: "Blog",
+  //           m_childlink: "blog",
+  //         },
+  //         {
+  //           m_childtitle: "404 page",
+  //           m_childlink: "/404",
+  //         },
+  //         {
+  //           m_childtitle: "Coming Soon",
+  //           m_childlink: "/coming-soon",
+  //         },
+  //         {
+  //           m_childtitle: "Under Maintanance page",
+  //           m_childlink: "/under-construction",
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
 
-  {
-    title: "Widgets",
-    icon: "heroicons-outline:view-grid-add",
-    link: "form-elements",
-    child: [
-      {
-        childtitle: "Basic",
-        childlink: "basic",
-        childicon: "heroicons-outline:document-text",
-      },
-      {
-        childtitle: "Statistic",
-        childlink: "statistic",
-        childicon: "heroicons-outline:document-text",
-      },
-    ],
-  },
+  // {
+  //   title: "Widgets",
+  //   icon: "heroicons-outline:view-grid-add",
+  //   link: "form-elements",
+  //   child: [
+  //     {
+  //       childtitle: "Basic",
+  //       childlink: "basic",
+  //       childicon: "heroicons-outline:document-text",
+  //     },
+  //     {
+  //       childtitle: "Statistic",
+  //       childlink: "statistic",
+  //       childicon: "heroicons-outline:document-text",
+  //     },
+  //   ],
+  // },
 
-  {
-    title: "Extra",
-    icon: "heroicons-outline:template",
+  // {
+  //   title: "Extra",
+  //   icon: "heroicons-outline:template",
 
-    child: [
-      {
-        childtitle: "Basic Table",
-        childlink: "table-basic",
-        childicon: "heroicons-outline:table",
-      },
-      {
-        childtitle: "Advanced table",
-        childlink: "table-advanced",
-        childicon: "heroicons-outline:table",
-      },
-      {
-        childtitle: "Apex chart",
-        childlink: "appex-chart",
-        childicon: "heroicons-outline:chart-bar",
-      },
-      {
-        childtitle: "Chart js",
-        childlink: "chartjs",
-        childicon: "heroicons-outline:chart-bar",
-      },
-      {
-        childtitle: "Map",
-        childlink: "map",
-        childicon: "heroicons-outline:map",
-      },
-    ],
-  },
+  //   child: [
+  //     {
+  //       childtitle: "Basic Table",
+  //       childlink: "table-basic",
+  //       childicon: "heroicons-outline:table",
+  //     },
+  //     {
+  //       childtitle: "Advanced table",
+  //       childlink: "table-advanced",
+  //       childicon: "heroicons-outline:table",
+  //     },
+  //     {
+  //       childtitle: "Apex chart",
+  //       childlink: "appex-chart",
+  //       childicon: "heroicons-outline:chart-bar",
+  //     },
+  //     {
+  //       childtitle: "Chart js",
+  //       childlink: "chartjs",
+  //       childicon: "heroicons-outline:chart-bar",
+  //     },
+  //     {
+  //       childtitle: "Map",
+  //       childlink: "map",
+  //       childicon: "heroicons-outline:map",
+  //     },
+  //   ],
+  // },
 ];
 
 import User1 from "@/assets/images/all-img/user.png";

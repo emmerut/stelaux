@@ -19,7 +19,7 @@ const Ecommerce = () => {
   const [filterMap, setFilterMap] = useState("usa");
   return (
     <div>
-      <HomeBredCurbs title="Ecommerce" />
+      <HomeBredCurbs title="StelaUX Tablero Principal" />
       <div className="grid grid-cols-12 gap-5 mb-5">
         <div className="2xl:col-span-3 lg:col-span-4 col-span-12">
           <ImageBlock2 />
@@ -76,11 +76,10 @@ const Ecommerce = () => {
               <div className="border border-slate-200 dark:border-slate-700 dark:bg-slate-900 rounded p-1 flex items-center">
                 <span
                   className={` flex-1 text-sm font-normal px-3 py-1 transition-all duration-150 rounded cursor-pointer
-                ${
-                  filterMap === "global"
-                    ? "bg-slate-900 text-white dark:bg-slate-700 dark:text-slate-300"
-                    : "dark:text-slate-300"
-                }  
+                ${filterMap === "global"
+                      ? "bg-slate-900 text-white dark:bg-slate-700 dark:text-slate-300"
+                      : "dark:text-slate-300"
+                    }  
                 `}
                   onClick={() => setFilterMap("global")}
                 >
@@ -88,11 +87,10 @@ const Ecommerce = () => {
                 </span>
                 <span
                   className={` flex-1 text-sm font-normal px-3 py-1 rounded transition-all duration-150 cursor-pointer
-                  ${
-                    filterMap === "usa"
+                  ${filterMap === "usa"
                       ? "bg-slate-900 text-white dark:bg-slate-700 dark:text-slate-300"
                       : "dark:text-slate-300"
-                  }
+                    }
               `}
                   onClick={() => setFilterMap("usa")}
                 >

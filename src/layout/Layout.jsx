@@ -54,11 +54,10 @@ const Layout = () => {
       )}
 
       <MobileMenu
-        className={`${
-          width < breakpoints.xl && mobileMenu
+        className={`${width < breakpoints.xl && mobileMenu
             ? "left-0 visible opacity-100  z-[9999]"
             : "left-[-300px] invisible opacity-0  z-[-999] "
-        }`}
+          }`}
       />
       {/* mobile menu overlay*/}
       {width < breakpoints.xl && mobileMenu && (
@@ -69,9 +68,8 @@ const Layout = () => {
       )}
       <Settings />
       <div
-        className={`content-wrapper transition-all duration-150 ${
-          width > 1280 ? switchHeaderClass() : ""
-        }`}
+        className={`content-wrapper transition-all duration-150 ${width > 1280 ? switchHeaderClass() : ""
+          }`}
       >
         {/* md:min-h-screen will h-full*/}
         <div className="page-content   page-min-height  ">
