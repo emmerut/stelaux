@@ -1,0 +1,78 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# C extensions
+*.pyd
+
+# Distribution / packaging
+.eggs/
+dist/
+build/
+develop-eggs/
+sdist/
+pip-egg-info/
+*.egg-info/
+
+# Django
+local_settings.py
+db.sqlite3
+*.sqlite3
+
+# Flask
+instance/
+.webassets-cache
+
+# Scrapy
+.scrapy/
+
+# Sphinx
+docs/_build/
+
+# Celery
+celerybeat-schedule
+celeryd-schedule
+
+# Supervisor
+supervisord.conf
+supervisord.pid
+
+# Environment variables
+.env
+.venv/
+env/
+venv/
+.python-version
+.ropeproject
+
+# Jupyter notebook
+.ipynb_checkpoints
+
+# PyCharm
+*.idea/
+.idea/workspace.xml
+.idea/modules.xml
+.idea/vcs.xml
+
+# Miscellaneous
+*.swp
+*.bak
+*.tmp
+*.log
+*.pot
+*.mo
+*~
+*.DS_Store
+
+# Editor configuration files
+*.sublime-project
+*.sublime-workspace
+
+# Unit tests
+coverage.xml
+.coverage
+.pytest_cache
+
+# Pipenv
+Pipfile.lock
