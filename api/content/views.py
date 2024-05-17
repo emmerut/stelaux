@@ -11,10 +11,14 @@ from .serializers import (
     CategorySerializer
 )
 
+CONTENT_TYPES = [
+    'article', 'static_page', 'gallery', 'video', 'image', 'category'
+]
+
 class ContentViewSet(viewsets.ViewSet):
     
     @action(detail=False, methods=['get'])
-    def list_all(self, request):
+    def list_content_all(self, request):
         
         articles = Article.objects.all()
         static_pages = StaticPage.objects.all()
@@ -36,16 +40,55 @@ class ContentViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'])
     def create_content(self, request):
         content_type = request.data.get('content_type')
+
+        if content_type not in CONTENT_TYPES:
+            return Response(
+                {'error': f'Tipo de contenido inválido. Debe ser uno de: {CONTENT_TYPES}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = self._get_serializer(content_type, data=request.data)
+
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['delete'])
-    def delete_content(self, request):  
+    @action(detail=False, methods=['put'])
+    def update_content(self, request):
         content_type = request.data.get('content_type')
         content_id = request.data.get('id')
+
+        if content_type not in CONTENT_TYPES:
+            return Response(
+                {'error': f'Tipo de contenido inválido. Debe ser uno de: {CONTENT_TYPES}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            model = self._get_model(content_type)
+            instance = model.objects.get(pk=content_id)
+            serializer = self._get_serializer(content_type, instance=instance, data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'error': 'Content not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['delete'])
+    def delete_content(self, request):
+        content_type = request.data.get('content_type')
+        content_id = request.data.get('id')
+
+        if content_type not in CONTENT_TYPES:
+            return Response(
+                {'error': f'Tipo de contenido inválido. Debe ser uno de: {CONTENT_TYPES}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             model = self._get_model(content_type)
