@@ -9,6 +9,8 @@ import { m } from "framer-motion";
 
 // Components
 import { fadeIn, zoomIn } from '../../functions/GlobalAnimations';
+import EditorButton from '../../components/business/Button/EditorButton';
+import StelaEditor from '../../components/sidebar/StelaEditor';
 import Buttons from '../../components/business/Button/Buttons'
 import InteractiveBanners02 from '../../components/business/InteractiveBanners/InteractiveBanners02';
 import Clients from '../../components/business/Clients/Clients';
@@ -157,10 +159,14 @@ const CounterData = [
   },
 ]
 
-// Filter the blog data category wise
 const blogClassicdData = blogData.filter((item) => item.blogType === "classic").filter(item => item.category.includes("business"));
 
 const HomeBusinessPage = (props) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
   return (
     <div style={props.style}>
       <SideButtons />
@@ -210,8 +216,13 @@ const HomeBusinessPage = (props) => {
       </Header>
       {/* Header End */}
 
+      {/* Sidebar Start */}
+      <StelaEditor isOpen={isOpen} toggleSidebar={toggleSidebar} />
+      {/* Sidebar End */}
+
       {/* Section Start */}
       <section className="full-screen md:h-[600px] sm:h-[500px]">
+        <EditorButton onClick={toggleSidebar} />
         <Swiper
           className="slider-nav-dark white-move swiper-pagination-03 swiper-pagination-light swiper-pagination-large h-[100vh]"
           modules={[Pagination, Autoplay]}
@@ -248,6 +259,7 @@ const HomeBusinessPage = (props) => {
 
       {/* Section Start */}
       <section className="py-[160px] overflow-hidden lg:py-[120px] md:py-[95px] sm:py-[80px] xs:py-[50px]">
+      <EditorButton onClick={toggleSidebar} />
         <Container>
           <Row className="justify-center">
             <m.div className="col-xl-3 col-lg-4 col-sm-7 flex flex-col md:mb-24" {...{ ...fadeIn, transition: { delay: 0.2 } }}>
@@ -271,6 +283,7 @@ const HomeBusinessPage = (props) => {
       <InViewPort>
         {/* Section Start */}
         <section className="py-[130px] lg:py-[90px] md:py-[75px] sm:[50px] bg-[#f7f8fc] overflow-hidden">
+        <EditorButton onClick={toggleSidebar} />
           <Container>
             <Row className="justify-center">
               <m.div className="col-xl-5 col-lg-6 col-md-8 col-sm-7 mb-20 text-center md:mb-[60px] sm:[44px]" {...fadeIn}>
@@ -298,6 +311,7 @@ const HomeBusinessPage = (props) => {
 
         {/* Section Start */}
         <section className="py-[130px] lg:py-[90px] home-business-piechart md:py-[75px] sm:[50px]">
+        <EditorButton onClick={toggleSidebar} />
           <Container>
             <Row className="justify-center md:block">
               <Col lg={5} sm={9} className="text-left flex-col items-start flex md:text-center md:my-0 md:mx-auto md:mb-[70px] md:items-center sm:mb-[65px]">
@@ -328,6 +342,7 @@ const HomeBusinessPage = (props) => {
         <hr />
         {/* Section Start */}
         <m.section className="py-[130px] lg:py-[90px] md:py-[75px] sm:py-[50px]" {...fadeIn}>
+        <EditorButton onClick={toggleSidebar} />
           <Container>
             <Tab01 data={TabData01} />
           </Container>
@@ -336,6 +351,7 @@ const HomeBusinessPage = (props) => {
 
         {/* Section Start */}
         <section className="py-[130px] lg:py-[90px] md:py-[75px] sm:py-[50px] bg-[#f7f8fc]">
+        <EditorButton onClick={toggleSidebar} />
           <Container>
             <Row className="justify-center">
               <m.div className="col-xl-6 col-lg-7 col-sm-8 mb-20 text-center w-[51%] xl:mb-[70px] lg:mb-[65px] md:mb-[60px] sm:mb-[55px] md:w-[68%] xs:w-full" {...fadeIn}>
@@ -357,6 +373,7 @@ const HomeBusinessPage = (props) => {
           className="py-[160px] lg:py-[120px] md:py-[95px] sm:py-[80px] xs:py-[50px] relative bg-cover bg-center"
           style={{ backgroundImage: `url("https://via.placeholder.com/1920x1100")` }}
         >
+          <EditorButton onClick={toggleSidebar} />
           <div className="absolute top-0 left-0 w-full h-full opacity-60 bg-darkslateblue"></div>
           <Container className="relative">
             <Row className="justify-center text-center">
@@ -390,6 +407,7 @@ const HomeBusinessPage = (props) => {
 
         {/* Section Start */}
         <section className="py-[100px] lg:py-[90px] md:py-[75px]">
+        <EditorButton onClick={toggleSidebar} />
           <Container className="text-center">
             <Counter
               as="h4"
@@ -406,6 +424,7 @@ const HomeBusinessPage = (props) => {
 
         {/* Section Start */}
         <section className="bg-[#f7f8fc] py-[130px] lg:py-[90px] md:py-[75px] sm:[50px]">
+        <EditorButton onClick={toggleSidebar} />
           <Container>
             <Row className="justify-center">
               <m.div className="col-xl-5 col-lg-6 col-sm-8 mb-20 text-center" {...fadeIn}>
@@ -430,6 +449,7 @@ const HomeBusinessPage = (props) => {
         <hr />
         {/* Section Start */}
         <section className="bg-[#f7f8fc] py-[100px] lg:py-[90px] md:py-[75px]">
+        <EditorButton onClick={toggleSidebar} />
           <Container>
             <Row className="justify-center">
               <Col lg={11}>
@@ -442,6 +462,7 @@ const HomeBusinessPage = (props) => {
 
         {/* Section Start */}
         <section className="py-[130px] lg:py-[90px] md:py-[75px] sm:py-[50px]">
+        <EditorButton onClick={toggleSidebar} />
           <Container>
             <Row className="justify-center">
               <m.div className="col-xl-5 col-lg-6 col-sm-8 mb-16 text-center" {...fadeIn}>
