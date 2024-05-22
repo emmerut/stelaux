@@ -1,11 +1,37 @@
 import styled from 'styled-components';
+import SliderForm from '../business/Form/SliderFormV1';
+import InfoCard from '../business/Form/InfoCardsV1';
+import ExperienceForm from '../business/Form/ExperienceFormV1';
+import AboutForm from '../business/Form/AboutFormV1';
+import PortFolioForm from '../business/Form/PortfolioFormV1';
+import ContentForm from '../business/Form/ContentFormV1';
+import SimpleContentForm from '../business/Form/SimpleContentFormV1';
+import formsetContentForm from '../business/Form/FormsetContentFormV1';
+import formsetContentFormv2 from '../business/Form/FormsetContentFormV2';
+
+
+
+
+
+const forms = {
+  'sliderForm': SliderForm,
+  'infoCard': InfoCard,
+  'experienceForm': ExperienceForm,
+  'aboutFormv1': AboutForm,
+  'portfolioForm': PortFolioForm,
+  'contentForm': ContentForm,
+  'simpleContentForm': SimpleContentForm,
+  'formsetContentForm': formsetContentForm,
+  'formsetContentFormv2': formsetContentFormv2,
+
+};
 
 const SidebarContainer = styled.div`
   position: fixed;
   top: 0;
   right: 0;
   height: 100vh;
-  width: ${props => props.isOpen ? '350px' : '0px'};
+  width: ${props => props.isOpen ? '450px' : '0px'};
   background-color: rgba(240, 240, 240, 0.8); // Transparencia suave 
   box-shadow: -5px 0px 10px rgba(0, 0, 0, 0.2);
   transition: width 0.3s ease-in-out;
@@ -23,6 +49,30 @@ const SidebarContent = styled.div`
   opacity: ${props => props.isOpen ? 1 : 0}; /* Accede a isOpen desde las props */
   transition: opacity ${props => props.isOpen ? '0.3s ease-in' : '0 ease-out'};  
   transition-delay: ${props => props.isOpen ? '0.3s' : '0s'}; 
+  height: 100%;
+`;
+
+const ScrollableContent = styled.div`
+  overflow-y: auto;
+  height: calc(100% - 60px); // Ajusta la altura restando el padding de SidebarContent
+
+  /* Estilos para la barra de desplazamiento */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888; 
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+  }
 `;
 
 const CloseButton = styled.button`
@@ -35,16 +85,19 @@ const CloseButton = styled.button`
   cursor: pointer;
 `;
 
-const RightSidebar = ({ isOpen, toggleSidebar }) => {
-  
+const RightSidebar = ({ isOpen, toggleSidebar, formID }) => {
+  const ActiveForm = forms[formID];
   return (
     <>
       <SidebarContainer isOpen={isOpen}>
         <CloseButton onClick={toggleSidebar}>×</CloseButton>
         <SidebarContent isOpen={isOpen}>
           {/* Aquí va el contenido del sidebar */}
-          <h2>Título del Sidebar</h2>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin a lacus et risus laoreet fermentum. Donec ullamcorper, sapien in tincidunt consectetur, tortor sapien elementum lectus, in semper libero sapien ac dui.</p>
+          <h5 className='font-oxanium text-center font-bold text-shadow text-slate-100'>Stela Editor</h5> 
+          <ScrollableContent>
+            {/* Contenido del sidebar */}
+            {ActiveForm && <ActiveForm />}
+          </ScrollableContent>
         </SidebarContent>
       </SidebarContainer>
     </>

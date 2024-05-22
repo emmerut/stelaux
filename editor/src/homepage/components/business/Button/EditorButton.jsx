@@ -10,7 +10,7 @@ const StyledButton = styled.button`
   position: absolute;
   top: 20vh;
   right: 10vw;
-  z-index: 2;
+  z-index: 11;
   border: none;
   background-color: #2f1875; 
   padding: 15px; 
@@ -30,10 +30,13 @@ const StyledButton = styled.button`
     }
 `;
 
-const FloatingButton = ({ onClick }) => {
+const FloatingButton = ({ onClick, formID }) => {
+  const handleClick = () => {
+    onClick(formID);
+  };
   return (
     <ButtonContainer>
-      <StyledButton onClick={onClick}>
+      <StyledButton onClick={handleClick}>
         <PiMagicWandFill size={24} /> {/* Usa el ícono aquí */}
       </StyledButton>
     </ButtonContainer>

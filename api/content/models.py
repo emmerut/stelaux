@@ -3,9 +3,20 @@ from django.utils.text import slugify
 from django.urls import reverse
 
 class ContentBase(models.Model):
+    sections = (
+        ("No Data", "No Data"),
+        ("About V1", "About V1"),
+        ("Content V1", "Content V1"),
+        ("Experience V1", "Experience V1"),
+        ("Info Cards V1", "Info Cards V1"),
+        ("Portfolio V1", "Portfolio V1"),
+        ("Simple Content V1", "Simple Content V1"),
+        ("Slider V1", "Slider V1"),
+    )
     title = models.CharField(max_length=255, verbose_name="Title")
     slug = models.SlugField(unique=True, max_length=255, editable=False)
     content = models.TextField(verbose_name="Content")
+    section = models.CharField(max_length=255, choices=sections, default="No Data")
     main_image = models.ImageField(upload_to="content_images", blank=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)

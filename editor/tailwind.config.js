@@ -13,6 +13,8 @@ module.exports = {
     fontFamily: {
       sans: ['Roboto', 'sans-serif'],
       serif: ['Poppins', 'sans-serif'],
+      oxanium: ['Oxanium', 'sans-serif'],
+      
     },
     fontSize: {
       base: ['15px', '30px'],
