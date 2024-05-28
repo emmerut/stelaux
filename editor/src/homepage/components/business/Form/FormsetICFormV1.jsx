@@ -3,7 +3,7 @@ import { Formik, Form, FieldArray, ErrorMessage } from 'formik';
 import { homepageData } from '../../../data/homepageData';
 
 // Asumiendo que tienes estos componentes definidos
-import { Input } from './Form';
+import { Input, SelectInput } from './Form';
 import Buttons from '../Button/Buttons';
 
 const MyForm = () => {
@@ -17,7 +17,7 @@ const MyForm = () => {
         const fetchData = async () => {
             try {
                 const homepageDataResult = await homepageData();
-                let parent = homepageDataResult.base.filter(item => item.component === 'infocardsV2');
+                let parent = homepageDataResult.base.filter(item => item.component === 'infocards');
                 if (parent.length === 1) {
                     parent = parent[0];
 
@@ -48,12 +48,13 @@ const MyForm = () => {
         const formData = new FormData();
         formData.append('parent_id', values.inputs.parent.id);
         formData.append('parent_type', 'content_base')
-        formData.append('title', values.inputs.parent.title);
-        formData.append('component', 'infocardsV2');
+        formData.append('component', 'infocardsV1');
+        
         values.inputs.child.forEach((input, index) => {
             formData.append(`inputs[${index}][id]`, input.id);
             formData.append(`inputs[${index}][title_bullet]`, input.title_bullet);
             formData.append(`inputs[${index}][content_bullet]`, input.content_bullet);
+            formData.append(`inputs[${index}][icons]`, input.icons);
             formData.append(`inputs[${index}][content_type]`, 'info_component');
         });
         const formDataObject = {};
@@ -73,7 +74,7 @@ const MyForm = () => {
                 throw new Error(`Error en la solicitud: ${res.status}`);
             }
             const homepageDataResult = await homepageData();
-            let parent = homepageDataResult.base.filter(item => item.component === 'infocardsV2');
+            let parent = homepageDataResult.base.filter(item => item.component === 'infocardsV1');
             if (parent.length === 1) {
                 parent = parent[0];
 
@@ -85,7 +86,7 @@ const MyForm = () => {
                 formikObj.push(child);
                 setData(formikObj)
             } else {
-                console.warn("No 'infocards' component found!");
+                console.warn("No 'infocardsV1' component found!");
             }
 
         } catch (error) {
@@ -94,37 +95,34 @@ const MyForm = () => {
             setIsLoadingForm(false);
         }
     };
-
     const initialValues = {
         inputs: dataForm?.length > 0
             ? { parent: dataForm[0], child: dataForm[1] }
-            : { parent: [{ id: '', title: '' }], child: [{ title_bullet: '', content_bullet: '', content_type: 'infocardsV2' }] },
+            : { parent: { id: '' }, child: [{ title_bullet: '', content_bullet: '', icons: '', content_type: 'info_component' }] },
     };
-
 
     const validate = (values) => {
         let errors = {};
 
-        if (!values.inputs.parent.title) {
-            errors['inputs.parent.title'] = 'El campo Título es requerido';
-        }
-
         values.inputs.child.forEach((input, index) => {
             if (!input.title_bullet) {
                 errors[`inputs.child.${index}.title_bullet`] = 'El campo título es requerido';
-            } else if (input.title_bullet.length > 30) {
-                errors[`inputs.child.${index}.title_bullet`] = 'El título no puede exceder los 30 caracteres';
+            } else if (input.title_bullet.length > 20) {
+                errors[`inputs.child.${index}.title_bullet`] = 'El título no puede exceder los 20 caracteres';
             }
 
             if (!input.content_bullet) {
-                errors[`inputs.child.${index}.content_bullet`] = 'El campo subtítulo es requerido';
-            } else if (input.content_bullet.length > 50) {
-                errors[`inputs.child.${index}.content_bullet`] = 'El subtítulo no puede exceder los 50 caracteres';
+                errors[`inputs.child.${index}.content_bullet`] = 'El campo contenido es requerido';
+            } else if (input.content_bullet.length > 30) {
+                errors[`inputs.child.${index}.content_bullet`] = 'El contenido no puede exceder los 30 caracteres';
+            }
+            if (!input.icons) {
+                errors[`inputs.child.${index}.icons`] = 'Por favor, seleccione una opción del menú desplegable.';
             }
         });
 
-        if (values.inputs.child.length < 2) {
-            errors.inputs = 'Se necesitan al menos 2 formsets';
+        if (values.inputs.child.length < 3) {
+            errors.inputs = 'Se necesitan al menos 3 formsets';
         }
         return errors;
     };
@@ -149,7 +147,7 @@ const MyForm = () => {
                 throw new Error(`Error en la solicitud: ${res.status}`);
             }
             const homepageDataResult = await homepageData();
-            let parent = homepageDataResult.base.filter(item => item.component === 'infocardsV2');
+            let parent = homepageDataResult.base.filter(item => item.component === 'infocardsV1');
             if (parent.length === 1) {
                 parent = parent[0];
 
@@ -161,7 +159,7 @@ const MyForm = () => {
                 formikObj.push(child);
                 setData(formikObj)
             } else {
-                console.warn("No 'infocards' component found!");
+                console.warn("No 'infocardsV1' component found!");
             }
 
         } catch (error) {
@@ -170,6 +168,14 @@ const MyForm = () => {
             setIsLoadingForm(false);
         }
     }
+
+    const options = [
+        { value: '', label: 'Elige un Icono', disabled: true },
+        { value: 'line-icon-Cursor-Click2 text-[#27ae60]', label: 'Click' },
+        { value: 'line-icon-Bakelite text-[#27ae60]', label: 'Locker' },
+        { value: 'line-icon-Boy text-[#27ae60]', label: 'User' },
+    ];
+
     return (
         <div>
             {isLoadingForm && (
@@ -184,23 +190,13 @@ const MyForm = () => {
                     validate={validate}
                 >
                     {({ values, errors }) => (
-                        
                         <Form className="mb-5">
                             <h3 className="text-lg text-center font-bold text-slate-800 font-oxanium">
-                                Objetivo: Llenar Imagenes y Experiencia (Requerido)
+                                Objetivo: Llenar datos para Infocards (Requerido)
                             </h3>
                             {errors.inputs && (
                                 <div className="text-red-500 text-xs mt-1 text-center">
                                     {errors.inputs}
-                                </div>
-                            )}
-                            <Input
-                                name='inputs.parent.title'
-                                label={`Título Principal`}
-                            />
-                            {errors['inputs.parent.title'] && (
-                                <div className="text-red-500 text-xs mt-1">
-                                    {errors['inputs.parent.title']}
                                 </div>
                             )}
                             <FieldArray name="inputs.child">
@@ -209,7 +205,17 @@ const MyForm = () => {
                                         {values.inputs.child.map((input, index) => (
 
                                             <div key={index}>
-
+                                                <SelectInput
+                                                    label={`Icono ${index + 1}`}
+                                                    name={`inputs.child.${index}.icons`}
+                                                    options={options}
+                                                    showErrorMsg={true}
+                                                />
+                                                {errors[`inputs.child.${index}.icons`] && (
+                                                    <div className="text-red-500 text-xs mt-1">
+                                                        {errors[`inputs.child.${index}.icons`]}
+                                                    </div>
+                                                )}
                                                 <Input
                                                     name={`inputs.child.${index}.title_bullet`}
                                                     label={`Info title ${index + 1}`}
@@ -229,10 +235,11 @@ const MyForm = () => {
                                                     </div>
                                                 )}
                                                 <button type="button" onClick={() => {
-                                                    if (values.inputs.child.length < 2) {
+                                                    if (values.inputs.child.length < 3) {
                                                         push({
                                                             title_bullet: '',
                                                             content_bullet: '',
+                                                            icons: '',
                                                             content_type: 'info_component'
                                                         });
                                                     }

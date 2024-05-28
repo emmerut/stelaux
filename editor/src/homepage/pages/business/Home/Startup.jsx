@@ -164,20 +164,23 @@ const logoData = {
 const Footer_Data = [FooterData[0], FooterData[1], FooterData[4], FooterData[3]]
 
 const HomeStartupPage = (props) => {
-  
+  const [activeFormKey, setActiveFormKey] = React.useState(0);
   const [isOpen, setIsOpen] = React.useState(false);
   const [formActive, setFormActive] = React.useState(null);
-
+  const [section, setSection] = React.useState(null);
+  
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
-  const switchForm = (id) => {
+  const switchForm = (id, section) => {
     setFormActive(id);
+    setSection(section)
     
     if (!isOpen) { 
       setIsOpen(true);
     }
+    setActiveFormKey(activeFormKey + 1); 
   };
 
   const sliderDataV1 = null ? props.dataContent.articles.filter(item => item.title === 'TEST') : []; 
@@ -273,7 +276,7 @@ const HomeStartupPage = (props) => {
 
       <SideButtons />
       {/* Sidebar Start */}
-      <StelaEditor isOpen={isOpen} toggleSidebar={toggleSidebar} formID={formActive} />
+      <StelaEditor isOpen={isOpen} toggleSidebar={toggleSidebar} formID={formActive} activeFormKey={activeFormKey} section={section} />
       {/* Sidebar End */}
       {/* Section Start */}
       <EditorButton onClick={() => switchForm('formsetMCFormV1')} />
@@ -357,7 +360,7 @@ const HomeStartupPage = (props) => {
             </m.div>
             <Row>
               <m.div className="col mt-32 w-full md:mt-24 home-startup-interactivebanner" {...fadeIn}>
-              <EditorButton onClick={() => switchForm('formsetContentFormv2')} />
+              <EditorButton onClick={() => switchForm('portfolioForm')} />
                 <InteractiveBanners02
                   grid="opacity-100"
                   carousalOption={{
@@ -378,7 +381,7 @@ const HomeStartupPage = (props) => {
 
         {/* Section Start */}
         <section className="bg-lightgray py-[130px] lg:py-[90px] md:py-[75px] sm:py-[50px] text-center">
-        <EditorButton onClick={() => switchForm('simpleContentForm')} />
+        <EditorButton onClick={() => switchForm('simpleContentForm', 'products_section')} />
           <Container>
             <m.div className="text-center justify-center row" {...fadeIn}>
               <span className="font-serif text-xmd text-basecolor block mb-[20px] font-medium sm:m-[10px]">Amazing design services</span>
@@ -398,7 +401,7 @@ const HomeStartupPage = (props) => {
 
         {/* Section Start */}
         <section className="py-[130px] lg:py-[90px] md:py-[75px] sm:py-[50px] overflow-hidden startup-processstep">
-        <EditorButton onClick={() => switchForm('formsetContentForm')} />
+        <EditorButton onClick={() => switchForm('formsetStepsV1')} />
           <Container>
             <Row className="items-center justify-center">
               <Col xl={5} lg={6} md={10}>
@@ -418,7 +421,7 @@ const HomeStartupPage = (props) => {
 
         {/* Section Start */}
         <section className="pb-[105px] pt-[40px] lg:pb-[90px] md:pb-[75px] md:pt-0 sm:py-[50px] text-center">
-        <EditorButton onClick={() => switchForm('simpleContentForm')} />
+        <EditorButton onClick={() => switchForm('simpleContentForm', 'pricing_section')} />
           <Container>
             <Row className="justify-center">
               <Col xl={5} lg={6} sm={7}>
@@ -454,7 +457,7 @@ const HomeStartupPage = (props) => {
 
         {/* Section Start */}
         <section className="py-32 p-[130px] bg-lightgray lg:px-[2%] lg:py-[95px] md:py-[75px] sm:py-[50px] sm:px-0 xs:px-0">
-        <EditorButton onClick={() => switchForm('simpleContentForm')} />
+        <EditorButton onClick={() => switchForm('simpleContentForm', 'blog_section')} />
           <Container>
             <Row className="justify-center">
               <Col lg={4} sm={6} className="text-center mb-12 md:mb-8">
@@ -471,7 +474,7 @@ const HomeStartupPage = (props) => {
 
         {/* Section Start */}
         <m.section className="py-[130px] lg:py-[90px] md:py-[75px] sm:py-[50px] cover-background overflow-visible" style={{ backgroundImage: "url(/assets/img/webp/home-startup-footer-top-bg.webp)" }} {...fadeIn}>
-        <EditorButton onClick={() => switchForm('simpleContentForm')} />
+        <EditorButton onClick={() => switchForm('simpleContentForm', 'newsletter_section')} />
           <Container>
             <Row className="justify-center">
               <Col md={10} lg={7} className="text-center">

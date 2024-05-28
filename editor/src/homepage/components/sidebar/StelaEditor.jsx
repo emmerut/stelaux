@@ -1,16 +1,12 @@
 import styled from 'styled-components';
 import SliderForm from '../business/Form/SliderFormV1';
-import InfoCardV1 from '../business/Form/FormsetICV1';
-import InfoCardV2 from '../business/Form/FormsetICV2';
+import InfoCardV1 from '../business/Form/FormsetICFormV1';
+import InfoCardV2 from '../business/Form/FormsetICFormV2';
 import ExperienceForm from '../business/Form/ExperienceFormV1';
-import AboutForm from '../business/Form/AboutFormV1';
 import PortFolioForm from '../business/Form/PortfolioFormV1';
-import ContentForm from '../business/Form/ContentFormV1';
 import SimpleContentForm from '../business/Form/SimpleContentFormV1';
 import formsetMCFormV1 from '../business/Form/FormsetMCFormV1';
-
-
-
+import formsetStepsV1 from '../business/Form/FormsetContentFormV1';
 
 
 const forms = {
@@ -18,13 +14,10 @@ const forms = {
   'infoCardV1': InfoCardV1,
   'infoCardV2': InfoCardV2,
   'experienceForm': ExperienceForm,
-  'aboutFormv1': AboutForm,
   'portfolioForm': PortFolioForm,
-  'contentForm': ContentForm,
   'simpleContentForm': SimpleContentForm,
   'formsetMCFormV1': formsetMCFormV1,
-
-
+  'formsetStepsV1': formsetStepsV1
 };
 
 const SidebarContainer = styled.div`
@@ -86,7 +79,7 @@ const CloseButton = styled.button`
   cursor: pointer;
 `;
 
-const RightSidebar = ({ isOpen, toggleSidebar, formID }) => {
+const RightSidebar = ({ isOpen, toggleSidebar, formID, activeFormKey, section }) => {
   const ActiveForm = forms[formID];
   return (
     <>
@@ -97,7 +90,7 @@ const RightSidebar = ({ isOpen, toggleSidebar, formID }) => {
           <h5 className='font-oxanium text-center font-bold text-shadow text-slate-100'>Stela Editor</h5> 
           <ScrollableContent>
             {/* Contenido del sidebar */}
-            {ActiveForm && <ActiveForm />}
+            {ActiveForm && <ActiveForm key={activeFormKey} section={section} />}
           </ScrollableContent>
         </SidebarContent>
       </SidebarContainer>

@@ -8,8 +8,9 @@ from django.urls import reverse
 class ContentBase(models.Model):
     title = models.CharField(max_length=255, verbose_name="Title", null=True)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
-    slug = models.SlugField(unique=True, max_length=255, editable=False, null=True)
     content = models.TextField(verbose_name="Content", blank=True, null=True)
+    tag = models.CharField(max_length=255, blank=True, null=True)
+    slug = models.SlugField(unique=True, max_length=255, editable=False, null=True)
     component = models.CharField(max_length=255, blank=True, null=True)
     main_image = models.ImageField(upload_to="stela-editor/main-image/", blank=True, null=True) 
     thumbnail = models.ImageField(upload_to="stela-editor/thumbnail/", blank=True, null=True)

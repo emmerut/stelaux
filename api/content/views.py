@@ -72,8 +72,6 @@ class ContentViewSet(viewsets.ViewSet):
             return parent.pk
         return None
 
-
-
     @action(detail=False, methods=['get'])
     def list_content_all(self, request):
         
@@ -132,7 +130,7 @@ class ContentViewSet(viewsets.ViewSet):
         if request.data.get('parent_type'):
             parent_type = request.data.get('parent_type')
             id = request.data.get('parent_id')
-            if id == 'undefined':
+            if id == 'undefined' or id == '':
                 id = None
             
             object_data = {
@@ -158,6 +156,7 @@ class ContentViewSet(viewsets.ViewSet):
                 'subtitle': request.data.get(f'inputs[{index}][subtitle]'),
                 'content': request.data.get(f'inputs[{index}][content]'),
                 'icons': request.data.get(f'inputs[{index}][icons]'),
+                'tag': request.data.get(f'inputs[{index}][tag]'),
                 'title_bullet': request.data.get(f'inputs[{index}][title_bullet]'),
                 'content_bullet': request.data.get(f'inputs[{index}][content_bullet]'),
                 'component': request.data.get(f'inputs[{index}][component]'),
@@ -190,19 +189,20 @@ class ContentViewSet(viewsets.ViewSet):
                     return Response({'error': 'Tipo de contenido no válido'}, status=status.HTTP_400_BAD_REQUEST)
 
                 object_data = {
-                    'title': request.data.get(f'inputs[{index}][title]'),
-                    'subtitle': request.data.get(f'inputs[{index}][subtitle]'),
-                    'content': request.data.get(f'inputs[{index}][content]'),
-                    'icons': request.data.get(f'inputs[{index}][icons]'),
-                    'title_bullet': request.data.get(f'inputs[{index}][title_bullet]'),
-                    'content_bullet': request.data.get(f'inputs[{index}][content_bullet]'),
-                    'component': request.data.get(f'inputs[{index}][component]'),
-                    'numbers': request.data.get(f'inputs[{index}][numbers]'),
-                    'author': request.data.get(f'inputs[{index}][author]'),
-                    'main_image': request.FILES.get(f'inputs[{index}][main_image]'),
-                    'video': request.FILES.get(f'inputs[{index}][video]'),
-                    'image': request.FILES.get(f'inputs[{index}][image]'),
-                    'file': request.FILES.get(f'inputs[{index}][file]'),
+                'title': request.data.get(f'inputs[{index}][title]'),
+                'subtitle': request.data.get(f'inputs[{index}][subtitle]'),
+                'content': request.data.get(f'inputs[{index}][content]'),
+                'icons': request.data.get(f'inputs[{index}][icons]'),
+                'tag': request.data.get(f'inputs[{index}][tag]'),
+                'title_bullet': request.data.get(f'inputs[{index}][title_bullet]'),
+                'content_bullet': request.data.get(f'inputs[{index}][content_bullet]'),
+                'component': request.data.get(f'inputs[{index}][component]'),
+                'numbers': request.data.get(f'inputs[{index}][numbers]'),
+                'author': request.data.get(f'inputs[{index}][author]'),
+                'main_image': request.FILES.get(f'inputs[{index}][main_image]'),
+                'video': request.FILES.get(f'inputs[{index}][video]'),
+                'image': request.FILES.get(f'inputs[{index}][image]'),
+                'file': request.FILES.get(f'inputs[{index}][file]'),
                 }
                 try:
                     instance = serializer_class.Meta.model.objects.get(pk=object_id)
