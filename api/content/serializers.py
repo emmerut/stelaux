@@ -1,14 +1,34 @@
 from rest_framework import serializers
-from .models import ContentBase, Article, StaticPage, Gallery, Video, Image, Category
-
-class ContentBaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContentBase
-        fields = '__all__'
+from .models import (
+    Article, 
+    StaticPage, 
+    Gallery, 
+    Video, 
+    Image, 
+    Category,
+    InfoComponent,
+    FileStorage,
+    Section
+) 
 
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
+        fields = '__all__'
+
+class ContentBaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = '__all__'
+
+class InfoComponentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InfoComponent
+        fields = '__all__'
+
+class FileStorageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FileStorage
         fields = '__all__'
 
 

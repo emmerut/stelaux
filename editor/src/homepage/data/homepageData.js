@@ -48,7 +48,7 @@ export const homepageData = async () => {
         for (const [key, value] of Object.entries(data)) {
             homepageData[key] = value;
         }
-
+    
         return homepageData;
     } catch (error) {
         console.error("Error al obtener los datos de la página de inicio:", error);

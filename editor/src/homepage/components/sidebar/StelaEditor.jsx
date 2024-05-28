@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 import SliderForm from '../business/Form/SliderFormV1';
-import InfoCard from '../business/Form/InfoCardsV1';
+import InfoCardV1 from '../business/Form/FormsetICV1';
+import InfoCardV2 from '../business/Form/FormsetICV2';
 import ExperienceForm from '../business/Form/ExperienceFormV1';
 import AboutForm from '../business/Form/AboutFormV1';
 import PortFolioForm from '../business/Form/PortfolioFormV1';
 import ContentForm from '../business/Form/ContentFormV1';
 import SimpleContentForm from '../business/Form/SimpleContentFormV1';
-import formsetContentForm from '../business/Form/FormsetContentFormV1';
-import formsetContentFormv2 from '../business/Form/FormsetContentFormV2';
+import formsetMCFormV1 from '../business/Form/FormsetMCFormV1';
 
 
 
@@ -15,14 +15,15 @@ import formsetContentFormv2 from '../business/Form/FormsetContentFormV2';
 
 const forms = {
   'sliderForm': SliderForm,
-  'infoCard': InfoCard,
+  'infoCardV1': InfoCardV1,
+  'infoCardV2': InfoCardV2,
   'experienceForm': ExperienceForm,
   'aboutFormv1': AboutForm,
   'portfolioForm': PortFolioForm,
   'contentForm': ContentForm,
   'simpleContentForm': SimpleContentForm,
-  'formsetContentForm': formsetContentForm,
-  'formsetContentFormv2': formsetContentFormv2,
+  'formsetMCFormV1': formsetMCFormV1,
+
 
 };
 

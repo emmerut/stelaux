@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Formik, Form } from 'formik';
 import axios from 'axios'; // Asegúrate de tener axios instalado
 
@@ -7,9 +7,10 @@ import { Input, FileInput } from './Form';
 import Buttons from '../Button/Buttons';
 
 const MyForm = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const handleSubmit = async (valores) => {
     console.log('Valores del formulario:', valores);
-
+    setIsLoading(true);
     const formData = new FormData();
     formData.append('titulo', valores.titulo);
     formData.append('subtitulo', valores.subtitulo);
@@ -24,6 +25,8 @@ const MyForm = () => {
       console.log(respuesta.data);
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
+    } finally {
+      setIsLoading(false); // Desactivar el loader al finalizar
     }
   };
 
@@ -38,11 +41,11 @@ const MyForm = () => {
         <Input name="subtitulo" label="Subtítulo" />
         <FileInput
           label="Subir Imagen"
-          name="imagen" 
-          helpText="Tamaño máximo del archivo: 1MB" 
+          name="imagen"
+          helpText="Tamaño máximo del archivo: 1MB"
           setFieldValue={(fieldName, selectedFile) => {
             // Actualiza el valor del campo 'imagen' en el estado de Formik
-            setFieldValue(fieldName, selectedFile); 
+            setFieldValue(fieldName, selectedFile);
           }}
         />
         <hr />
@@ -51,10 +54,10 @@ const MyForm = () => {
         <Input name="subtitulo" label="Subtítulo" />
         <FileInput
           label="Subir Imagen"
-          name="imagen" 
-          helpText="Tamaño máximo del archivo: 1MB" 
+          name="imagen"
+          helpText="Tamaño máximo del archivo: 1MB"
           setFieldValue={(fieldName, selectedFile) => {
-            setFieldValue(fieldName, selectedFile); 
+            setFieldValue(fieldName, selectedFile);
           }}
         />
         <hr />
@@ -63,10 +66,10 @@ const MyForm = () => {
         <Input name="subtitulo" label="Subtítulo" />
         <FileInput
           label="Subir Imagen"
-          name="imagen" 
-          helpText="Tamaño máximo del archivo: 1MB" 
+          name="imagen"
+          helpText="Tamaño máximo del archivo: 1MB"
           setFieldValue={(fieldName, selectedFile) => {
-            setFieldValue(fieldName, selectedFile); 
+            setFieldValue(fieldName, selectedFile);
           }}
         />
         <hr />
@@ -77,7 +80,8 @@ const MyForm = () => {
           themeColor={['#2f1875', '#2f1875']}
           size="md"
           color="#fff"
-          title="Guardar"
+          title={isLoading ? 'Guardando...' : 'Guardar'}
+          disabled={isLoading} 
         />
       </Form>
     </Formik>

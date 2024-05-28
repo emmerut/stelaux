@@ -5,9 +5,13 @@ import { LazyMotion, domMax, m } from 'framer-motion';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-const StartupPageBannerSlider = () => {
+const StartupPageBannerSlider = ({ data }) => {
     const [activeSlide, setActiveSlide] = useState(0)
-    const swiperData = [
+    const swiperData = data && data.length > 0 ? data.map(item => ({
+        img: "https://via.placeholder.com/1920x1100",
+        title: item.title, // Accedemos a item.title
+        subTitle: "The best way to promote your business"
+    })) : [
         {
             img: "https://via.placeholder.com/1920x1100",
             title: "Start your online business today",
@@ -23,8 +27,8 @@ const StartupPageBannerSlider = () => {
             title: "Delivering creative digital products",
             subTitle: "The best way to promote your business"
         },
-    ]
-
+    ]; 
+    
     return (
         <section className="bg-darkgray home-startup-swiper">
             <LazyMotion strict features={domMax}>

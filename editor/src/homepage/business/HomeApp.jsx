@@ -17,7 +17,7 @@ import "../static/business/css/styles.css"
 import "../../index.scss"
 
 function HomeApp() {
-  const [data, setData] = useState(null);
+  const [dataHome, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -42,7 +42,6 @@ function HomeApp() {
         setIsLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -64,7 +63,7 @@ function HomeApp() {
     <ThemeProvider>
       <RootLayout>
         <Routes>
-          <Route path="/" element={<HomePage dataContent={data} />} />
+          <Route path="/" element={<HomePage dataContent={dataHome} />} />
         </Routes>
       </RootLayout>
     </ThemeProvider>

@@ -164,6 +164,7 @@ const logoData = {
 const Footer_Data = [FooterData[0], FooterData[1], FooterData[4], FooterData[3]]
 
 const HomeStartupPage = (props) => {
+  
   const [isOpen, setIsOpen] = React.useState(false);
   const [formActive, setFormActive] = React.useState(null);
 
@@ -179,13 +180,7 @@ const HomeStartupPage = (props) => {
     }
   };
 
-  const aboutDataV1 = props.dataContent ? props.dataContent.filter(item => item.section === 'slider') : [];
-  const contentDataV1 = props.dataContent ? props.dataContent.filter(item => item.section === 'slider') : []; 
-  const experienceDataV1 = props.dataContent ? props.dataContent.filter(item => item.section === 'slider') : [];
-  const inforCardDataV1 = props.dataContent ? props.dataContent.filter(item => item.section === 'slider') : [];
-  const portfolioDataV1 = props.dataContent ? props.dataContent.filter(item => item.section === 'slider') : []; 
-  const simpleContentDataV1 = props.dataContent ? props.dataContent.filter(item => item.section === 'slider') : []; 
-  const sliderDataV1 = props.dataContent ? props.dataContent.filter(item => item.section === 'slider') : []; 
+  const sliderDataV1 = null ? props.dataContent.articles.filter(item => item.title === 'TEST') : []; 
   
   return (
     <div style={props.style}>
@@ -281,13 +276,13 @@ const HomeStartupPage = (props) => {
       <StelaEditor isOpen={isOpen} toggleSidebar={toggleSidebar} formID={formActive} />
       {/* Sidebar End */}
       {/* Section Start */}
-      <EditorButton onClick={() => switchForm('sliderForm')} />
-      <StartupPageBannerSlider {...sliderDataV1.length > 0 ? data={sliderDataV1} : null}  />
+      <EditorButton onClick={() => switchForm('formsetMCFormV1')} />
+      <StartupPageBannerSlider data={sliderDataV1.length > 0 ? sliderDataV1 : []}  />
       {/* Section End */}
 
       {/* Section Start */}
       <section className="bg-cover bg-center pb-[200px] lg:pb-[160px] md:py-[110px] sm:py-[50px] startup-iconwithtext" style={{ backgroundImage: "url(https://via.placeholder.com/1920x733)" }}>
-      <EditorButton onClick={() => switchForm('infoCard')} />
+      <EditorButton onClick={() => switchForm('infoCardV1')} />
         <Container>
           <div className="mb-[105px] md:mb-[70px] sm:mb-[50px]">
             <Overlap className="md:mt-0">
@@ -339,7 +334,7 @@ const HomeStartupPage = (props) => {
 
         {/* Section Start */}
         <section className="pb-[130px] lg:pb-[90px] md:pb-[75px] sm:py-[50px] overflow-hidden">
-        <EditorButton onClick={() => switchForm('aboutFormv1')} />
+        <EditorButton onClick={() => switchForm('infoCardV2')} />
           <Container>
             <m.div className="row justify-center" {...fadeIn}>
               <Col lg={5} sm={9} className="md:text-center md:mb-[40px] sm:mb[15px] xs:mb-[20px]">
