@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body::-webkit-scrollbar {
+        width: 10px; /* Ancho de la barra de desplazamiento */
+      }
+      
+      body::-webkit-scrollbar-track {
+        background: #f1f1f1; /* Color del fondo de la pista */
+      }
+      
+      body::-webkit-scrollbar-thumb {
+        background: #888; /* Color del pulgar de la barra de desplazamiento */
+        border-radius: 5px; /* Radio del borde del pulgar */
+      }
+      
+      body::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Color del pulgar al pasar el mouse */
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""
+    />
+    <title>Stela Control Dynamic</title>
+  </head>
+  <body class="font-inter bg-[#EEF1F9] custom-tippy dashcode-app">
+    <div id="root" class="h-full"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
