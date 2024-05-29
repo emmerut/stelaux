@@ -5,8 +5,6 @@ import { homepageData } from '../../../data/homepageData';
 // Asumiendo que tienes estos componentes definidos
 import { Input } from './Form';
 import Buttons from '../Button/Buttons';
-import { color } from 'framer-motion';
-import { data } from 'isotope-layout';
 
 const MyForm = ({ section }) => {
   const [dataForm, setData] = useState(null);
@@ -126,7 +124,7 @@ const MyForm = ({ section }) => {
           {({ values, errors }) => (
             <Form className="mb-5">
               <h3 className="text-lg text-center font-bold text-slate-800 font-oxanium">
-                Objetivo: Llenar Imagenes y Experiencia (Requerido)
+                Objetivo: Form Básico Título y Subtítulo (Requerido)
               </h3>
               <Input
                 name='inputs.parent.title'
