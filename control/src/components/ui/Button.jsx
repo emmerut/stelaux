@@ -1,6 +1,7 @@
 import React from "react";
 import Icon from "@/components/ui/Icon";
 import { Link } from "react-router-dom";
+
 function Button({
   text,
   type = "button",
@@ -15,7 +16,9 @@ function Button({
   link,
   onClick,
   div,
+  size = 'md' // Add size prop with default value 'md'
 }) {
+  console.log(size)
   return (
     <>
       {!link && !div && (
@@ -26,7 +29,7 @@ function Button({
             isLoading ? " pointer-events-none" : ""
           }
         ${disabled ? " opacity-40 cursor-not-allowed" : ""}
-        ${className}`}
+        ${className} ${size}`} // Add size class to the button
         >
           {/* if has children and not loading*/}
           {children && !isLoading && children}
@@ -83,11 +86,7 @@ function Button({
       {!link && div && (
         <div
           onClick={onClick}
-          className={`btn btn inline-flex justify-center   ${
-            isLoading ? " pointer-events-none" : ""
-          }
-        ${disabled ? " opacity-40 cursor-not-allowed" : ""}
-        ${className}`}
+          className={`border-[2px] border-solid btn-${props.size}${props.className ? ' ' + props.className : ''}${typeof (props.themeColor) === "object" ? " btn-gradient" : ""}${typeof (props.color) === "object" ? " text-gradient" : ""}`} // Add size class to the div
         >
           {/* if has children and not loading*/}
           {children && !isLoading && children}
@@ -148,7 +147,7 @@ function Button({
             isLoading ? " pointer-events-none" : ""
           }
         ${disabled ? " opacity-40 cursor-not-allowed" : ""}
-        ${className}`}
+        ${className} ${size}`} // Add size class to the link
         >
           {/* if has children and not loading*/}
           {children && !isLoading && children}

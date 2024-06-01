@@ -75,10 +75,32 @@ export const menuItems = [
   //   link: "kanban",
   // },
   {
-    title: "Post Pro",
+    title: "Finyx Contabilidad",
+    icon: "material-symbols:finance-rounded",
+    link: "#",
     isHide: true,
-    icon: "solar:posts-carousel-horizontal-bold-duotone",
-    link: "calender",
+    child: [
+      {
+        childtitle: "Transacciones",
+        childlink: "projects",
+      },
+      {
+        childtitle: "Libro Diario",
+        childlink: "project-details",
+      },
+      {
+        childtitle: "Libro Mayor",
+        childlink: "project-details",
+      },
+      {
+        childtitle: "Balances",
+        childlink: "project-details",
+      },
+      {
+        childtitle: "Configuración",
+        childlink: "project-details",
+      },
+    ],
   },
   {
     title: "Smart Marketing",
@@ -139,32 +161,10 @@ export const menuItems = [
     ],
   },
   {
-    title: "Finyx Contabilidad",
-    icon: "material-symbols:finance-rounded",
-    link: "#",
+    title: "Post Pro",
     isHide: true,
-    child: [
-      {
-        childtitle: "Transacciones",
-        childlink: "projects",
-      },
-      {
-        childtitle: "Libro Diario",
-        childlink: "project-details",
-      },
-      {
-        childtitle: "Libro Mayor",
-        childlink: "project-details",
-      },
-      {
-        childtitle: "Balances",
-        childlink: "project-details",
-      },
-      {
-        childtitle: "Configuración",
-        childlink: "project-details",
-      },
-    ],
+    icon: "solar:posts-carousel-horizontal-bold-duotone",
+    link: "calender",
   },
   {
     title: "Stela IA",

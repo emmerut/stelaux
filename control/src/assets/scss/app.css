@@ -1527,7 +1527,6 @@
     line-height: 14px !important;
     height: auto !important;
     text-transform: capitalize !important;
-    font-family: Inter !important;
     padding: 12px 20px 12px 20px !important;
   }
   .dashcode-app .fc .fc-button-primary {
@@ -1685,4 +1684,5 @@
     }
   }
 }
+
 @layer utilities {}/*# sourceMappingURL=app.css.map */

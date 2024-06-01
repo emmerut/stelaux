@@ -559,6 +559,9 @@ export const tableData = [
 ];
 
 import customer1 from "@/assets/images/all-img/customer_1.png";
+
+
+
 export const advancedTable = [
   {
     id: 1,
@@ -1210,6 +1213,16 @@ export const advancedTable = [
     status: "paid",
     action: null,
   },
+];
+
+export const serviceTable = [
+  
+  // ... (resto de los objetos con los campos actualizados)
+];
+
+export const productTable = [
+  
+  // ... (resto de los objetos con los campos actualizados)
 ];
 
 export const homeTable = [

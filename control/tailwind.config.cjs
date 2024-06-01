@@ -124,9 +124,27 @@ module.exports = {
           900: "#0F172A",
         },
       },
-
+      screens: {
+        // Breakpoint manual a 900px
+        'smc': { 'max': '640px' },
+        'mdc': { 'max': '768px'},
+        'lgc': { 'max': '1024px'},
+        'xlc': { 'max': '1280px'},
+      },
+      fontSize: {
+        base: ['15px', '30px'],
+        xxs: ['11px', '14px'],
+        xs: ['12px', '16px'],
+        sm: ['13px', '22px'],
+        md: ['14px', '20px'],
+        xmd: ['16px', '28px'],
+        lg: ['18px', '22px'],
+        xlg: ['20px', '28px'],
+        xbig: ['230px', '200px']
+      },
       fontFamily: {
         inter: ["Inter", "sans-serif"],
+        oxanium: ['Oxanium', 'sans-serif'],
       },
       boxShadow: {
         base: "0px 0px 1px rgba(40, 41, 61, 0.08), 0px 0.5px 2px rgba(96, 97, 112, 0.16)",

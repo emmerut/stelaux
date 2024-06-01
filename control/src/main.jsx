@@ -10,6 +10,7 @@ import { Provider } from "react-redux";
 import store from "./store";
 import "react-toastify/dist/ReactToastify.css";
 import "./server";
+import "./style.css"
 ReactDOM.createRoot(document.getElementById("root")).render(
   <>
     <BrowserRouter>

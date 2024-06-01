@@ -73,7 +73,7 @@ class ContentViewSet(viewsets.ViewSet):
         return None
 
     @action(detail=False, methods=['get'])
-    def list_content_all(self, request):
+    def list_content_all(self):
         
         articles = Article.objects.all()
         info_components = InfoComponent.objects.all()
