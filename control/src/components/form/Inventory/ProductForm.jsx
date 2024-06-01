@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Formik, Form, FieldArray, ErrorMessage } from 'formik';
-import { homepageData } from '../../../data/homepageData';
+import { Formik, Form, FieldArray} from 'formik';
+import { homepageData } from '@/constant/homepageData';
 
 // Asumiendo que tienes estos componentes definidos
-import { Input, FileInput } from '../Form';
-import Buttons from '../Button/Buttons';
+import { Input, FileInput, SelectInput, TextArea } from '@/components/form/Form';
+import Buttons from '@/components/ui/Button';
 
 const MyForm = () => {
     const [dataForm, setData] = useState(null);
@@ -34,15 +34,11 @@ const MyForm = () => {
         const formData = new FormData();
         values.inputs.forEach((input, index) => {
             formData.append(`inputs[${index}][id]`, input.id);
+            formData.append(`inputs[${index}][category]`, input.category);
             formData.append(`inputs[${index}][title]`, input.title);
-            formData.append(`inputs[${index}][subtitle]`, input.subtitle);
-            formData.append(`inputs[${index}][component]`, 'hero_slider');
-            formData.append(`inputs[${index}][content_type]`, 'content_base');
-
-            // Agrega el archivo al FormData usando el archivo real
-            if (input.main_image) {
-                formData.append(`inputs[${index}][main_image]`, selectedFile);
-            }
+            formData.append(`inputs[${index}][description]`, input.description);
+            formData.append(`inputs[${index}][image]`, selectedFile);
+            formData.append(`inputs[${index}][content_type]`, 'product');
 
         });
         const formDataObject = {};
@@ -76,7 +72,7 @@ const MyForm = () => {
         setSelectedFile(file);
     };
 
-    const initialValues = { inputs: dataForm?.length > 0 ? dataForm : [{ title: '', subtitle: '', main_image: '', component: 'hero_slider' }] };
+    const initialValues = { inputs: dataForm?.length > 0 ? dataForm : [{ category: '', title: '', description: '', image: '', }] };
 
 
     const validate = (values) => {
@@ -89,12 +85,12 @@ const MyForm = () => {
                 errors[`inputs.${index}.title`] = 'El título no puede exceder los 30 caracteres';
             }
 
-            if (!input.subtitle) {
-                errors[`inputs.${index}.subtitle`] = 'El campo subtítulo es requerido';
-            } else if (input.subtitle.length > 50) {
-                errors[`inputs.${index}.subtitle`] = 'El subtítulo no puede exceder los 50 caracteres';
+            if (!input.description) {
+                errors[`inputs.${index}.description`] = 'El campo subtítulo es requerido';
             }
-
+            if (!input.image) {
+                errors[`inputs.${index}.image`] = 'El campo image es requerido';
+            }
             if (selectedFile) {
                 if (selectedFile.size > 1048576) {
                     errors[`inputs.${index}.main_image`] = 'El archivo no debe exceder 1MB';
@@ -104,12 +100,15 @@ const MyForm = () => {
             }
         });
 
-        if (values.inputs.length < 3) {
-            errors.inputs = 'Se necesitan al menos 3 objetos';
-        }
-
         return errors;
     };
+
+    const options = [
+        { value: '', label: 'Elige una categoría', disabled: true },
+        { value: 'line-icon-Cursor-Click2 text-[#27ae60]', label: 'Click' },
+        { value: 'line-icon-Bakelite text-[#27ae60]', label: 'Locker' },
+        { value: 'line-icon-Boy text-[#27ae60]', label: 'User' },
+    ];
 
     const removeObject = async (objID, contentType) => {
         setIsLoadingForm(true)
@@ -151,10 +150,10 @@ const MyForm = () => {
                     onSubmit={handleSubmit}
                     validate={validate}
                 >
-                    {({ values, errors }) => (
-                        <Form className="mb-5">
+                    {({ values, errors, setFieldValue }) => (
+                        <Form className="mb-5 pb-5">
                             <h3 className="text-lg text-center font-bold text-slate-800 font-oxanium">
-                                Objetivo: Llenar datos para Slider (Requerido)
+                                Objetivo: Llenar datos del producto (Puedes añadir los sets de productos que quieras)
                             </h3>
 
                             <FieldArray name="inputs">
@@ -163,28 +162,41 @@ const MyForm = () => {
                                         {values.inputs.map((input, index) => (
 
                                             <div key={index}>
-
+                                                <SelectInput
+                                                    label={`Categoría ${index + 1}`}
+                                                    name={`inputs.child.${index}.category`}
+                                                    options={options}
+                                                />
+                                                {errors[`inputs.child.${index}.category`] && (
+                                                    <div className="text-red-500 text-xs mt-1">
+                                                        {errors[`inputs.child.${index}.category`]}
+                                                    </div>
+                                                )}
                                                 <Input
                                                     name={`inputs.${index}.title`}
-                                                    label={`Paso Titulo ${index + 1}`}
+                                                    label={`Titulo ${index + 1}`}
                                                 />
                                                 {errors[`inputs.${index}.title`] && (
                                                     <div className="text-red-500 text-xs mt-1">
                                                         {errors[`inputs.${index}.title`]}
                                                     </div>
                                                 )}
-                                                <Input
-                                                    name={`inputs.${index}.subtitle`}
-                                                    label={`Paso Subtitulo ${index + 1}`}
+                                                <TextArea
+                                                    initialValue={`inputs.child.${index}.description`}
+                                                    name={`inputs.child.${index}.description`}
+                                                    label={`Descripción ${index + 1}`}
+                                                    onEditorChange={(content) => {
+                                                        setFieldValue(`inputs.child.${index}.description`, content);
+                                                    }}
                                                 />
-                                                {errors[`inputs.${index}.subtitle`] && (
+                                                {errors[`inputs.child.${index}.description`] && (
                                                     <div className="text-red-500 text-xs mt-1">
-                                                        {errors[`inputs.${index}.subtitle`]}
+                                                        {errors[`inputs.child.${index}.description`]}
                                                     </div>
                                                 )}
-                                                {input.main_image && (
+                                                {input.image && (
                                                     <p>
-                                                        Actual: <a href={input.main_image}>{input.main_image}</a>
+                                                        Actual: <a href={input.image}>{input.image}</a>
                                                     </p>
                                                 )}
                                                 <FileInput
@@ -198,9 +210,8 @@ const MyForm = () => {
                                                     </div>
                                                 )}
                                                 <button type="button" onClick={() => {
-                                                    if (values.inputs.length < 3) {
-                                                        push({ title: '', subtitle: '', main_image: '' });
-                                                    }
+                                                    push({ category: '', title: '', description: '', image: '', });
+
                                                 }} className="mt-2">
                                                     <span className="text-green-500">+</span> Añadir
                                                 </button>
@@ -209,7 +220,7 @@ const MyForm = () => {
                                                     <button
                                                         type="button"
                                                         className="ml-2 float-right"
-                                                        onClick={input.id ? () => removeObject(input.id, 'content_base') : () => remove(index)}
+                                                        onClick={input.id ? () => removeObject(input.id, 'product') : () => remove(index)}
                                                     >
                                                         <span className="text-red-500">- Eliminar</span>
                                                     </button>
@@ -225,12 +236,12 @@ const MyForm = () => {
                             <Buttons
                                 ariaLabel="botón del formulario"
                                 type="submit"
-                                className={`font-medium font-oxanium rounded-none uppercase text-[11px] float-end`}
-                                themeColor={['#2f1875', '#2f1875']}
-                                size="md"
+                                className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${Object.keys(errors).length > 0 ? "disabled" : ""
+                                    }`}
+                                disabled={Object.keys(errors).length > 0} // Proper disabled attribute
+                                text="Guardar"
                                 color="#fff"
-                                title="Guardar"
-                                disabled={Object.keys(errors).length > 0}
+                                size="md"
                             />
                         </Form>
                     )}

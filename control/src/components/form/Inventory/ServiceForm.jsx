@@ -11,6 +11,7 @@ const MyForm = () => {
   const [isLoadingForm, setIsLoadingForm] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile2, setSelectedFile2] = useState(null);
 
   const formikObj = [];
 
@@ -50,14 +51,14 @@ const MyForm = () => {
     formData.append('parent_id', values.inputs.parent.id);
     formData.append(`category`, values.inputs.parent.title);
     formData.append(`title`, values.inputs.parent.title);
-    formData.append(`descrption`, values.inputs.parent.description);
-    formData.append('main_image', selectedFile);
+    formData.append(`description`, values.inputs.parent.description);
+    formData.append('image', selectedFile);
     formData.append('parent_type', 'service')
     values.inputs.child.forEach((input, index) => {
       formData.append(`inputs[${index}][id]`, input.id);
       formData.append(`inputs[${index}][title]`, input.title);
       formData.append(`inputs[${index}][description]`, input.description);
-      formData.append(`inputs[${index}][image]`, selectedFile);
+      formData.append(`inputs[${index}][image]`, selectedFile2);
       formData.append(`inputs[${index}][price]`, input.price);
       formData.append(`inputs[${index}][duration]`, input.duration);
       formData.append(`inputs[${index}][content_type]`, input.content_type);
@@ -104,7 +105,11 @@ const MyForm = () => {
   const handleFileChange = (file) => {
     setSelectedFile(file);
   };
+  const handleFileChange2 = (file) => {
+    setSelectedFile2(file);
+  };
 
+  
   const initialValues = {
     inputs: dataForm?.length > 0
       ? { parent: dataForm[0], child: dataForm[1] }
@@ -123,8 +128,8 @@ const MyForm = () => {
     if (!values.inputs.parent.description) {
       errors['inputs.parent.description'] = 'La descripción es requerida';
     }
-    if (!values.inputs.parent.main_image) {
-      errors['inputs.parent.main_image'] = 'El campo main_image es requerido';
+    if (!values.inputs.parent.image) {
+      errors['inputs.parent.image'] = 'El campo image es requerido';
     }
 
     if (selectedFile) {
@@ -147,8 +152,8 @@ const MyForm = () => {
       if (!input.image) {
         errors[`inputs.child.${index}.image`] = 'El campo image es requerido';
       }
-      if (selectedFile) {
-        if (selectedFile.size > 1048576) {
+      if (selectedFile2) {
+        if (selectedFile2.size > 1048576) {
           errors[`inputs.child.${index}.image`] = 'El archivo no debe exceder 1MB';
         } else if (!['jpeg', 'jpg', 'webp', 'png'].includes(selectedFile.name.split('.').pop().toLowerCase())) {
           errors[`inputs.child.${index}.image`] = 'El archivo debe ser .jpeg, .jpg, .webp o .png';
@@ -262,9 +267,9 @@ const MyForm = () => {
                   {errors['inputs.parent.main_image']}
                 </div>
               )}
-              {values.inputs.parent.thumbnail && (
+              {values.inputs.parent.main_image && (
                 <p>
-                  Actual: <a href={values.inputs.parent.thumbnail}>{values.inputs.parent.thumbnail}</a>
+                  Actual: <a href={values.inputs.parent.main_image}>{values.inputs.parent.main_image}</a>
                 </p>
               )}
               <hr className='my-5' />
@@ -300,7 +305,7 @@ const MyForm = () => {
                         <FileInput
                           name={`inputs.child.${index}.image`}
                           helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
-                          onFileChange={handleFileChange}
+                          onFileChange={handleFileChange2}
                         />
                         <NumberInput
                           name={`inputs.child.${index}.duration`}

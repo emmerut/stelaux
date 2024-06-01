@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import { useFormikContext } from 'formik';
 import { useField } from 'formik';
 import { useRef } from 'react';
@@ -47,7 +47,7 @@ const TextArea = memo(({ label, labelClass, className, onEditorChange, showError
         {label}
       </label>
       <Editor
-        apiKey='vkaoogtz32v8rotuvqv5ejgb06legl24oolwxw53hu8qspyh'
+        apiKey='jilhl78tlomd3250tf5ncjjywse6ibcq3uu862mlml03ve6w'
         onInit={(_evt, editor) => editorRef.current = editor}
         init={{
           height: 300,
