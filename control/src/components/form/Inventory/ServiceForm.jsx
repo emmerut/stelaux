@@ -109,14 +109,30 @@ const MyForm = () => {
     setSelectedFile2(file);
   };
 
-  
+
   const initialValues = {
     inputs: dataForm?.length > 0
       ? { parent: dataForm[0], child: dataForm[1] }
       : { parent: { id: '', title: '', description: '', main_image: '' }, child: [{ parent_id: '', title: '', duration: '', description: '', image: '', price: '', content_type: 'service_variant' }] },
   };
 
-
+  const category = [
+    {
+      "id": 1,
+      "name": "Servicios Profesionales",
+      "subcategorias": [
+        { "id": 11, "name": "Consultoría" },
+        { "id": 12, "name": "Diseño Web" },
+        { "id": 13, "name": "Marketing Digital" },
+        { "id": 14, "name": "Desarrollo de Software" },
+        { "id": 15, "name": "Gestión de Proyectos" },
+        { "id": 16, "name": "Traducción" },
+        { "id": 17, "name": "Contabilidad" },
+        { "id": 18, "name": "Asesoría Legal" },
+        { "id": 19, "name": "Recursos Humanos" }
+      ]
+    }
+  ]
   const validate = (values) => {
     let errors = {};
 
@@ -327,14 +343,14 @@ const MyForm = () => {
                           </div>
                         )}
                         <button type="button" onClick={() => {
-                            push({
-                              title: '',
-                              description: '',
-                              image: '',
-                              duration: '',
-                              price: '',
-                              content_type: 'service_variant'
-                            });
+                          push({
+                            title: '',
+                            description: '',
+                            image: '',
+                            duration: '',
+                            price: '',
+                            content_type: 'service_variant'
+                          });
                         }} className="mt-2">
                           <span className="text-green-500">+</span> Añadir
                         </button>
