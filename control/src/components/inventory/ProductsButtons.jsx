@@ -49,12 +49,6 @@ function ProductsButtons() {
       </Button>
       <Button
         className="text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md smc:px-2 smc:py-2 smc:text-xxs"
-        onClick={() => openModal('variantForm')}
-      >
-        + Variante
-      </Button>
-      <Button
-        className="text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md smc:px-2 smc:py-2 smc:text-xxs"
         onClick={() => openModal('productForm')}
       >
         + Producto

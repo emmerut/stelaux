@@ -145,6 +145,35 @@ const SelectInput = memo(({ label, labelClass, className, showErrorMsg, options,
   );
 });
 
+const NestedSelectInput = memo(({ label, labelClass, className, showErrorMsg, handler, value, options, ...props }) => {
+  const [field, meta] = useField(props); // Obtener el campo y el metadato de Formik
+
+  return (
+    <div className={`relative ${meta.touched && meta.error ? "error" : ""}`}>
+      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 ${labelClass}`}>
+        {label}
+      </label>
+      <select
+        className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
+        ${meta.touched && meta.error ? "border-red-500" : ""} ${className}`}
+        {...field} // Spread field properties
+        {...props} // Spread props
+      >
+        {options.map((option, index) => (
+          <option key={index} value={option.value} disabled={option.disabled} style={{ color: option.disabled ? 'graytext' : 'inherit' }}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {meta.touched && meta.error && showErrorMsg && (
+        <p className="mt-2 text-sm text-red-600" id="email-error">
+          {meta.error}
+        </p>
+      )}
+    </div>
+  );
+});
+
 const NumberInput = memo(({ label, labelClass, className, helpText, showErrorMsg, ...props }) => {
   const [field, meta] = useField(props);
   return (
@@ -201,4 +230,4 @@ FileInput.defaultProps = {
   showErrorMsg: true,
 };
 
-export { Input, TextArea, Checkbox, FileInput, SelectInput, NumberInput, DecimalInput }; 
+export { Input, TextArea, Checkbox, FileInput, SelectInput, NumberInput, DecimalInput, NestedSelectInput }; 

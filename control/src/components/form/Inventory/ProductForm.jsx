@@ -3,7 +3,7 @@ import { Formik, Form, FieldArray } from 'formik';
 import { homepageData } from '@/constant/homepageData';
 
 // Asumiendo que tienes estos componentes definidos
-import { Input, FileInput, SelectInput, TextArea } from '@/components/form/Form';
+import { Input, FileInput, NestedSelectInput, TextArea, DecimalInput, NumberInput, SelectInput } from '@/components/form/Form';
 import Buttons from '@/components/ui/Button';
 
 const MyForm = () => {
@@ -11,6 +11,97 @@ const MyForm = () => {
     const [isLoadingForm, setIsLoadingForm] = useState(true);
     const [error, setError] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFile2, setSelectedFile2] = useState(null);
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [subcategories, setSubcategories] = useState([]);
+    const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+    const [finalSubcategories, setFinalSubcategories] = useState([]);
+    const [selectedFinalSubcategory, setSelectedFinalSubcategory] = useState(null);
+    const [fourthSubcategories, setFourthSubcategories] = useState([]);
+    const [selectedFourthSubcategory, setSelectedFourthSubcategory] = useState(null);
+
+    const formikObj = [];
+
+    useEffect(() => {
+        setCategories(category);
+    }, []);
+
+    // Reiniciar estados cuando se cambia la categoría principal
+    useEffect(() => {
+        if (selectedCategory) {
+            const subcategoriesForCategory = category.find(
+                (cat) => cat.id === selectedCategory
+            ).subcategory;
+            setSubcategories(subcategoriesForCategory);
+            setSelectedSubcategory(null);
+            setSelectedFinalSubcategory(null);
+            setSelectedFourthSubcategory(null);
+
+        } else if (selectedCategory == 0) {
+            setSelectedCategory(null);
+            setSelectedSubcategory(null);
+            setSelectedFinalSubcategory(null);
+            setSelectedFourthSubcategory(null);
+        }
+        else {
+            // No se necesita reiniciar ningún estado aquí, ya que se inicializan
+            // a null por defecto en su declaración
+        }
+    }, [selectedCategory]);
+
+    useEffect(() => {
+        if (selectedSubcategory) {
+            const finalSubcategoriesForSubcategory = subcategories.find(
+                (subcat) => subcat.id === selectedSubcategory
+            ).subcategory;
+            setFinalSubcategories(finalSubcategoriesForSubcategory);
+            setSelectedFinalSubcategory(null);
+            setSelectedFourthSubcategory(null);
+        } else {
+            setFinalSubcategories([]);
+            setSelectedFinalSubcategory(null);
+            setSelectedFourthSubcategory(null);
+        }
+    }, [selectedSubcategory]);
+
+    useEffect(() => {
+        if (selectedFinalSubcategory) {
+            const fourthSubcategoriesForSubcategory = finalSubcategories.find(
+                (subcat) => subcat.id === selectedFinalSubcategory
+            ).subcategory;
+            setFourthSubcategories(fourthSubcategoriesForSubcategory);
+            setSelectedFourthSubcategory(null);
+        } else {
+            setFourthSubcategories([]);
+            setSelectedFourthSubcategory(null);
+        }
+    }, [selectedFinalSubcategory]);
+
+    const handleCategoryChange = (event) => {
+        if (event.target.value === 0) {
+            setSelectedCategory(null); // Reiniciar selectedCategory
+            setSelectedSubcategory(null); // Reiniciar selectedSubcategory
+            setSelectedFinalSubcategory(null); // Reiniciar selectedFinalSubcategory
+            setSelectedFourthSubcategory(null); // Reiniciar selectedFourthSubcategory
+        } else {
+            setSelectedCategory(parseInt(event.target.value));
+            setSelectedSubcategory(null); // Reiniciar solo selectedSubcategory
+        }
+    };
+
+    const handleSubcategoryChange = (event) => {
+        setSelectedSubcategory(parseInt(event.target.value));
+    };
+
+    const handleFinalSubcategoryChange = (event) => {
+        setSelectedFinalSubcategory(parseInt(event.target.value));
+    };
+
+    const handleFourthSubcategoryChange = (event) => {
+        setSelectedFourthSubcategory(parseInt(event.target.value));
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -32,78 +123,130 @@ const MyForm = () => {
     const handleSubmit = async (values) => {
         setIsLoadingForm(true);
         const formData = new FormData();
-        values.inputs.forEach((input, index) => {
-            formData.append(`inputs[${index}][id]`, input.id);
-            formData.append(`inputs[${index}][category]`, input.category);
-            formData.append(`inputs[${index}][title]`, input.title);
-            formData.append(`inputs[${index}][description]`, input.description);
-            formData.append(`inputs[${index}][image]`, selectedFile);
-            formData.append(`inputs[${index}][content_type]`, 'product');
-
+        formData.append('parent_id', values.inputs.parent.id);
+        formData.append(`category`, selectedCategory);
+        formData.append(`subcategory`, selectedSubcategory);
+        formData.append(`subcategory2`, selectedFinalSubcategory);
+        formData.append(`subcategory3`, selectedFourthSubcategory);
+        formData.append(`title`, values.inputs.parent.title);
+        formData.append(`description`, values.inputs.parent.description);
+        formData.append('image', selectedFile);
+        formData.append('parent_type', 'product')
+        values.inputs.child.forEach((input, index) => {
+          formData.append(`inputs[${index}][id]`, input.id);
+          formData.append(`inputs[${index}][color]`, input.color);
+          formData.append(`inputs[${index}][size]`, input.size);
+          formData.append(`inputs[${index}][image]`, selectedFile2);
+          formData.append(`inputs[${index}][price]`, input.price);
+          formData.append(`inputs[${index}][stock]`, input.stock);
+          formData.append(`inputs[${index}][content_type]`, 'product_variant');
         });
         const formDataObject = {};
         for (const [key, value] of formData.entries()) {
-            formDataObject[key] = value;
+          formDataObject[key] = value;
         }
-
+    
         // Mostrar el objeto plano en la consola
         console.log('Valores del formulario:', formDataObject);
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/v1/stela-editor/create_content/', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!res.ok) {
-                throw new Error(`Error en la solicitud: ${res.status}`);
-            }
-            const homepageDataResult = await homepageData();
-            const heroSlider = homepageDataResult.base.filter(item => item.component === 'hero_slider');
-            setData(heroSlider);
-
+          const res = await fetch('http://127.0.0.1:8000/api/v1/stela-editor/create_content/', {
+            method: 'POST',
+            body: formData,
+          });
+    
+          if (!res.ok) {
+            throw new Error(`Error en la solicitud: ${res.status}`);
+          }
+          const homepageDataResult = await homepageData();
+          let parent = homepageDataResult.base.filter(item => item.component === 'FormsetStepsV1');
+          if (parent.length === 1) {
+            parent = parent[0];
+    
+            const child = homepageDataResult.info_components.filter(item => item.parent === parent.id);
+    
+            formikObj.push(parent);
+            formikObj.push(child);
+            setData(formikObj)
+          } else {
+            console.warn("No 'infocards' component found!");
+          }
+    
         } catch (error) {
-            console.error('Error al enviar el formulario:', error);
+          console.error('Error al enviar el formulario:', error);
         } finally {
-            setIsLoadingForm(false);
+          setIsLoadingForm(false);
         }
-    };
+      };
 
     const handleFileChange = (file) => {
         setSelectedFile(file);
     };
 
-    const initialValues = { inputs: dataForm?.length > 0 ? dataForm : [{ category: '', title: '', description: '', image: '', }] };
+    const initialValues = {
+        inputs: dataForm?.length > 0 ?
+            dataForm : [{
+                parent: { category: '', subcategory: '', subcategory2: '', subcategory3: '', title: '', description: '', image: '', },
+                child: { product: '', color: '', size: '', price: '', stock: '', image: '' }
+            }]
+    };
 
 
     const validate = (values) => {
         let errors = {};
 
-        values.inputs.forEach((input, index) => {
-            if (!input.title) {
-                errors[`inputs.${index}.title`] = 'El campo título es requerido';
-            } else if (input.title.length > 30) {
-                errors[`inputs.${index}.title`] = 'El título no puede exceder los 30 caracteres';
-            }
+        if (!values.inputs.parent.title) {
+            errors['inputs.parent.title'] = 'El título es requerido';
+        } else if (values.inputs.parent.title.length > 80) {
+            errors['inputs.parent.title'] = 'El título no puede exceder los 80 caracteres';
+        }
+        if (!values.inputs.parent.description) {
+            errors['inputs.parent.description'] = 'La descripción es requerida';
+        }
+        if (!values.inputs.parent.image) {
+            errors['inputs.parent.image'] = 'El campo image es requerido';
+        }
 
-            if (!input.description) {
-                errors[`inputs.${index}.description`] = 'El campo subtítulo es requerido';
+        if (selectedFile) {
+            if (selectedFile.size > 1048576) {
+                errors['inputs.parent.image'] = 'El archivo no debe exceder 1MB';
+            } else if (!['jpeg', 'jpg', 'webp', 'png'].includes(selectedFile.name.split('.').pop().toLowerCase())) {
+                errors['inputs.parent.image'] = 'El archivo debe ser .jpeg, .jpg, .webp o .png';
+            }
+        }
+
+        values.inputs.child.forEach((input, index) => {
+            if (!input.color) {
+                errors[`inputs.child.${index}.color`] = 'El color es requerido';
+            } 
+            if (!input.size) {
+                errors[`inputs.child.${index}.size`] = 'El tamaño es requerido';
+            } 
+            if (!input.stock) {
+                errors[`inputs.child.${index}.stock`] = 'El stock es requerido';
             }
             if (!input.image) {
-                errors[`inputs.${index}.image`] = 'El campo image es requerido';
+                errors[`inputs.child.${index}.image`] = 'El campo image es requerido';
             }
-            if (selectedFile) {
-                if (selectedFile.size > 1048576) {
-                    errors[`inputs.${index}.main_image`] = 'El archivo no debe exceder 1MB';
+            if (selectedFile2) {
+                if (selectedFile2.size > 1048576) {
+                    errors[`inputs.child.${index}.image`] = 'El archivo no debe exceder 1MB';
                 } else if (!['jpeg', 'jpg', 'webp', 'png'].includes(selectedFile.name.split('.').pop().toLowerCase())) {
-                    errors[`inputs.${index}.main_image`] = 'El archivo debe ser .jpeg, .jpg, .webp o .png';
+                    errors[`inputs.child.${index}.image`] = 'El archivo debe ser .jpeg, .jpg, .webp o .png';
                 }
             }
+            
         });
 
         return errors;
     };
 
     const category = [
+        {
+            id: 0,
+            name: "Seleccionar categoría", // Opción disabled sin value
+            disabled: true, // Añadir el atributo disabled
+            subcategory: [],
+        },
         {
             id: 1,
             name: 'Ropa',
@@ -427,8 +570,8 @@ const MyForm = () => {
         },
         {
             id: 2,
-            nombre: 'Electrónicos',
-            subcategorias: [
+            name: 'Electrónicos',
+            subcategory: [
                 {
                     "id": 21,
                     "name": "Computadoras",
@@ -600,8 +743,8 @@ const MyForm = () => {
         },
         {
             id: 3,
-            nombre: 'Máscotas',
-            subcategorias: [
+            name: 'Máscotas',
+            subcategory: [
                 {
                     "id": 31,
                     "name": "Perros",
@@ -723,8 +866,8 @@ const MyForm = () => {
         },
         {
             id: 4,
-            nombre: 'Hogar',
-            subcategorias: [
+            name: 'Hogar',
+            subcategory: [
                 {
                     "id": 41,
                     "name": "Electrodomésticos",
@@ -976,8 +1119,8 @@ const MyForm = () => {
         },
         {
             id: 5,
-            nombre: 'Belleza y Cuidado Personal',
-            subcategorias: [
+            name: 'Belleza y Cuidado Personal',
+            subcategory: [
                 {
                     "id": 51,
                     "name": "Maquillaje",
@@ -1164,8 +1307,8 @@ const MyForm = () => {
         },
         {
             id: 6,
-            nombre: 'Automóviles y Motos',
-            subcategorias: [
+            name: 'Automóviles y Motos',
+            subcategory: [
                 {
                     "id": 61,
                     "name": "Accesorios",
@@ -1330,33 +1473,34 @@ const MyForm = () => {
         },
     ];
 
-    const removeObject = async (objID, contentType) => {
-        setIsLoadingForm(true)
-        try {
-            const res = await fetch('http://127.0.0.1:8000/api/v1/stela-editor/delete_content/', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json', // Especifica que el cuerpo es JSON
-                },
-                body: JSON.stringify({
-                    id: objID, // Incluye el ID del objeto
-                    type: contentType // Incluye el tipo de contenido
-                }),
-            });
+    const colors = [
+        { value: '', label: 'Elige un color', disabled: true },
+        { value: 'bg-[#27ae60]', label: 'Verde' },
+        { value: 'bg-[#f56565]', label: 'Rojo' },
+        { value: 'bg-[#edd95a]', label: 'Amarillo' },
+        { value: 'bg-[#4ade80]', label: 'Turquesa' },
+        { value: 'bg-[#8b5cf6]', label: 'Morado' },
+        { value: 'bg-[#1e40af]', label: 'Azul' },
+        { value: 'bg-[#a855f7]', label: 'Lila' },
+        { value: 'bg-[#f97316]', label: 'Naranja' },
+        { value: 'bg-[#3b82f6]', label: 'Azul Cielo' },
+        { value: 'bg-[#10b981]', label: 'Verde Agua' },
+        { value: 'bg-[#ef4444]', label: 'Rojo Oscuro' },
+        { value: 'bg-[#eab308]', label: 'Amarillo Oscuro' },
+        { value: 'bg-[#7835d7]', label: 'Morado Oscuro' },
+    ];
 
-            if (!res.ok) {
-                throw new Error(`Error en la solicitud: ${res.status}`);
-            }
-            const homepageDataResult = await homepageData();
-            const heroSlider = homepageDataResult.base.filter(item => item.component === 'hero_slider');
-            setData(heroSlider);
+    const size = [
+        { value: '', label: 'Elige un tamaño', disabled: true },
+        { value: 'xs', label: 'Extra Small (XS)' },
+        { value: 's', label: 'Small (S)' },
+        { value: 'm', label: 'Medium (M)' },
+        { value: 'l', label: 'Large (L)' },
+        { value: 'xl', label: 'Extra Large (XL)' },
+        { value: 'xxl', label: 'Extra Extra Large (XXL)' },
+        { value: 'xxxl', label: 'Extra Extra Extra Large (XXXL)' },
+    ];
 
-        } catch (error) {
-            console.error('Error al enviar el formulario:', error);
-        } finally {
-            setIsLoadingForm(false);
-        }
-    }
     return (
         <div>
             {isLoadingForm && (
@@ -1373,9 +1517,87 @@ const MyForm = () => {
                     {({ values, errors, setFieldValue }) => (
                         <Form className="mb-5 pb-5">
                             <h3 className="text-lg text-center font-bold text-slate-800 font-oxanium">
-                                Objetivo: Llenar datos del producto (Puedes añadir los sets de productos que quieras)
+                                Objetivo: Llenar datos del producto y variantes
                             </h3>
-
+                            <NestedSelectInput
+                                label={`Categoría Principal`}
+                                name={`inputs.parent.category`}
+                                options={[
+                                    ...categories.map((cat) => ({ value: cat.id, label: cat.name }))
+                                ]}
+                                value={selectedCategory}
+                                onChange={handleCategoryChange}
+                            />
+                            {errors[`inputs.category`] && (
+                                <div className="text-red-500 text-xs mt-1">
+                                    {errors[`inputs.parent.category`]}
+                                </div>
+                            )}
+                            {selectedCategory && (
+                                <NestedSelectInput
+                                    label={`Categoría Nivel 2`}
+                                    name={`inputs.parent.subcategory`}
+                                    options={subcategories.map((subcat) => ({ value: subcat.id, label: subcat.name }))}
+                                    value={selectedSubcategory}
+                                    onChange={handleSubcategoryChange}
+                                />
+                            )}
+                            {selectedSubcategory && (
+                                <NestedSelectInput
+                                    label={`Categoría Nivel 3`}
+                                    name={`inputs.parent.subcategory2`}
+                                    options={finalSubcategories.map((finalSubcat) => ({ value: finalSubcat.id, label: finalSubcat.name }))}
+                                    value={selectedFinalSubcategory}
+                                    onChange={handleFinalSubcategoryChange}
+                                />
+                            )}
+                            {selectedFinalSubcategory && (
+                                <NestedSelectInput
+                                    label={`Categoría Nivel 4`}
+                                    name={`inputs.parent.subcategory3`}
+                                    options={fourthSubcategories.map((fourthSubcat) => ({ value: fourthSubcat.id, label: fourthSubcat.name }))}
+                                    value={selectedFourthSubcategory}
+                                    onChange={handleFourthSubcategoryChange}
+                                />
+                            )}
+                            <Input
+                                name={`inputs.title`}
+                                label={`Titulo`}
+                            />
+                            {errors[`inputs.title`] && (
+                                <div className="text-red-500 text-xs mt-1">
+                                    {errors[`inputs.title`]}
+                                </div>
+                            )}
+                            <TextArea
+                                initialValue={`inputs.description`}
+                                name={`inputs.description`}
+                                label={`Descripción`}
+                                onEditorChange={(content) => {
+                                    setFieldValue(`inputs.description`, content);
+                                }}
+                            />
+                            {errors[`inputs.parent.description`] && (
+                                <div className="text-red-500 text-xs mt-1">
+                                    {errors[`inputs.description`]}
+                                </div>
+                            )}
+                            {values.inputs.image && (
+                                <p>
+                                    Actual: <a href={values.inputs.image}>{values.inputs.image}</a>
+                                </p>
+                            )}
+                            <FileInput
+                                name={`inputs.image`}
+                                helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
+                                onFileChange={handleFileChange}
+                            />
+                            {errors[`inputs.image`] && (
+                                <div className="text-red-500 text-xs mt-1">
+                                    {errors[`inputs.image`]}
+                                </div>
+                            )}
+                            <hr className="m-3" />
                             <FieldArray name="inputs">
                                 {({ insert, remove, push }) => (
                                     <>
@@ -1383,35 +1605,41 @@ const MyForm = () => {
 
                                             <div key={index}>
                                                 <SelectInput
-                                                    label={`Categoría ${index + 1}`}
-                                                    name={`inputs.child.${index}.category`}
-                                                    options={options}
+                                                    label={`Color ${index + 1}`}
+                                                    name={`inputs.child.${index}.color`}
+                                                    options={colors}
                                                 />
-                                                {errors[`inputs.child.${index}.category`] && (
+                                                {errors[`inputs.child.${index}.color`] && (
                                                     <div className="text-red-500 text-xs mt-1">
-                                                        {errors[`inputs.child.${index}.category`]}
+                                                        {errors[`inputs.child.${index}.color`]}
                                                     </div>
                                                 )}
-                                                <Input
-                                                    name={`inputs.${index}.title`}
-                                                    label={`Titulo ${index + 1}`}
+                                                <SelectInput
+                                                    label={`Talla ${index + 1}`}
+                                                    name={`inputs.child.${index}.size`}
+                                                    options={size}
                                                 />
-                                                {errors[`inputs.${index}.title`] && (
+                                                {errors[`inputs.child.${index}.size`] && (
                                                     <div className="text-red-500 text-xs mt-1">
-                                                        {errors[`inputs.${index}.title`]}
+                                                        {errors[`inputs.child.${index}.size`]}
                                                     </div>
                                                 )}
-                                                <TextArea
-                                                    initialValue={`inputs.child.${index}.description`}
-                                                    name={`inputs.child.${index}.description`}
-                                                    label={`Descripción ${index + 1}`}
-                                                    onEditorChange={(content) => {
-                                                        setFieldValue(`inputs.child.${index}.description`, content);
-                                                    }}
+                                                <DecimalInput
+                                                    name={`inputs.child.${index}.price`}
+                                                    label={`Precio ${index + 1}`}
                                                 />
-                                                {errors[`inputs.child.${index}.description`] && (
+                                                {errors[`inputs.child.${index}.price`] && (
                                                     <div className="text-red-500 text-xs mt-1">
-                                                        {errors[`inputs.child.${index}.description`]}
+                                                        {errors[`inputs.child.${index}.price`]}
+                                                    </div>
+                                                )}
+                                                <NumberInput
+                                                    name={`inputs.child.${index}.stock`}
+                                                    label={`Stock ${index + 1}`}
+                                                />
+                                                {errors[`inputs.child.${index}.stock`] && (
+                                                    <div className="text-red-500 text-xs mt-1">
+                                                        {errors[`inputs.child.${index}.stock`]}
                                                     </div>
                                                 )}
                                                 {input.image && (
@@ -1420,17 +1648,17 @@ const MyForm = () => {
                                                     </p>
                                                 )}
                                                 <FileInput
-                                                    name={`inputs.${index}.main_image`}
+                                                    name={`inputs.child.${index}.image`}
                                                     helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
                                                     onFileChange={handleFileChange}
                                                 />
-                                                {errors[`inputs.${index}.main_image`] && (
+                                                {errors[`inputs.child.${index}.image`] && (
                                                     <div className="text-red-500 text-xs mt-1">
-                                                        {errors[`inputs.${index}.main_image`]}
+                                                        {errors[`inputs.child.${index}.image`]}
                                                     </div>
                                                 )}
                                                 <button type="button" onClick={() => {
-                                                    push({ category: '', title: '', description: '', image: '', });
+                                                    push({ product: '', color: '', size: '', price: '', stock: '', image: '' });
 
                                                 }} className="mt-2">
                                                     <span className="text-green-500">+</span> Añadir
@@ -1451,14 +1679,12 @@ const MyForm = () => {
                                     </>
                                 )}
                             </FieldArray>
-
-                            <hr className="m-3" />
                             <Buttons
                                 ariaLabel="botón del formulario"
                                 type="submit"
                                 className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${Object.keys(errors).length > 0 ? "disabled" : ""
                                     }`}
-                                disabled={Object.keys(errors).length > 0} // Proper disabled attribute
+                                disabled={Object.keys(errors).length > 0} 
                                 text="Guardar"
                                 color="#fff"
                                 size="md"
