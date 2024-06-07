@@ -147,7 +147,6 @@ const SelectInput = memo(({ label, labelClass, className, showErrorMsg, options,
 
 const NestedSelectInput = memo(({ label, labelClass, className, showErrorMsg, handler, value, options, ...props }) => {
   const [field, meta] = useField(props); // Obtener el campo y el metadato de Formik
-
   return (
     <div className={`relative ${meta.touched && meta.error ? "error" : ""}`}>
       <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 ${labelClass}`}>
@@ -158,6 +157,7 @@ const NestedSelectInput = memo(({ label, labelClass, className, showErrorMsg, ha
         ${meta.touched && meta.error ? "border-red-500" : ""} ${className}`}
         {...field} // Spread field properties
         {...props} // Spread props
+        value={value} // Set the selected value
       >
         {options.map((option, index) => (
           <option key={index} value={option.value} disabled={option.disabled} style={{ color: option.disabled ? 'graytext' : 'inherit' }}>

@@ -3,7 +3,7 @@ import { Formik, Form, FieldArray, ErrorMessage } from 'formik';
 import { homepageData } from '@/constant/homepageData';
 
 // Asumiendo que tienes estos componentes definidos
-import { Input, FileInput, NumberInput, DecimalInput, TextArea } from '@/components/form/Form';
+import { Input, FileInput, NumberInput, DecimalInput, TextArea, SelectInput } from '@/components/form/Form';
 import Buttons from '@/components/ui/Button';
 
 const MyForm = () => {
@@ -49,7 +49,7 @@ const MyForm = () => {
     setIsLoadingForm(true);
     const formData = new FormData();
     formData.append('parent_id', values.inputs.parent.id);
-    formData.append(`category`, values.inputs.parent.title);
+    formData.append(`category`, values.inputs.parent.category);
     formData.append(`title`, values.inputs.parent.title);
     formData.append(`description`, values.inputs.parent.description);
     formData.append('image', selectedFile);
@@ -70,36 +70,7 @@ const MyForm = () => {
 
     // Mostrar el objeto plano en la consola
     console.log('Valores del formulario:', formDataObject);
-    try {
-      const res = await fetch('http://127.0.0.1:8000/api/v1/stela-editor/create_content/', {
-        method: 'POST',
-        body: formData,
-      });
 
-      if (!res.ok) {
-        throw new Error(`Error en la solicitud: ${res.status}`);
-      }
-      const homepageDataResult = await homepageData();
-      let parent = homepageDataResult.base.filter(item => item.component === 'FormsetStepsV1');
-      if (parent.length === 1) {
-        parent = parent[0];
-
-        // Filter child components based on the parent's ID
-        const child = homepageDataResult.info_components.filter(item => item.parent === parent.id);
-
-        // Add parent and child to formikObj
-        formikObj.push(parent);
-        formikObj.push(child);
-        setData(formikObj)
-      } else {
-        console.warn("No 'infocards' component found!");
-      }
-
-    } catch (error) {
-      console.error('Error al enviar el formulario:', error);
-    } finally {
-      setIsLoadingForm(false);
-    }
   };
 
   const handleFileChange = (file) => {
@@ -113,29 +84,28 @@ const MyForm = () => {
   const initialValues = {
     inputs: dataForm?.length > 0
       ? { parent: dataForm[0], child: dataForm[1] }
-      : { parent: { id: '', title: '', description: '', main_image: '' }, child: [{ parent_id: '', title: '', duration: '', description: '', image: '', price: '', content_type: 'service_variant' }] },
+      : { parent: { id: '', category: '', title: '', description: '', main_image: '' }, child: [{ parent_id: '', title: '', duration: '', description: '', image: '', price: '', content_type: 'service_variant' }] },
   };
 
-  const category = [
-    {
-      "id": 1,
-      "name": "Servicios Profesionales",
-      "subcategorias": [
-        { "id": 11, "name": "Consultoría" },
-        { "id": 12, "name": "Diseño Web" },
-        { "id": 13, "name": "Marketing Digital" },
-        { "id": 14, "name": "Desarrollo de Software" },
-        { "id": 15, "name": "Gestión de Proyectos" },
-        { "id": 16, "name": "Traducción" },
-        { "id": 17, "name": "Contabilidad" },
-        { "id": 18, "name": "Asesoría Legal" },
-        { "id": 19, "name": "Recursos Humanos" }
-      ]
-    }
-  ]
+  const options = [
+    { value: '', label: 'Seleccione Categoría', disabled: true },
+    { value: 'Consultoría', label: 'Consultoría' },
+    { value: 'Diseño Web', label: 'Diseño Web' },
+    { value: 'Marketing Digital', label: 'Marketing Digital' },
+    { value: 'Desarrollo de Software', label: 'Desarrollo de Software' },
+    { value: 'Gestión de Proyectos', label: 'Gestión de Proyectos' },
+    { value: 'Traducción', label: 'Traducción' },
+    { value: 'Contabilidad', label: 'Contabilidad' },
+    { value: 'Asesoría Legal', label: 'Asesoría Legal' },
+    { value: 'Recursos Humanos', label: 'Recursos Humanos' },
+
+  ];
+
   const validate = (values) => {
     let errors = {};
-
+    if (!values.inputs.parent.category) {
+      errors[`inputs.parent.category`] = 'La categoría es requerida';
+    }
     if (!values.inputs.parent.title) {
       errors['inputs.parent.title'] = 'El título es requerido';
     } else if (values.inputs.parent.title.length > 80) {
@@ -158,9 +128,9 @@ const MyForm = () => {
 
     values.inputs.child.forEach((input, index) => {
       if (!input.title) {
-        errors[`inputs.child.${index}.price`] = 'El título es requerido';
+        errors[`inputs.child.${index}.title`] = 'El título es requerido';
       } else if (!input.title.length > 80) {
-        errors[`inputs.child.${index}.price`] = 'El título no puede exceder los 80 caracteres';
+        errors[`inputs.child.${index}.title`] = 'El título no puede exceder los 80 caracteres';
       }
       if (!input.description) {
         errors[`inputs.child.${index}.description`] = 'La descripción es requerida';
@@ -179,7 +149,7 @@ const MyForm = () => {
         errors[`inputs.child.${index}.price`] = 'El campo del precio es requerido';
       }
     });
-
+    
     return errors;
   };
 
@@ -248,6 +218,16 @@ const MyForm = () => {
                   {errors.inputs}
                 </div>
               )}
+              <SelectInput
+                label={`Categoría Principal`}
+                name={`inputs.parent.category`}
+                options={options}
+              />
+              {errors[`inputs.parent.category`] && (
+                <div className="text-red-500 text-xs mt-1">
+                  {errors[`inputs.parent.category`]}
+                </div>
+              )}
               <Input
                 name='inputs.parent.title'
                 label={`Título Principal`}
@@ -268,25 +248,20 @@ const MyForm = () => {
                   {errors['inputs.parent.description']}
                 </div>
               )}
-              {values.inputs.parent.main_image && (
+              {values.inputs.parent.image && (
                 <p>
-                  Actual: <a href={values.inputs.parent.main_image}>{values.inputs.parent.main_image}</a>
+                  Actual: <a href={values.inputs.parent.image}>{values.inputs.parent.image}</a>
                 </p>
               )}
               <FileInput
-                name='inputs.parent.main_image'
+                name='inputs.parent.image'
                 helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
                 onFileChange={handleFileChange}
               />
-              {errors['inputs.parent.main_image'] && (
+              {errors['inputs.parent.image'] && (
                 <div className="text-red-500 text-xs mt-1">
-                  {errors['inputs.parent.main_image']}
+                  {errors['inputs.parent.image']}
                 </div>
-              )}
-              {values.inputs.parent.main_image && (
-                <p>
-                  Actual: <a href={values.inputs.parent.main_image}>{values.inputs.parent.main_image}</a>
-                </p>
               )}
               <hr className='my-5' />
               <span className='mb-4'>Variantes del Servicio</span>
@@ -323,6 +298,11 @@ const MyForm = () => {
                           helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
                           onFileChange={handleFileChange2}
                         />
+                        {errors[`inputs.child.${index}.image`] && (
+                          <div className="text-red-500 text-xs mt-1">
+                            {errors[`inputs.child.${index}.image`]}
+                          </div>
+                        )}
                         <NumberInput
                           name={`inputs.child.${index}.duration`}
                           label={`Duración del Servicio ${index + 1}`}

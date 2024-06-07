@@ -18,7 +18,6 @@ function Button({
   div,
   size = 'md' // Add size prop with default value 'md'
 }) {
-  console.log(size)
   return (
     <>
       {!link && !div && (

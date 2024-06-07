@@ -21,7 +21,10 @@ const MyForm = () => {
     const [fourthSubcategories, setFourthSubcategories] = useState([]);
     const [selectedFourthSubcategory, setSelectedFourthSubcategory] = useState(null);
 
-    const formikObj = [];
+    const [categoryName, setCategoryName] = useState(null);
+    const [subCategoryName, setSubCategoryName] = useState(null);
+    const [subCategoryName2, setSubCategoryName2] = useState(null);
+    const [subCategoryName3, setSubCategoryName3] = useState(null);
 
     useEffect(() => {
         setCategories(category);
@@ -33,6 +36,8 @@ const MyForm = () => {
             const subcategoriesForCategory = category.find(
                 (cat) => cat.id === selectedCategory
             ).subcategory;
+            const categoryName = category.find((cat) => cat.id === selectedCategory).name;
+            setCategoryName(categoryName);
             setSubcategories(subcategoriesForCategory);
             setSelectedSubcategory(null);
             setSelectedFinalSubcategory(null);
@@ -55,6 +60,9 @@ const MyForm = () => {
             const finalSubcategoriesForSubcategory = subcategories.find(
                 (subcat) => subcat.id === selectedSubcategory
             ).subcategory;
+            setSubCategoryName(subcategories.find((subcat) => subcat.id === selectedSubcategory).name);
+            setSubCategoryName2(null);
+            setSubCategoryName3(null);
             setFinalSubcategories(finalSubcategoriesForSubcategory);
             setSelectedFinalSubcategory(null);
             setSelectedFourthSubcategory(null);
@@ -70,6 +78,8 @@ const MyForm = () => {
             const fourthSubcategoriesForSubcategory = finalSubcategories.find(
                 (subcat) => subcat.id === selectedFinalSubcategory
             ).subcategory;
+            setSubCategoryName2(finalSubcategories.find((subcat) => subcat.id === selectedFinalSubcategory).name);
+            setSubCategoryName3(null);
             setFourthSubcategories(fourthSubcategoriesForSubcategory);
             setSelectedFourthSubcategory(null);
         } else {
@@ -78,122 +88,141 @@ const MyForm = () => {
         }
     }, [selectedFinalSubcategory]);
 
+    useEffect(() => {
+        if (selectedFourthSubcategory) {
+            setSubCategoryName3(fourthSubcategories.find((subcat) => subcat.id === selectedFourthSubcategory).name);
+        }
+    }, [selectedFourthSubcategory]);
+    
+    // cambio de estado categorías seleccionadas
+    useEffect(() => {
+        if (selectedCategory) {
+            const categoryData = category.find((cat) => cat.id === selectedCategory).name;
+            setCategoryName(categoryData);
+
+        }
+    }, [categoryName]);
+
+    useEffect(() => {
+        if (selectedSubcategory) {
+            setSubCategoryName(subcategories.find((subcat) => subcat.id === selectedSubcategory).name);
+        }
+    }, [subCategoryName]);
+
+    useEffect(() => {
+        if (selectedFinalSubcategory) {
+            setSubCategoryName2(finalSubcategories.find((subcat) => subcat.id === selectedFinalSubcategory).name);
+        }
+    }, [subCategoryName2]);
+
+    useEffect(() => {
+        if (selectedFourthSubcategory) {
+            setSubCategoryName3(fourthSubcategories.find((subcat) => subcat.id === selectedFourthSubcategory).name);
+        }
+    }, [subCategoryName3]);
+
     const handleCategoryChange = (event) => {
         if (event.target.value === 0) {
-            setSelectedCategory(null); // Reiniciar selectedCategory
-            setSelectedSubcategory(null); // Reiniciar selectedSubcategory
-            setSelectedFinalSubcategory(null); // Reiniciar selectedFinalSubcategory
-            setSelectedFourthSubcategory(null); // Reiniciar selectedFourthSubcategory
+            setSelectedCategory(null); 
+            setSelectedSubcategory(null); 
+            setSelectedFinalSubcategory(null); 
+            setSelectedFourthSubcategory(null); 
         } else {
             setSelectedCategory(parseInt(event.target.value));
-            setSelectedSubcategory(null); // Reiniciar solo selectedSubcategory
+            setSubcategories([]); 
+            setSelectedSubcategory(null); 
         }
+
     };
 
     const handleSubcategoryChange = (event) => {
-        setSelectedSubcategory(parseInt(event.target.value));
+        if (event.target.value === 0) {
+            setSelectedCategory(null); 
+            setSelectedSubcategory(null); 
+            setSelectedFinalSubcategory(null); 
+            setSelectedFourthSubcategory(null); 
+        } else {
+            setSelectedSubcategory(parseInt(event.target.value));
+            setFinalSubcategories([]); 
+            setSelectedFourthSubcategory(null); 
+        }
     };
 
     const handleFinalSubcategoryChange = (event) => {
-        setSelectedFinalSubcategory(parseInt(event.target.value));
+        if (event.target.value === 0) {
+            setSelectedCategory(null); 
+            setSelectedSubcategory(null); 
+            setSelectedFinalSubcategory(null); 
+            setSelectedFourthSubcategory(null); 
+        } else {
+            setSelectedFinalSubcategory(parseInt(event.target.value));
+            setFourthSubcategories([]); 
+        }
     };
 
     const handleFourthSubcategoryChange = (event) => {
         setSelectedFourthSubcategory(parseInt(event.target.value));
     };
 
+    const formikObj = [];
+    
+    //carga formulario api base
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const homepageDataResult = await homepageData();
-                const heroSlider = homepageDataResult.base.filter(item => item.component === 'hero_slider');
-                setData(heroSlider);
-
-            } catch (error) {
-                console.error('Error al obtener los datos:', error);
-                setError(error);
-            } finally {
-                setIsLoadingForm(false);
-
-            }
-        };
-        fetchData();
+        console.log('loading dataForm')
+        setIsLoadingForm(false);
     }, []);
 
     const handleSubmit = async (values) => {
         setIsLoadingForm(true);
         const formData = new FormData();
         formData.append('parent_id', values.inputs.parent.id);
-        formData.append(`category`, selectedCategory);
-        formData.append(`subcategory`, selectedSubcategory);
-        formData.append(`subcategory2`, selectedFinalSubcategory);
-        formData.append(`subcategory3`, selectedFourthSubcategory);
+        formData.append(`category`, categoryName);
+        formData.append(`subcategory`, subCategoryName);
+        formData.append(`subcategory2`, subCategoryName2);
+        formData.append(`subcategory3`, subCategoryName3);
         formData.append(`title`, values.inputs.parent.title);
         formData.append(`description`, values.inputs.parent.description);
         formData.append('image', selectedFile);
         formData.append('parent_type', 'product')
         values.inputs.child.forEach((input, index) => {
-          formData.append(`inputs[${index}][id]`, input.id);
-          formData.append(`inputs[${index}][color]`, input.color);
-          formData.append(`inputs[${index}][size]`, input.size);
-          formData.append(`inputs[${index}][image]`, selectedFile2);
-          formData.append(`inputs[${index}][price]`, input.price);
-          formData.append(`inputs[${index}][stock]`, input.stock);
-          formData.append(`inputs[${index}][content_type]`, 'product_variant');
+            formData.append(`inputs[${index}][id]`, input.id);
+            formData.append(`inputs[${index}][color]`, input.color);
+            formData.append(`inputs[${index}][size]`, input.size);
+            formData.append(`inputs[${index}][image]`, selectedFile2);
+            formData.append(`inputs[${index}][price]`, input.price);
+            formData.append(`inputs[${index}][stock]`, input.stock);
+            formData.append(`inputs[${index}][content_type]`, 'product_variant');
         });
         const formDataObject = {};
         for (const [key, value] of formData.entries()) {
-          formDataObject[key] = value;
+            formDataObject[key] = value;
         }
-    
+
         // Mostrar el objeto plano en la consola
         console.log('Valores del formulario:', formDataObject);
-        try {
-          const res = await fetch('http://127.0.0.1:8000/api/v1/stela-editor/create_content/', {
-            method: 'POST',
-            body: formData,
-          });
-    
-          if (!res.ok) {
-            throw new Error(`Error en la solicitud: ${res.status}`);
-          }
-          const homepageDataResult = await homepageData();
-          let parent = homepageDataResult.base.filter(item => item.component === 'FormsetStepsV1');
-          if (parent.length === 1) {
-            parent = parent[0];
-    
-            const child = homepageDataResult.info_components.filter(item => item.parent === parent.id);
-    
-            formikObj.push(parent);
-            formikObj.push(child);
-            setData(formikObj)
-          } else {
-            console.warn("No 'infocards' component found!");
-          }
-    
-        } catch (error) {
-          console.error('Error al enviar el formulario:', error);
-        } finally {
-          setIsLoadingForm(false);
-        }
-      };
+        
+    };
 
     const handleFileChange = (file) => {
         setSelectedFile(file);
     };
 
+    const handleFileChange2 = (file) => {
+        setSelectedFile2(file);
+    };
+
     const initialValues = {
-        inputs: dataForm?.length > 0 ?
-            dataForm : [{
-                parent: { category: '', subcategory: '', subcategory2: '', subcategory3: '', title: '', description: '', image: '', },
-                child: { product: '', color: '', size: '', price: '', stock: '', image: '' }
-            }]
+        inputs: dataForm?.length > 0
+            ? { parent: dataForm[0], child: dataForm[1] }
+            : { parent: { category: '', subcategory: '', subcategory2: '', subcategory3: '', title: '', description: '', image: '', }, 
+                child: [{ color: '', size: '', price: '', stock: '', }], 
+            },
     };
 
 
     const validate = (values) => {
-        let errors = {};
 
+        let errors = {};
         if (!values.inputs.parent.title) {
             errors['inputs.parent.title'] = 'El título es requerido';
         } else if (values.inputs.parent.title.length > 80) {
@@ -217,10 +246,13 @@ const MyForm = () => {
         values.inputs.child.forEach((input, index) => {
             if (!input.color) {
                 errors[`inputs.child.${index}.color`] = 'El color es requerido';
-            } 
+            }
             if (!input.size) {
                 errors[`inputs.child.${index}.size`] = 'El tamaño es requerido';
-            } 
+            }
+            if (!input.price) {
+                errors[`inputs.child.${index}.price`] = 'El precio es requerido';
+            }
             if (!input.stock) {
                 errors[`inputs.child.${index}.stock`] = 'El stock es requerido';
             }
@@ -234,7 +266,7 @@ const MyForm = () => {
                     errors[`inputs.child.${index}.image`] = 'El archivo debe ser .jpeg, .jpg, .webp o .png';
                 }
             }
-            
+
         });
 
         return errors;
@@ -252,13 +284,31 @@ const MyForm = () => {
             name: 'Ropa',
             subcategory: [
                 {
+                    id: 0,
+                    name: "Seleccionar categoría", // Opción disabled sin value
+                    disabled: true, // Añadir el atributo disabled
+                    subcategory: [],
+                },
+                {
                     id: 11,
                     name: 'Mujer',
                     subcategory: [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             id: 112,
                             name: 'Accessorios',
                             subcategory: [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { id: 1121, name: 'Aretes' },
                                 { id: 1122, name: 'Collares' },
                                 { id: 1123, name: 'Pulseras' },
@@ -272,9 +322,15 @@ const MyForm = () => {
                             ]
                         },
                         {
-                            id: 112,
+                            id: 113,
                             name: 'Blusas',
                             subcategory: [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { id: 1121, name: 'Blusas de algodón' },
                                 { id: 1122, name: 'Blusas de seda' },
                                 { id: 1123, name: 'Blusas de lino' },
@@ -292,9 +348,15 @@ const MyForm = () => {
                             ]
                         },
                         {
-                            id: 112,
+                            id: 114,
                             name: 'Camisas',
                             subcategory: [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { id: 1121, name: 'Camisas de vestir' },
                                 { id: 1122, name: 'Camisas casuales' },
                                 { id: 1123, name: 'Camisas de manga larga' },
@@ -312,9 +374,15 @@ const MyForm = () => {
                             ]
                         },
                         {
-                            id: 112,
+                            id: 115,
                             name: 'Pantalones',
                             subcategory: [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { id: 1121, name: 'Pantalones de vestir' },
                                 { id: 1122, name: 'Pantalones casuales' },
                                 { id: 1123, name: 'Pantalones de mezclilla' },
@@ -332,9 +400,15 @@ const MyForm = () => {
                             ]
                         },
                         {
-                            id: 111,
+                            id: 116,
                             name: 'Vestidos',
                             subcategory: [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { id: 1111, name: 'Vestidos de cóctel' },
                                 { id: 1112, name: 'Vestidos de gala' },
                                 { id: 1113, name: 'Vestidos casuales' },
@@ -351,9 +425,15 @@ const MyForm = () => {
                             ]
                         },
                         {
-                            id: 112,
+                            id: 117,
                             name: 'Calzado',
                             subcategory: [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { id: 1121, name: 'Zapatos de tacón' },
                                 { id: 1122, name: 'Zapatos planos' },
                                 { id: 1123, name: 'Sandalias' },
@@ -368,9 +448,15 @@ const MyForm = () => {
                             ]
                         },
                         {
-                            id: 112,
+                            id: 118,
                             name: 'Ropa Interior',
                             subcategory: [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { id: 1121, name: 'Sujetadores' },
                                 { id: 1122, name: 'Brasieres' },
                                 { id: 1123, name: 'Calzones' },
@@ -394,9 +480,21 @@ const MyForm = () => {
                     "name": "Hombre",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 121,
                             "name": "Camisas",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1211, "name": "Camisas de vestir" },
                                 { "id": 1212, "name": "Camisas casuales" },
                                 { "id": 1213, "name": "Camisas de manga larga" },
@@ -416,6 +514,12 @@ const MyForm = () => {
                             "id": 122,
                             "name": "Pantalones",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1221, "name": "Pantalones de vestir" },
                                 { "id": 1222, "name": "Pantalones casuales" },
                                 { "id": 1223, "name": "Pantalones de mezclilla" },
@@ -435,6 +539,12 @@ const MyForm = () => {
                             "id": 123,
                             "name": "Trajes",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1231, "name": "Trajes de vestir" },
                                 { "id": 1232, "name": "Trajes casuales" },
                                 { "id": 1233, "name": "Trajes de lino" },
@@ -447,6 +557,12 @@ const MyForm = () => {
                             "id": 124,
                             "name": "Sudaderas",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1241, "name": "Sudaderas con capucha" },
                                 { "id": 1242, "name": "Sudaderas sin capucha" },
                                 { "id": 1243, "name": "Sudaderas de algodón" },
@@ -459,6 +575,12 @@ const MyForm = () => {
                             "id": 125,
                             "name": "Chaquetas",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1251, "name": "Chaquetas de cuero" },
                                 { "id": 1252, "name": "Chaquetas de denim" },
                                 { "id": 1253, "name": "Chaquetas de abrigo" },
@@ -471,6 +593,12 @@ const MyForm = () => {
                             "id": 126,
                             "name": "Calzado",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1261, "name": "Zapatos de vestir" },
                                 { "id": 1262, "name": "Zapatos casuales" },
                                 { "id": 1263, "name": "Zapatillas deportivas" },
@@ -483,6 +611,12 @@ const MyForm = () => {
                             "id": 127,
                             "name": "Accesorios",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1271, "name": "Cinturones" },
                                 { "id": 1272, "name": "Corbatas" },
                                 { "id": 1273, "name": "Pañuelos" },
@@ -495,6 +629,12 @@ const MyForm = () => {
                             "id": 128,
                             "name": "Ropa Interior",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1281, "name": "Calzoncillos" },
                                 { "id": 1282, "name": "Boxers" },
                                 { "id": 1283, "name": "Pijamas" },
@@ -511,9 +651,21 @@ const MyForm = () => {
                     "name": "Niños",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 131,
                             "name": "Ropa",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1311, "name": "Camisas" },
                                 { "id": 1312, "name": "Pantalones" },
                                 { "id": 1313, "name": "Vestidos" },
@@ -530,6 +682,12 @@ const MyForm = () => {
                             "id": 132,
                             "name": "Calzado",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1321, "name": "Zapatillas" },
                                 { "id": 1322, "name": "Sandalias" },
                                 { "id": 1323, "name": "Botas" },
@@ -541,6 +699,12 @@ const MyForm = () => {
                             "id": 133,
                             "name": "Accesorios",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1331, "name": "Gorros" },
                                 { "id": 1332, "name": "Guantes" },
                                 { "id": 1333, "name": "Bufandas" },
@@ -553,6 +717,12 @@ const MyForm = () => {
                             "id": 134,
                             "name": "Juguetes",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 1341, "name": "Peluches" },
                                 { "id": 1342, "name": "Coches" },
                                 { "id": 1343, "name": "Muñecas" },
@@ -573,13 +743,31 @@ const MyForm = () => {
             name: 'Electrónicos',
             subcategory: [
                 {
+                    id: 0,
+                    name: "Seleccionar categoría", // Opción disabled sin value
+                    disabled: true, // Añadir el atributo disabled
+                    subcategory: [],
+                },
+                {
                     "id": 21,
                     "name": "Computadoras",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 211,
                             "name": "Portátiles",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2111, "name": "Ultrabooks" },
                                 { "id": 2112, "name": "Gaming" },
                                 { "id": 2113, "name": "Profesionales" },
@@ -592,6 +780,12 @@ const MyForm = () => {
                             "id": 212,
                             "name": "Escritorio",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2121, "name": "Todo en uno" },
                                 { "id": 2122, "name": "Torre" },
                                 { "id": 2123, "name": "Gaming" },
@@ -603,6 +797,12 @@ const MyForm = () => {
                             "id": 213,
                             "name": "Componentes",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2131, "name": "Procesadores" },
                                 { "id": 2132, "name": "Placas base" },
                                 { "id": 2133, "name": "Memoria RAM" },
@@ -618,6 +818,12 @@ const MyForm = () => {
                             "id": 214,
                             "name": "Periféricos",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2141, "name": "Monitores" },
                                 { "id": 2142, "name": "Teclados" },
                                 { "id": 2143, "name": "Ratones" },
@@ -633,6 +839,12 @@ const MyForm = () => {
                             "id": 215,
                             "name": "Software",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2151, "name": "Sistemas operativos" },
                                 { "id": 2152, "name": "Antivírus" },
                                 { "id": 2153, "name": "Productividad" },
@@ -649,9 +861,21 @@ const MyForm = () => {
                     "name": "Smartphones",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 221,
                             "name": "Android",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2211, "name": "Gama Alta" },
                                 { "id": 2212, "name": "Gama Media" },
                                 { "id": 2213, "name": "Gama Baja" },
@@ -664,6 +888,12 @@ const MyForm = () => {
                             "id": 222,
                             "name": "iOS",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2221, "name": "iPhone" },
                                 { "id": 2222, "name": "iPad" },
                                 // ... más subcategorías de iOS
@@ -673,6 +903,12 @@ const MyForm = () => {
                             "id": 223,
                             "name": "Accesorios",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2231, "name": "Fundas" },
                                 { "id": 2232, "name": "Cargadores" },
                                 { "id": 2233, "name": "Auriculares" },
@@ -690,9 +926,21 @@ const MyForm = () => {
                     "name": "Audio",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 231,
                             "name": "Auriculares",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2311, "name": "Inalámbricos" },
                                 { "id": 2312, "name": "Con cable" },
                                 { "id": 2313, "name": "Diademas" },
@@ -706,6 +954,12 @@ const MyForm = () => {
                             "id": 232,
                             "name": "Altavoces",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2321, "name": "Portátiles" },
                                 { "id": 2322, "name": "De escritorio" },
                                 { "id": 2323, "name": "Home Theater" },
@@ -718,6 +972,12 @@ const MyForm = () => {
                             "id": 233,
                             "name": "Reproductores",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2331, "name": "Reproductores de música digital" },
                                 { "id": 2332, "name": "Tocadiscos" },
                                 { "id": 2333, "name": "Radios" },
@@ -728,6 +988,12 @@ const MyForm = () => {
                             "id": 234,
                             "name": "Micrófonos",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 2341, "name": "Condensador" },
                                 { "id": 2342, "name": "Dinámico" },
                                 { "id": 2343, "name": "USB" },
@@ -746,13 +1012,31 @@ const MyForm = () => {
             name: 'Máscotas',
             subcategory: [
                 {
+                    id: 0,
+                    name: "Seleccionar categoría", // Opción disabled sin value
+                    disabled: true, // Añadir el atributo disabled
+                    subcategory: [],
+                },
+                {
                     "id": 31,
                     "name": "Perros",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 311,
                             "name": "Comida",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 3111, "name": "Comida Seca" },
                                 { "id": 3112, "name": "Comida Húmeda" },
                                 { "id": 3113, "name": "Comida para Cachorros" },
@@ -768,6 +1052,12 @@ const MyForm = () => {
                             "id": 322,
                             "name": "Accesorios",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 3221, "name": "Collares" },
                                 { "id": 3222, "name": "Correas" },
                                 { "id": 3223, "name": "Arneses" },
@@ -783,6 +1073,12 @@ const MyForm = () => {
                             "id": 333,
                             "name": "Cuidado",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 3331, "name": "Champús y Acondicionadores" },
                                 { "id": 3332, "name": "Cepillos" },
                                 { "id": 3333, "name": "Cortaúñas" },
@@ -795,6 +1091,12 @@ const MyForm = () => {
                             "id": 334,
                             "name": "Entrenamiento",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 3341, "name": "Bocados" },
                                 { "id": 3342, "name": "Clicker" },
                                 { "id": 3343, "name": "Libros y Guías" },
@@ -810,9 +1112,21 @@ const MyForm = () => {
                     "name": "Gatos",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 321,
                             "name": "Comida",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 3211, "name": "Comida Seca" },
                                 { "id": 3212, "name": "Comida Húmeda" },
                                 { "id": 3213, "name": "Comida para Gatitos" },
@@ -827,6 +1141,12 @@ const MyForm = () => {
                             "id": 322,
                             "name": "Accesorios",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 3221, "name": "Rascadores" },
                                 { "id": 3222, "name": "Juguetes" },
                                 { "id": 3223, "name": "Camas" },
@@ -842,6 +1162,12 @@ const MyForm = () => {
                             "id": 323,
                             "name": "Cuidado",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 3231, "name": "Champús y Acondicionadores" },
                                 { "id": 3232, "name": "Cepillos" },
                                 { "id": 3233, "name": "Cortaúñas" },
@@ -854,6 +1180,12 @@ const MyForm = () => {
                             "id": 324,
                             "name": "Salud",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 3241, "name": "Vitaminas y Suplementos" },
                                 { "id": 3242, "name": "Medicamentos para Gatos" },
                                 // ... más subcategorías de Salud
@@ -869,13 +1201,31 @@ const MyForm = () => {
             name: 'Hogar',
             subcategory: [
                 {
+                    id: 0,
+                    name: "Seleccionar categoría", // Opción disabled sin value
+                    disabled: true, // Añadir el atributo disabled
+                    subcategory: [],
+                },
+                {
                     "id": 41,
                     "name": "Electrodomésticos",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 411,
                             "name": "Refrigeración",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4111, "name": "Neveras" },
                                 { "id": 4112, "name": "Congeladores" },
                                 { "id": 4113, "name": "Neveras Combinadas" },
@@ -887,6 +1237,12 @@ const MyForm = () => {
                             "id": 412,
                             "name": "Cocina",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4121, "name": "Hornos" },
                                 { "id": 4122, "name": "Placas de Inducción" },
                                 { "id": 4123, "name": "Microondas" },
@@ -903,6 +1259,12 @@ const MyForm = () => {
                             "id": 413,
                             "name": "Lavandería",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4131, "name": "Lavadoras" },
                                 { "id": 4132, "name": "Secadoras" },
                                 { "id": 4133, "name": "Lavadoras Secadoras" },
@@ -915,6 +1277,12 @@ const MyForm = () => {
                             "id": 414,
                             "name": "Limpieza",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4141, "name": "Aspiradoras" },
                                 { "id": 4142, "name": "Robots Aspiradores" },
                                 { "id": 4143, "name": "Fregadoras" },
@@ -926,6 +1294,12 @@ const MyForm = () => {
                             "id": 415,
                             "name": "Climatización",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4151, "name": "Aire Acondicionado" },
                                 { "id": 4152, "name": "Calefacción" },
                                 { "id": 4153, "name": "Ventiladores" },
@@ -936,6 +1310,12 @@ const MyForm = () => {
                             "id": 416,
                             "name": "Otros",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4161, "name": "Secadores de Pelo" },
                                 { "id": 4162, "name": "Planchas de Pelo" },
                                 { "id": 4163, "name": "Depiladoras" },
@@ -952,9 +1332,21 @@ const MyForm = () => {
                     "name": "Muebles",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 421,
                             "name": "Salón",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4211, "name": "Sofás" },
                                 { "id": 4212, "name": "Sillones" },
                                 { "id": 4213, "name": "Mesas de Centro" },
@@ -968,6 +1360,12 @@ const MyForm = () => {
                             "id": 422,
                             "name": "Comedor",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4221, "name": "Mesas de Comedor" },
                                 { "id": 4222, "name": "Sillas" },
                                 { "id": 4223, "name": "Buffets" },
@@ -979,6 +1377,12 @@ const MyForm = () => {
                             "id": 423,
                             "name": "Dormitorio",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4231, "name": "Camas" },
                                 { "id": 4232, "name": "Cabeceros" },
                                 { "id": 4233, "name": "Mesitas de Noche" },
@@ -992,6 +1396,12 @@ const MyForm = () => {
                             "id": 424,
                             "name": "Cocina",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4241, "name": "Muebles de Cocina" },
                                 { "id": 4242, "name": "Mesas de Cocina" },
                                 { "id": 4243, "name": "Sillas de Cocina" },
@@ -1002,6 +1412,12 @@ const MyForm = () => {
                             "id": 425,
                             "name": "Baño",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4251, "name": "Muebles de Baño" },
                                 { "id": 4252, "name": "Espejos de Baño" },
                                 { "id": 4253, "name": "Toalleros" },
@@ -1012,6 +1428,12 @@ const MyForm = () => {
                             "id": 426,
                             "name": "Oficina",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4261, "name": "Escritorios" },
                                 { "id": 4262, "name": "Sillas de Oficina" },
                                 { "id": 4263, "name": "Librerías de Oficina" },
@@ -1023,6 +1445,12 @@ const MyForm = () => {
                             "id": 427,
                             "name": "Jardín",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4271, "name": "Muebles de Jardín" },
                                 { "id": 4272, "name": "Sombrillas" },
                                 { "id": 4273, "name": "Hamacas" },
@@ -1033,6 +1461,12 @@ const MyForm = () => {
                             "id": 428,
                             "name": "Decoración",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4281, "name": "Alfombras" },
                                 { "id": 4282, "name": "Cortinas" },
                                 { "id": 4283, "name": "Cuadros" },
@@ -1048,9 +1482,21 @@ const MyForm = () => {
                     "name": "Herramientas",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 431,
                             "name": "Manuales",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4311, "name": "Destornilladores" },
                                 { "id": 4312, "name": "Llaves" },
                                 { "id": 4313, "name": "Martillos" },
@@ -1066,6 +1512,12 @@ const MyForm = () => {
                             "id": 432,
                             "name": "Eléctricas",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4321, "name": "Taladros Eléctricos" },
                                 { "id": 4322, "name": "Atornilladores" },
                                 { "id": 4323, "name": "Amoladoras" },
@@ -1080,6 +1532,12 @@ const MyForm = () => {
                             "id": 433,
                             "name": "Jardinería",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4331, "name": "Tijeras de Podar" },
                                 { "id": 4332, "name": "Rastrillos" },
                                 { "id": 4333, "name": "Palas" },
@@ -1092,6 +1550,12 @@ const MyForm = () => {
                             "id": 434,
                             "name": "Construcción",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4341, "name": "Niveles Láser" },
                                 { "id": 4342, "name": "Taladros de Impacto" },
                                 { "id": 4343, "name": "Martillos Demoledor" },
@@ -1104,6 +1568,12 @@ const MyForm = () => {
                             "id": 435,
                             "name": "Accesorios",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 4351, "name": "Brocas" },
                                 { "id": 4352, "name": "Tornillos" },
                                 { "id": 4353, "name": "Clavos" },
@@ -1122,13 +1592,31 @@ const MyForm = () => {
             name: 'Belleza y Cuidado Personal',
             subcategory: [
                 {
+                    id: 0,
+                    name: "Seleccionar categoría", // Opción disabled sin value
+                    disabled: true, // Añadir el atributo disabled
+                    subcategory: [],
+                },
+                {
                     "id": 51,
                     "name": "Maquillaje",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 511,
                             "name": "Rostro",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5111, "name": "Bases de Maquillaje" },
                                 { "id": 5112, "name": "Correctores" },
                                 { "id": 5113, "name": "Polvos Compactos" },
@@ -1143,6 +1631,12 @@ const MyForm = () => {
                             "id": 512,
                             "name": "Ojos",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5121, "name": "Sombras de Ojos" },
                                 { "id": 5122, "name": "Delineadores" },
                                 { "id": 5123, "name": "Máscara de Pestañas" },
@@ -1156,6 +1650,12 @@ const MyForm = () => {
                             "id": 513,
                             "name": "Labios",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5131, "name": "Labiales" },
                                 { "id": 5132, "name": "Bálsamos Labiales" },
                                 { "id": 5133, "name": "Delineadores de Labios" },
@@ -1166,6 +1666,12 @@ const MyForm = () => {
                             "id": 514,
                             "name": "Uñas",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5141, "name": "Esmaltes" },
                                 { "id": 5142, "name": "Base para Esmalte" },
                                 { "id": 5143, "name": "Top Coat" },
@@ -1176,6 +1682,12 @@ const MyForm = () => {
                             "id": 515,
                             "name": "Accesorios",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5151, "name": "Brochas" },
                                 { "id": 5152, "name": "Pinceles" },
                                 { "id": 5153, "name": "Esponjas" },
@@ -1191,9 +1703,21 @@ const MyForm = () => {
                     "name": "Cabello",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 521,
                             "name": "Cuidado",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5211, "name": "Champús" },
                                 { "id": 5212, "name": "Acondicionadores" },
                                 { "id": 5213, "name": "Mascarillas Capilares" },
@@ -1206,6 +1730,12 @@ const MyForm = () => {
                             "id": 522,
                             "name": "Estilismo",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5221, "name": "Secadores de Pelo" },
                                 { "id": 5222, "name": "Planchas de Pelo" },
                                 { "id": 5223, "name": "Rizadores" },
@@ -1218,6 +1748,12 @@ const MyForm = () => {
                             "id": 523,
                             "name": "Coloración",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5231, "name": "Tintes" },
                                 { "id": 5232, "name": "Decolorantes" },
                                 { "id": 5233, "name": "Tintes Naturales" },
@@ -1228,6 +1764,12 @@ const MyForm = () => {
                             "id": 524,
                             "name": "Productos para el Cabello",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5241, "name": "Geles para el Cabello" },
                                 { "id": 5242, "name": "Espumas para el Cabello" },
                                 { "id": 5243, "name": "Lacas para el Cabello" },
@@ -1243,9 +1785,21 @@ const MyForm = () => {
                     "name": "Cuerpo",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 531,
                             "name": "Cuidado Corporal",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5311, "name": "Cremas Hidratantes" },
                                 { "id": 5312, "name": "Lociones Corporales" },
                                 { "id": 5313, "name": "Jabones" },
@@ -1260,6 +1814,12 @@ const MyForm = () => {
                             "id": 532,
                             "name": "Afeitado",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5321, "name": "Espumas de Afeitar" },
                                 { "id": 5322, "name": "Geles de Afeitar" },
                                 { "id": 5323, "name": "Afeitadoras" },
@@ -1272,6 +1832,12 @@ const MyForm = () => {
                             "id": 533,
                             "name": "Manos y Pies",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5331, "name": "Cremas de Manos" },
                                 { "id": 5332, "name": "Cremas de Pies" },
                                 { "id": 5333, "name": "Lima de Uñas" },
@@ -1283,6 +1849,12 @@ const MyForm = () => {
                             "id": 534,
                             "name": "Baño",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5341, "name": "Geles de Ducha" },
                                 { "id": 5342, "name": "Sales de Baño" },
                                 { "id": 5343, "name": "Bombas de Baño" },
@@ -1294,6 +1866,12 @@ const MyForm = () => {
                             "id": 535,
                             "name": "Depilación",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 5351, "name": "Cera Depilatoria" },
                                 { "id": 5352, "name": "Depiladoras Eléctricas" },
                                 { "id": 5353, "name": "Crema Depilatoria" },
@@ -1310,13 +1888,31 @@ const MyForm = () => {
             name: 'Automóviles y Motos',
             subcategory: [
                 {
+                    id: 0,
+                    name: "Seleccionar categoría", // Opción disabled sin value
+                    disabled: true, // Añadir el atributo disabled
+                    subcategory: [],
+                },
+                {
                     "id": 61,
                     "name": "Accesorios",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 611,
                             "name": "Seguridad",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6111, "name": "Cascos" },
                                 { "id": 6112, "name": "Guantes" },
                                 { "id": 6113, "name": "Chaquetas" },
@@ -1331,6 +1927,12 @@ const MyForm = () => {
                             "id": 612,
                             "name": "Comodidad",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6121, "name": "Asientos" },
                                 { "id": 6122, "name": "Respaldos" },
                                 { "id": 6123, "name": "Parabrisas" },
@@ -1347,6 +1949,12 @@ const MyForm = () => {
                             "id": 613,
                             "name": "Mantenimiento",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6131, "name": "Aceite" },
                                 { "id": 6132, "name": "Filtros" },
                                 { "id": 6133, "name": "Bujías" },
@@ -1359,6 +1967,12 @@ const MyForm = () => {
                             "id": 614,
                             "name": "Electrónica",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6141, "name": "Navegadores GPS" },
                                 { "id": 6142, "name": "Intercomunicadores" },
                                 { "id": 6143, "name": "Cámaras" },
@@ -1370,6 +1984,12 @@ const MyForm = () => {
                             "id": 615,
                             "name": "Estética",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6151, "name": "Pegatinas" },
                                 { "id": 6152, "name": "Faros LED" },
                                 { "id": 6153, "name": "Escapes" },
@@ -1384,9 +2004,21 @@ const MyForm = () => {
                     "name": "Repuestos",
                     "subcategory": [
                         {
+                            id: 0,
+                            name: "Seleccionar categoría", // Opción disabled sin value
+                            disabled: true, // Añadir el atributo disabled
+                            subcategory: [],
+                        },
+                        {
                             "id": 621,
                             "name": "Motor",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6211, "name": "Pistones" },
                                 { "id": 6212, "name": "Bielas" },
                                 { "id": 6213, "name": "Cigüeñales" },
@@ -1404,6 +2036,12 @@ const MyForm = () => {
                             "id": 622,
                             "name": "Chasis y Suspensión",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6221, "name": "Horquillas" },
                                 { "id": 6222, "name": "Amortiguadores" },
                                 { "id": 6223, "name": "Rodamientos" },
@@ -1418,6 +2056,12 @@ const MyForm = () => {
                             "id": 623,
                             "name": "Frenos",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6231, "name": "Discos de Freno" },
                                 { "id": 6232, "name": "Pastillas de Freno" },
                                 { "id": 6233, "name": "Bombines de Freno" },
@@ -1430,6 +2074,12 @@ const MyForm = () => {
                             "id": 624,
                             "name": "Ruedas y Neumáticos",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6241, "name": "Llantas" },
                                 { "id": 6242, "name": "Neumáticos" },
                                 { "id": 6243, "name": "Cámaras de Aire" },
@@ -1440,6 +2090,12 @@ const MyForm = () => {
                             "id": 625,
                             "name": "Iluminación",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6251, "name": "Faros" },
                                 { "id": 6252, "name": "Intermitentes" },
                                 { "id": 6253, "name": "Luces Traseras" },
@@ -1450,6 +2106,12 @@ const MyForm = () => {
                             "id": 626,
                             "name": "Carrocería",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6261, "name": "Carenados" },
                                 { "id": 6262, "name": "Asientos" },
                                 { "id": 6263, "name": "Depósitos de Combustible" },
@@ -1460,6 +2122,12 @@ const MyForm = () => {
                             "id": 627,
                             "name": "Electricidad",
                             "subcategory": [
+                                {
+                                    id: 0,
+                                    name: "Seleccionar categoría", // Opción disabled sin value
+                                    disabled: true, // Añadir el atributo disabled
+                                    subcategory: [],
+                                },
                                 { "id": 6271, "name": "Batería" },
                                 { "id": 6272, "name": "Cableado" },
                                 { "id": 6273, "name": "Relés" },
@@ -1528,7 +2196,7 @@ const MyForm = () => {
                                 value={selectedCategory}
                                 onChange={handleCategoryChange}
                             />
-                            {errors[`inputs.category`] && (
+                            {errors[`inputs.parent.category`] && (
                                 <div className="text-red-500 text-xs mt-1">
                                     {errors[`inputs.parent.category`]}
                                 </div>
@@ -1561,25 +2229,25 @@ const MyForm = () => {
                                 />
                             )}
                             <Input
-                                name={`inputs.title`}
+                                name={`inputs.parent.title`}
                                 label={`Titulo`}
                             />
-                            {errors[`inputs.title`] && (
+                            {errors[`inputs.parent.title`] && (
                                 <div className="text-red-500 text-xs mt-1">
-                                    {errors[`inputs.title`]}
+                                    {errors[`inputs.parent.title`]}
                                 </div>
                             )}
                             <TextArea
-                                initialValue={`inputs.description`}
-                                name={`inputs.description`}
+                                initialValue={`inputs.parent.description`}
+                                name={`inputs.parent.description`}
                                 label={`Descripción`}
                                 onEditorChange={(content) => {
-                                    setFieldValue(`inputs.description`, content);
+                                    setFieldValue(`inputs.parent.description`, content);
                                 }}
                             />
                             {errors[`inputs.parent.description`] && (
                                 <div className="text-red-500 text-xs mt-1">
-                                    {errors[`inputs.description`]}
+                                    {errors[`inputs.parent.description`]}
                                 </div>
                             )}
                             {values.inputs.image && (
@@ -1588,20 +2256,21 @@ const MyForm = () => {
                                 </p>
                             )}
                             <FileInput
-                                name={`inputs.image`}
+                                name={`inputs.parent.image`}
                                 helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
                                 onFileChange={handleFileChange}
                             />
-                            {errors[`inputs.image`] && (
+                            {errors[`inputs.parent.image`] && (
                                 <div className="text-red-500 text-xs mt-1">
-                                    {errors[`inputs.image`]}
+                                    {errors[`inputs.parent.image`]}
                                 </div>
                             )}
                             <hr className="m-3" />
-                            <FieldArray name="inputs">
+                            <span className='mb-4'>Variantes</span>
+                            <FieldArray name="inputs.child">
                                 {({ insert, remove, push }) => (
                                     <>
-                                        {values.inputs.map((input, index) => (
+                                        {values.inputs.child.map((input, index) => (
 
                                             <div key={index}>
                                                 <SelectInput
@@ -1642,21 +2311,23 @@ const MyForm = () => {
                                                         {errors[`inputs.child.${index}.stock`]}
                                                     </div>
                                                 )}
-                                                {input.image && (
+                                               {input.image && (
                                                     <p>
                                                         Actual: <a href={input.image}>{input.image}</a>
                                                     </p>
                                                 )}
                                                 <FileInput
+                                                    label={`Imagen`}
                                                     name={`inputs.child.${index}.image`}
                                                     helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
-                                                    onFileChange={handleFileChange}
+                                                    onFileChange={handleFileChange2}
                                                 />
                                                 {errors[`inputs.child.${index}.image`] && (
                                                     <div className="text-red-500 text-xs mt-1">
                                                         {errors[`inputs.child.${index}.image`]}
                                                     </div>
                                                 )}
+
                                                 <button type="button" onClick={() => {
                                                     push({ product: '', color: '', size: '', price: '', stock: '', image: '' });
 
@@ -1679,12 +2350,13 @@ const MyForm = () => {
                                     </>
                                 )}
                             </FieldArray>
+                            <hr className="m-3" />
                             <Buttons
                                 ariaLabel="botón del formulario"
                                 type="submit"
                                 className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${Object.keys(errors).length > 0 ? "disabled" : ""
                                     }`}
-                                disabled={Object.keys(errors).length > 0} 
+                                disabled={Object.keys(errors).length > 0}
                                 text="Guardar"
                                 color="#fff"
                                 size="md"

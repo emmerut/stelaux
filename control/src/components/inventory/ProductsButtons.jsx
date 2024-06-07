@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import Modal from "@/components/ui/Modal";
 import ProductForm from "@/components/form/Inventory/ProductForm";
-import VariantForm from "@/components/form/Inventory/VariantForm";
-import CatalogForm from "@/components/form/Inventory/CatalogForm";
 
 function ProductsButtons() {
   const [showModal, setShowModal] = useState(false);
@@ -21,10 +19,6 @@ function ProductsButtons() {
 
   const renderForm = () => {
     switch(activeForm) {
-      case 'catalogForm':
-        return <CatalogForm />;
-      case 'variantForm':
-        return <VariantForm />;
       case 'productForm':
         return <ProductForm />;
       default:
@@ -41,12 +35,7 @@ function ProductsButtons() {
   return (
     <div className="flex space-x-2 sm:justify-end items-center rtl:space-x-reverse">
       {/* ... your buttons ... */}
-      <Button
-        className="text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md smc:px-2 smc:py-2 smc:text-xxs"
-        onClick={() => openModal('catalogForm')}
-      >
-        + Catálogo
-      </Button>
+
       <Button
         className="text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md smc:px-2 smc:py-2 smc:text-xxs"
         onClick={() => openModal('productForm')}
