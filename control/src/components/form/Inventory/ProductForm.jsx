@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, FieldArray } from 'formik';
-import { homepageData } from '@/constant/homepageData';
 
 // Asumiendo que tienes estos componentes definidos
 import { Input, FileInput, NestedSelectInput, TextArea, DecimalInput, NumberInput, SelectInput } from '@/components/form/Form';
@@ -25,6 +24,8 @@ const MyForm = () => {
     const [subCategoryName, setSubCategoryName] = useState(null);
     const [subCategoryName2, setSubCategoryName2] = useState(null);
     const [subCategoryName3, setSubCategoryName3] = useState(null);
+
+    const showMissingCategory = !categoryName || !subCategoryName || !subCategoryName2 || !subCategoryName3;
 
     useEffect(() => {
         setCategories(category);
@@ -93,7 +94,7 @@ const MyForm = () => {
             setSubCategoryName3(fourthSubcategories.find((subcat) => subcat.id === selectedFourthSubcategory).name);
         }
     }, [selectedFourthSubcategory]);
-    
+
     // cambio de estado categorías seleccionadas
     useEffect(() => {
         if (selectedCategory) {
@@ -123,40 +124,40 @@ const MyForm = () => {
 
     const handleCategoryChange = (event) => {
         if (event.target.value === 0) {
-            setSelectedCategory(null); 
-            setSelectedSubcategory(null); 
-            setSelectedFinalSubcategory(null); 
-            setSelectedFourthSubcategory(null); 
+            setSelectedCategory(null);
+            setSelectedSubcategory(null);
+            setSelectedFinalSubcategory(null);
+            setSelectedFourthSubcategory(null);
         } else {
             setSelectedCategory(parseInt(event.target.value));
-            setSubcategories([]); 
-            setSelectedSubcategory(null); 
+            setSubcategories([]);
+            setSelectedSubcategory(null);
         }
 
     };
 
     const handleSubcategoryChange = (event) => {
         if (event.target.value === 0) {
-            setSelectedCategory(null); 
-            setSelectedSubcategory(null); 
-            setSelectedFinalSubcategory(null); 
-            setSelectedFourthSubcategory(null); 
+            setSelectedCategory(null);
+            setSelectedSubcategory(null);
+            setSelectedFinalSubcategory(null);
+            setSelectedFourthSubcategory(null);
         } else {
             setSelectedSubcategory(parseInt(event.target.value));
-            setFinalSubcategories([]); 
-            setSelectedFourthSubcategory(null); 
+            setFinalSubcategories([]);
+            setSelectedFourthSubcategory(null);
         }
     };
 
     const handleFinalSubcategoryChange = (event) => {
         if (event.target.value === 0) {
-            setSelectedCategory(null); 
-            setSelectedSubcategory(null); 
-            setSelectedFinalSubcategory(null); 
-            setSelectedFourthSubcategory(null); 
+            setSelectedCategory(null);
+            setSelectedSubcategory(null);
+            setSelectedFinalSubcategory(null);
+            setSelectedFourthSubcategory(null);
         } else {
             setSelectedFinalSubcategory(parseInt(event.target.value));
-            setFourthSubcategories([]); 
+            setFourthSubcategories([]);
         }
     };
 
@@ -165,7 +166,7 @@ const MyForm = () => {
     };
 
     const formikObj = [];
-    
+
     //carga formulario api base
     useEffect(() => {
         console.log('loading dataForm')
@@ -181,6 +182,7 @@ const MyForm = () => {
         formData.append(`subcategory2`, subCategoryName2);
         formData.append(`subcategory3`, subCategoryName3);
         formData.append(`title`, values.inputs.parent.title);
+        formData.append(`status`, values.inputs.parent.status);
         formData.append(`description`, values.inputs.parent.description);
         formData.append('image', selectedFile);
         formData.append('parent_type', 'product')
@@ -200,7 +202,22 @@ const MyForm = () => {
 
         // Mostrar el objeto plano en la consola
         console.log('Valores del formulario:', formDataObject);
-        
+
+        try {
+            const res = await fetch('http://127.0.0.1:8000/v1/inventory/create_product/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!res.ok) {
+                throw new Error(`Error en la solicitud: ${res.status}`);
+            }
+
+        } catch (error) {
+            console.error('Error al enviar el formulario:', error);
+        } finally {
+            setIsLoadingForm(false);
+        }
     };
 
     const handleFileChange = (file) => {
@@ -214,8 +231,9 @@ const MyForm = () => {
     const initialValues = {
         inputs: dataForm?.length > 0
             ? { parent: dataForm[0], child: dataForm[1] }
-            : { parent: { category: '', subcategory: '', subcategory2: '', subcategory3: '', title: '', description: '', image: '', }, 
-                child: [{ color: '', size: '', price: '', stock: '', }], 
+            : {
+                parent: { status: '', category: '', subcategory: '', subcategory2: '', subcategory3: '', title: '', description: '', image: '', },
+                child: [{ color: '', size: '', price: '', stock: '', }],
             },
     };
 
@@ -223,6 +241,9 @@ const MyForm = () => {
     const validate = (values) => {
 
         let errors = {};
+        if (!values.inputs.parent.status) {
+            errors['inputs.parent.status'] = 'El estado es requerido';
+        }
         if (!values.inputs.parent.title) {
             errors['inputs.parent.title'] = 'El título es requerido';
         } else if (values.inputs.parent.title.length > 80) {
@@ -2169,203 +2190,215 @@ const MyForm = () => {
         { value: 'xxxl', label: 'Extra Extra Extra Large (XXXL)' },
     ];
 
+    const options = [
+        { value: '', label: 'Seleccionar Estado', disabled: true },
+        { value: 'active', label: 'Activo' },
+        { value: 'inactive', label: 'Inactivo' },
+    ];
+
     return (
         <div>
-            {isLoadingForm && (
-                <div className="loader-overlay">
-                    <div className="loader"></div>
-                </div>
-            )}
-            {!isLoadingForm && (
-                <Formik
-                    initialValues={initialValues}
-                    onSubmit={handleSubmit}
-                    validate={validate}
-                >
-                    {({ values, errors, setFieldValue }) => (
-                        <Form className="mb-5 pb-5">
-                            <h3 className="text-lg text-center font-bold text-slate-800 font-oxanium">
-                                Objetivo: Llenar datos del producto y variantes
-                            </h3>
+            <Formik
+                initialValues={initialValues}
+                onSubmit={handleSubmit}
+                validate={validate}
+            >
+                {({ values, errors, setFieldValue }) => (
+                    <Form className="mb-5 pb-5">
+                        <h3 className="text-lg text-center font-bold text-slate-800 font-oxanium">
+                            Objetivo: Llenar datos del producto y variantes
+                        </h3>
+                        {showMissingCategory && (
+                            <div className="text-red-500 text-xs mt-1 text-center">
+                                ¡Debe seleccionar las categorías en sus 4 niveles!
+                            </div>
+                        )}
+                        <SelectInput
+                            label={`Estado`}
+                            name={`inputs.parent.status`}
+                            options={options}
+                        />
+                        {errors[`inputs.parent.status`] && (
+                            <div className="text-red-500 text-xs mt-1">
+                                {errors[`inputs.parent.status`]}
+                            </div>
+                        )}
+                        <NestedSelectInput
+                            label={`Categoría Principal`}
+                            name={`inputs.parent.category`}
+                            options={[
+                                ...categories.map((cat) => ({ value: cat.id, label: cat.name }))
+                            ]}
+                            value={selectedCategory}
+                            onChange={handleCategoryChange}
+                        />
+
+                        {selectedCategory && (
                             <NestedSelectInput
-                                label={`Categoría Principal`}
-                                name={`inputs.parent.category`}
-                                options={[
-                                    ...categories.map((cat) => ({ value: cat.id, label: cat.name }))
-                                ]}
-                                value={selectedCategory}
-                                onChange={handleCategoryChange}
+                                label={`Categoría Nivel 2`}
+                                name={`inputs.parent.subcategory`}
+                                options={subcategories.map((subcat) => ({ value: subcat.id, label: subcat.name }))}
+                                value={selectedSubcategory}
+                                onChange={handleSubcategoryChange}
                             />
-                            {errors[`inputs.parent.category`] && (
-                                <div className="text-red-500 text-xs mt-1">
-                                    {errors[`inputs.parent.category`]}
-                                </div>
-                            )}
-                            {selectedCategory && (
-                                <NestedSelectInput
-                                    label={`Categoría Nivel 2`}
-                                    name={`inputs.parent.subcategory`}
-                                    options={subcategories.map((subcat) => ({ value: subcat.id, label: subcat.name }))}
-                                    value={selectedSubcategory}
-                                    onChange={handleSubcategoryChange}
-                                />
-                            )}
-                            {selectedSubcategory && (
-                                <NestedSelectInput
-                                    label={`Categoría Nivel 3`}
-                                    name={`inputs.parent.subcategory2`}
-                                    options={finalSubcategories.map((finalSubcat) => ({ value: finalSubcat.id, label: finalSubcat.name }))}
-                                    value={selectedFinalSubcategory}
-                                    onChange={handleFinalSubcategoryChange}
-                                />
-                            )}
-                            {selectedFinalSubcategory && (
-                                <NestedSelectInput
-                                    label={`Categoría Nivel 4`}
-                                    name={`inputs.parent.subcategory3`}
-                                    options={fourthSubcategories.map((fourthSubcat) => ({ value: fourthSubcat.id, label: fourthSubcat.name }))}
-                                    value={selectedFourthSubcategory}
-                                    onChange={handleFourthSubcategoryChange}
-                                />
-                            )}
-                            <Input
-                                name={`inputs.parent.title`}
-                                label={`Titulo`}
-                            />
-                            {errors[`inputs.parent.title`] && (
-                                <div className="text-red-500 text-xs mt-1">
-                                    {errors[`inputs.parent.title`]}
-                                </div>
-                            )}
-                            <TextArea
-                                initialValue={`inputs.parent.description`}
-                                name={`inputs.parent.description`}
-                                label={`Descripción`}
-                                onEditorChange={(content) => {
-                                    setFieldValue(`inputs.parent.description`, content);
-                                }}
-                            />
-                            {errors[`inputs.parent.description`] && (
-                                <div className="text-red-500 text-xs mt-1">
-                                    {errors[`inputs.parent.description`]}
-                                </div>
-                            )}
-                            {values.inputs.image && (
-                                <p>
-                                    Actual: <a href={values.inputs.image}>{values.inputs.image}</a>
-                                </p>
-                            )}
-                            <FileInput
-                                name={`inputs.parent.image`}
-                                helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
-                                onFileChange={handleFileChange}
-                            />
-                            {errors[`inputs.parent.image`] && (
-                                <div className="text-red-500 text-xs mt-1">
-                                    {errors[`inputs.parent.image`]}
-                                </div>
-                            )}
-                            <hr className="m-3" />
-                            <span className='mb-4'>Variantes</span>
-                            <FieldArray name="inputs.child">
-                                {({ insert, remove, push }) => (
-                                    <>
-                                        {values.inputs.child.map((input, index) => (
+                        )}
 
-                                            <div key={index}>
-                                                <SelectInput
-                                                    label={`Color ${index + 1}`}
-                                                    name={`inputs.child.${index}.color`}
-                                                    options={colors}
-                                                />
-                                                {errors[`inputs.child.${index}.color`] && (
-                                                    <div className="text-red-500 text-xs mt-1">
-                                                        {errors[`inputs.child.${index}.color`]}
-                                                    </div>
-                                                )}
-                                                <SelectInput
-                                                    label={`Talla ${index + 1}`}
-                                                    name={`inputs.child.${index}.size`}
-                                                    options={size}
-                                                />
-                                                {errors[`inputs.child.${index}.size`] && (
-                                                    <div className="text-red-500 text-xs mt-1">
-                                                        {errors[`inputs.child.${index}.size`]}
-                                                    </div>
-                                                )}
-                                                <DecimalInput
-                                                    name={`inputs.child.${index}.price`}
-                                                    label={`Precio ${index + 1}`}
-                                                />
-                                                {errors[`inputs.child.${index}.price`] && (
-                                                    <div className="text-red-500 text-xs mt-1">
-                                                        {errors[`inputs.child.${index}.price`]}
-                                                    </div>
-                                                )}
-                                                <NumberInput
-                                                    name={`inputs.child.${index}.stock`}
-                                                    label={`Stock ${index + 1}`}
-                                                />
-                                                {errors[`inputs.child.${index}.stock`] && (
-                                                    <div className="text-red-500 text-xs mt-1">
-                                                        {errors[`inputs.child.${index}.stock`]}
-                                                    </div>
-                                                )}
-                                               {input.image && (
-                                                    <p>
-                                                        Actual: <a href={input.image}>{input.image}</a>
-                                                    </p>
-                                                )}
-                                                <FileInput
-                                                    label={`Imagen`}
-                                                    name={`inputs.child.${index}.image`}
-                                                    helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
-                                                    onFileChange={handleFileChange2}
-                                                />
-                                                {errors[`inputs.child.${index}.image`] && (
-                                                    <div className="text-red-500 text-xs mt-1">
-                                                        {errors[`inputs.child.${index}.image`]}
-                                                    </div>
-                                                )}
+                        {selectedSubcategory && (
+                            <NestedSelectInput
+                                label={`Categoría Nivel 3`}
+                                name={`inputs.parent.subcategory2`}
+                                options={finalSubcategories.map((finalSubcat) => ({ value: finalSubcat.id, label: finalSubcat.name }))}
+                                value={selectedFinalSubcategory}
+                                onChange={handleFinalSubcategoryChange}
+                            />
+                        )}
 
-                                                <button type="button" onClick={() => {
-                                                    push({ product: '', color: '', size: '', price: '', stock: '', image: '' });
+                        {selectedFinalSubcategory && (
+                            <NestedSelectInput
+                                label={`Categoría Nivel 4`}
+                                name={`inputs.parent.subcategory3`}
+                                options={fourthSubcategories.map((fourthSubcat) => ({ value: fourthSubcat.id, label: fourthSubcat.name }))}
+                                value={selectedFourthSubcategory}
+                                onChange={handleFourthSubcategoryChange}
+                            />
+                        )}
 
-                                                }} className="mt-2">
-                                                    <span className="text-green-500">+</span> Añadir
+                        <Input
+                            name={`inputs.parent.title`}
+                            label={`Titulo`}
+                        />
+                        {errors[`inputs.parent.title`] && (
+                            <div className="text-red-500 text-xs mt-1">
+                                {errors[`inputs.parent.title`]}
+                            </div>
+                        )}
+                        <TextArea
+                            initialValue={`inputs.parent.description`}
+                            name={`inputs.parent.description`}
+                            label={`Descripción`}
+                            onEditorChange={(content) => {
+                                setFieldValue(`inputs.parent.description`, content);
+                            }}
+                        />
+                        {errors[`inputs.parent.description`] && (
+                            <div className="text-red-500 text-xs mt-1">
+                                {errors[`inputs.parent.description`]}
+                            </div>
+                        )}
+                        {values.inputs.image && (
+                            <p>
+                                Actual: <a href={values.inputs.image}>{values.inputs.image}</a>
+                            </p>
+                        )}
+                        <FileInput
+                            name={`inputs.parent.image`}
+                            helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
+                            onFileChange={handleFileChange}
+                        />
+                        {errors[`inputs.parent.image`] && (
+                            <div className="text-red-500 text-xs mt-1">
+                                {errors[`inputs.parent.image`]}
+                            </div>
+                        )}
+                        <hr className="m-3" />
+                        <span className='mb-4'>Variantes</span>
+                        <FieldArray name="inputs.child">
+                            {({ insert, remove, push }) => (
+                                <>
+                                    {values.inputs.child.map((input, index) => (
+
+                                        <div key={index}>
+                                            <SelectInput
+                                                label={`Color ${index + 1}`}
+                                                name={`inputs.child.${index}.color`}
+                                                options={colors}
+                                            />
+                                            {errors[`inputs.child.${index}.color`] && (
+                                                <div className="text-red-500 text-xs mt-1">
+                                                    {errors[`inputs.child.${index}.color`]}
+                                                </div>
+                                            )}
+                                            <SelectInput
+                                                label={`Talla ${index + 1}`}
+                                                name={`inputs.child.${index}.size`}
+                                                options={size}
+                                            />
+                                            {errors[`inputs.child.${index}.size`] && (
+                                                <div className="text-red-500 text-xs mt-1">
+                                                    {errors[`inputs.child.${index}.size`]}
+                                                </div>
+                                            )}
+                                            <DecimalInput
+                                                name={`inputs.child.${index}.price`}
+                                                label={`Precio ${index + 1}`}
+                                            />
+                                            {errors[`inputs.child.${index}.price`] && (
+                                                <div className="text-red-500 text-xs mt-1">
+                                                    {errors[`inputs.child.${index}.price`]}
+                                                </div>
+                                            )}
+                                            <NumberInput
+                                                name={`inputs.child.${index}.stock`}
+                                                label={`Stock ${index + 1}`}
+                                            />
+                                            {errors[`inputs.child.${index}.stock`] && (
+                                                <div className="text-red-500 text-xs mt-1">
+                                                    {errors[`inputs.child.${index}.stock`]}
+                                                </div>
+                                            )}
+                                            {input.image && (
+                                                <p>
+                                                    Actual: <a href={input.image}>{input.image}</a>
+                                                </p>
+                                            )}
+                                            <FileInput
+                                                label={`Imagen`}
+                                                name={`inputs.child.${index}.image`}
+                                                helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
+                                                onFileChange={handleFileChange2}
+                                            />
+                                            {errors[`inputs.child.${index}.image`] && (
+                                                <div className="text-red-500 text-xs mt-1">
+                                                    {errors[`inputs.child.${index}.image`]}
+                                                </div>
+                                            )}
+
+                                            <button type="button" onClick={() => {
+                                                push({ product: '', color: '', size: '', price: '', stock: '', image: '' });
+
+                                            }} className="mt-2">
+                                                <span className="text-green-500">+</span> Añadir
+                                            </button>
+
+                                            {index > 0 && (
+                                                <button
+                                                    type="button"
+                                                    className="ml-2 float-right"
+                                                    onClick={input.id ? () => removeObject(input.id, 'product') : () => remove(index)}
+                                                >
+                                                    <span className="text-red-500">- Eliminar</span>
                                                 </button>
+                                            )}
+                                        </div>
+                                    ))}
 
-                                                {index > 0 && (
-                                                    <button
-                                                        type="button"
-                                                        className="ml-2 float-right"
-                                                        onClick={input.id ? () => removeObject(input.id, 'product') : () => remove(index)}
-                                                    >
-                                                        <span className="text-red-500">- Eliminar</span>
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))}
-
-                                    </>
-                                )}
-                            </FieldArray>
-                            <hr className="m-3" />
-                            <Buttons
-                                ariaLabel="botón del formulario"
-                                type="submit"
-                                className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${Object.keys(errors).length > 0 ? "disabled" : ""
-                                    }`}
-                                disabled={Object.keys(errors).length > 0}
-                                text="Guardar"
-                                color="#fff"
-                                size="md"
-                            />
-                        </Form>
-                    )}
-                </Formik>
-            )}
-
+                                </>
+                            )}
+                        </FieldArray>
+                        <hr className="m-3" />
+                        <Buttons
+                            ariaLabel="botón del formulario"
+                            type="submit"
+                            className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${Object.keys(errors).length > 0 ? "disabled" : ""
+                                }`}
+                                disabled={showMissingCategory || isLoadingForm || Object.keys(errors).length > 0}
+                            text="Guardar"
+                            color="#fff"
+                            size="md"
+                        />
+                    </Form>
+                )}
+            </Formik>
         </div>
     );
 };

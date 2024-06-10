@@ -2,10 +2,9 @@ import re
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Product, ProductCatalog, Variant, Category, Service, ServiceVariant
+from .models import Product, Variant, Category, SubCategory, SubCategories, BaseCategories, Service, ServiceVariant
 from .serializers import (
     ProductSerializer,
-    CatalogSerializer,
     VariantSerializer,
     CategorySerializer,
     ServiceSerializer,
@@ -18,8 +17,7 @@ class InventoryViewSet(viewsets.ViewSet):
         """Retorna el serializador correspondiente al tipo de contenido."""
         return {
             'product': ProductSerializer,
-            'variant': VariantSerializer,
-            'catalog': CatalogSerializer,
+            'product_variant': VariantSerializer,
             'category': CategorySerializer,
             'service': ServiceSerializer,
             'service_variant': ServiceVariantSerializer
@@ -31,8 +29,6 @@ class InventoryViewSet(viewsets.ViewSet):
                 return Product
             elif product_type == 'variant':
                 return Variant
-            elif product_type == 'catalog':
-                return ProductCatalog
             elif product_type == 'category':
                 return Category
             elif product_type == 'service':
@@ -41,56 +37,172 @@ class InventoryViewSet(viewsets.ViewSet):
                 return ServiceVariant
             return None
 
-    def _create_parent(self, product_type, id, data):
-        model = self._get_model(product_type)
-        if model:
-            if model.objects.filter(id=id).exists():
-               parent = model.objects.get(id=id)
-               for attr, value in data.items():
-                # Condición para evitar la actualización con archivos vacíos
-                if attr in ['image'] and not value:
-                    continue
-                setattr(parent, attr, value)
-                parent.save()
-                print('parent updated')
-            else:
-                parent = model.objects.create(**data)
-                print('parent created')
-            return parent.pk
+    def _create_category(self, parent_type, data):
+        if parent_type == 'product':
+
+            # Crea o actualiza la categoría principal
+            category_data = {
+                'name': data.get('category'),
+                'slug': data.get('category').replace(' ', '-').lower(),  # Crea un slug a partir del nombre
+            }
+            try:
+                category = Category.objects.get(slug=category_data['slug'])
+                # Si la categoría existe, actualiza los datos
+                category.name = category_data['name']
+                category.save()
+            except Category.DoesNotExist:
+                # Si la categoría no existe, crea una nueva
+                category = Category.objects.create(**category_data)
+
+            # Crea o actualiza la subcategoría
+            subcategory_data = {
+                'parent': category,
+                'name': data.get('subcategory'),
+                'slug': data.get('subcategory').replace(' ', '-').lower(),
+            }
+            try:
+                subcategory = SubCategory.objects.get(parent=category, slug=subcategory_data['slug'])
+                # Si la subcategoría existe, actualiza los datos
+                subcategory.name = subcategory_data['name']
+                subcategory.save()
+            except SubCategory.DoesNotExist:
+                # Si la subcategoría no existe, crea una nueva
+                subcategory = SubCategory.objects.create(**subcategory_data)
+
+            # Crea o actualiza la subcategoría de nivel 2
+            subcategories_data = {
+                'parent': subcategory,
+                'name': data.get('subcategory2'),
+                'slug': data.get('subcategory2').replace(' ', '-').lower(),
+            }
+            try:
+                subcategories = SubCategories.objects.get(parent=subcategory, slug=subcategories_data['slug'])
+                # Si la subcategoría existe, actualiza los datos
+                subcategories.name = subcategories_data['name']
+                subcategories.save()
+            except SubCategories.DoesNotExist:
+                # Si la subcategoría no existe, crea una nueva
+                subcategories = SubCategories.objects.create(**subcategories_data)
+
+            # Crea o actualiza la subcategoría de nivel 3
+            basecategories_data = {
+                'parent': subcategories,
+                'name': data.get('subcategory3'),
+                'slug': data.get('subcategory3').replace(' ', '-').lower(),
+            }
+            try:
+                basecategories = BaseCategories.objects.get(parent=subcategories, slug=basecategories_data['slug'])
+                # Si la subcategoría existe, actualiza los datos
+                basecategories.name = basecategories_data['name']
+                basecategories.save()
+            except BaseCategories.DoesNotExist:
+                # Si la subcategoría no existe, crea una nueva
+                basecategories = BaseCategories.objects.create(**basecategories_data)
+
+            return basecategories
+        
+        elif parent_type == 'service':
+            category_data = {
+                'name': data.get('category'),
+                'slug': data.get('category').replace(' ', '-').lower(),  # Crea un slug a partir del nombre
+            }
+            try:
+                category = Category.objects.get(slug=category_data['slug'])
+                # Si la categoría existe, actualiza los datos
+                category.name = category_data['name']
+                category.save()
+            except Category.DoesNotExist:
+                # Si la categoría no existe, crea una nueva
+                category = Category.objects.create(**category_data)
+
+            return category
+        
         return None
 
-    @action(detail=False, methods=['get'])
-    def list_product_all(self):
+    def _create_parent(self, parent_type, id, object_data):
+        if parent_type == 'product':
+    
+            if id is None:
+                serializer = ProductSerializer(data=object_data)
+                if serializer.is_valid():
+                    parent_object = serializer.save()
+                    return parent_object
+                else:
+                    print(serializer.errors)
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                try:
+                    parent_object = Product.objects.get(pk=id)
+                    serializer = ProductSerializer(parent_object, data=object_data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return parent_object
+                    else:
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                except Product.DoesNotExist:
+                    return Response({'error': f'No se encontró el objeto Product con ID {id}'},
+                                    status=status.HTTP_404_NOT_FOUND)
+                
+        elif parent_type == 'service':
+            if id is None:
+                serializer = ServiceSerializer(data=object_data)
+                if serializer.is_valid():
+                    parent_object = serializer.save()
+                    return parent_object
+                else:
+                    print(serializer.errors)
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                try:
+                    parent_object = Service.objects.get(pk=id)
+                    serializer = ServiceSerializer(parent_object, data=object_data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return parent_object
+                    else:
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                except Service.DoesNotExist:
+                    return Response({'error': f'No se encontró el objeto Service con ID {id}'},
+                                    status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'error': 'Tipo de objeto padre no válido'}, status=status.HTTP_400_BAD_REQUEST)
         
+    @action(detail=False, methods=['get'])
+    def list_product_all(self, request):
         products = Product.objects.all()
         variants = Variant.objects.all()
-        catalog = ProductCatalog.objects.all()
-        categories = Category.objects.all()
-
+        
         data = {
             'products': ProductSerializer(products, many=True).data,
             'variants': VariantSerializer(variants, many=True).data,
-            'catalog': CatalogSerializer(catalog, many=True).data,
-            'categories': CategorySerializer(categories, many=True).data,
+        }
+        return Response(data)
+
+    @action(detail=False, methods=['get'])
+    def list_service_all(self, request):
+        services = Service.objects.all()
+        variants = ServiceVariant.objects.all()
+
+        data = {
+            'services': ServiceSerializer(services, many=True).data,
+            'variants': ServiceVariantSerializer(variants, many=True).data,
         }
         return Response(data)
 
     @action(detail=False, methods=['post'])
     def create_product(self, request):
-        created_objects = []        
-        updated_objects = []    
+        created_objects = []
+        updated_objects = []
         created_parent = None
-       
+
         creation_indexes = set()
-        # Dividir los datos de entrada por objetos a crear y objetos a actualizar
         creation_data = {}
         update_data = {}
-        
+
         for key, value in request.data.items():
             match = re.match(r'inputs\[(\d+)\]\[(.*)\]', key)
             if match:
                 index, field = match.groups()
-                # Intentar convertir el valor del campo 'id' a un entero:
                 try:
                     id_value = int(value)
                 except (ValueError, TypeError):
@@ -98,10 +210,10 @@ class InventoryViewSet(viewsets.ViewSet):
 
                 if field == 'id':
                     if id_value is None:
-                        creation_indexes.add(int(index))  # Agregar índice a crear
+                        creation_indexes.add(int(index))
                         creation_data[key] = value
                     else:
-                        if int(index) not in creation_indexes: 
+                        if int(index) not in creation_indexes:
                             update_data[key] = value
 
         if request.data.get('parent_type'):
@@ -109,42 +221,44 @@ class InventoryViewSet(viewsets.ViewSet):
             id = request.data.get('parent_id')
             if id == 'undefined' or id == '':
                 id = None
-            
+
             object_data = {
-                'name': request.data.get('name'),
                 'title': request.data.get('title'),
                 'description': request.data.get('description'),
-                'component': request.data.get('component'),
+                'status': request.data.get('status'),
                 'image': request.FILES.get('image'),
             }
+
             created_parent = self._create_parent(parent_type, id, object_data)
-            
+
+        # Obtén la basecategory creada
+        basecategories = self._create_category(parent_type, request.data)
+
+        # Guarda la basecategory en el objeto Product
+        if created_parent:
+            created_parent.category = basecategories
+            created_parent.save()
+
+        # Crear los objetos ProductVariant
         for key, value in creation_data.items():
             match = re.match(r'inputs\[(\d+)\]\[(.*)\]', key)
             if match:
                 index, field = match.groups()
                 index = int(index)
 
-            content_type = request.data.get(f'inputs[{index}][product_type]')
+            content_type = request.data.get(f'inputs[{index}][content_type]')
             serializer_class = self._get_serializer_class(content_type)
             object_data = {
-                'title': request.data.get(f'inputs[{index}][title]'),
-                'description': request.data.get(f'inputs[{index}][description]'),
                 'color': request.data.get(f'inputs[{index}][color]'),
                 'size': request.data.get(f'inputs[{index}][size]'),
                 'price': request.data.get(f'inputs[{index}][price]'),
-                'quantity': request.data.get(f'inputs[{index}][quantity]'),
-                'sku': request.data.get(f'inputs[{index}][sku]'),
-                'name': request.data.get(f'inputs[{index}][name]'),
-                'section_type': request.data.get(f'inputs[{index}][section_type]'),
-                'content': request.data.get(f'inputs[{index}][content]'),
-                'order': request.data.get(f'inputs[{index}][order]'),
-                'image': request.FILES.get(f'inputs[{index}][image]'),   
+                'stock': request.data.get(f'inputs[{index}][stock]'),
+                'image': request.FILES.get(f'inputs[{index}][image]'),
             }
             serializer = serializer_class(data=object_data)
             if serializer.is_valid():
                 if created_parent:
-                    created_object = serializer.save(parent_id=created_parent)
+                    created_object = serializer.save(product=created_parent)
                     created_objects.append((created_object, serializer_class))
                 else:
                     created_object = serializer.save()
@@ -152,7 +266,8 @@ class InventoryViewSet(viewsets.ViewSet):
             else:  
                 print(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
+        # Actualizar los objetos ProductVariant existentes
         for key, object_id in update_data.items():
             try:
                 index = int(key.split('[')[1].split(']')[0])
@@ -163,19 +278,12 @@ class InventoryViewSet(viewsets.ViewSet):
                     return Response({'error': 'Tipo de contenido no válido'}, status=status.HTTP_400_BAD_REQUEST)
 
                 object_data = {
-                'title': request.data.get(f'inputs[{index}][title]'),
-                'description': request.data.get(f'inputs[{index}][description]'),
-                'color': request.data.get(f'inputs[{index}][color]'),
-                'size': request.data.get(f'inputs[{index}][size]'),
-                'price': request.data.get(f'inputs[{index}][price]'),
-                'quantity': request.data.get(f'inputs[{index}][quantity]'),
-                'sku': request.data.get(f'inputs[{index}][sku]'),
-                'name': request.data.get(f'inputs[{index}][name]'),
-                'section_type': request.data.get(f'inputs[{index}][section_type]'),
-                'content': request.data.get(f'inputs[{index}][content]'),
-                'order': request.data.get(f'inputs[{index}][order]'),
-                'image': request.FILES.get(f'inputs[{index}][image]'),   
-            }
+                    'color': request.data.get(f'inputs[{index}][color]'),
+                    'size': request.data.get(f'inputs[{index}][size]'),
+                    'price': request.data.get(f'inputs[{index}][price]'),
+                    'stock': request.data.get(f'inputs[{index}][stock]'),
+                    'image': request.FILES.get(f'inputs[{index}][image]'),
+                }
                 try:
                     instance = serializer_class.Meta.model.objects.get(pk=object_id)
                     serializer = serializer_class(instance, data=object_data, partial=True)
@@ -190,10 +298,8 @@ class InventoryViewSet(viewsets.ViewSet):
 
             except (ValueError, IndexError) as e:
                 return Response({'error': f'Formato de datos incorrecto: {e}'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        response_data = {}
-        
 
+        response_data = {}
         if created_objects:
             response_data['created'] = [serializer(obj).data for obj, serializer in created_objects]
         if updated_objects:
@@ -203,7 +309,7 @@ class InventoryViewSet(viewsets.ViewSet):
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response({'message': 'No se crearon ni actualizaron objetos.'}, status=status.HTTP_200_OK)
-            
+
     @action(detail=False, methods=['delete'])
     def delete_product(self, request):
         parent_id = request.data.get('parent_id')
@@ -231,20 +337,18 @@ class InventoryViewSet(viewsets.ViewSet):
         
     @action(detail=False, methods=['post'])
     def create_service(self, request):
-        created_objects = []        
-        updated_objects = []    
+        created_objects = []
+        updated_objects = []
         created_parent = None
-       
+
         creation_indexes = set()
-        # Dividir los datos de entrada por objetos a crear y objetos a actualizar
         creation_data = {}
         update_data = {}
-        
+
         for key, value in request.data.items():
             match = re.match(r'inputs\[(\d+)\]\[(.*)\]', key)
             if match:
                 index, field = match.groups()
-                # Intentar convertir el valor del campo 'id' a un entero:
                 try:
                     id_value = int(value)
                 except (ValueError, TypeError):
@@ -252,10 +356,10 @@ class InventoryViewSet(viewsets.ViewSet):
 
                 if field == 'id':
                     if id_value is None:
-                        creation_indexes.add(int(index))  # Agregar índice a crear
+                        creation_indexes.add(int(index))
                         creation_data[key] = value
                     else:
-                        if int(index) not in creation_indexes: 
+                        if int(index) not in creation_indexes:
                             update_data[key] = value
 
         if request.data.get('parent_type'):
@@ -263,33 +367,43 @@ class InventoryViewSet(viewsets.ViewSet):
             id = request.data.get('parent_id')
             if id == 'undefined' or id == '':
                 id = None
-            
+
             object_data = {
-                'name': request.data.get('name'),
                 'title': request.data.get('title'),
                 'description': request.data.get('description'),
+                'status': request.data.get('status'),
                 'image': request.FILES.get('image'),
             }
+
             created_parent = self._create_parent(parent_type, id, object_data)
-            
+
+        # Obtén la basecategory creada
+        category = self._create_category(parent_type, request.data)
+
+        # Guarda la basecategory en el objeto Service
+        if created_parent:
+            created_parent.subcategory = category
+            created_parent.save()
+
+        # Crear los objetos ServiceVariant
         for key, value in creation_data.items():
             match = re.match(r'inputs\[(\d+)\]\[(.*)\]', key)
             if match:
                 index, field = match.groups()
                 index = int(index)
 
-            content_type = request.data.get(f'inputs[{index}][product_type]')
+            content_type = request.data.get(f'inputs[{index}][content_type]')
             serializer_class = self._get_serializer_class(content_type)
             object_data = {
-                'service': request.data.get(f'inputs[{index}][parent]'),
+                'title': request.data.get(f'inputs[{index}][title]'),
                 'description': request.data.get(f'inputs[{index}][description]'),
-                'duration': request.data.get(f'inputs[{index}][duration]'),
-                'price': request.data.get(f'inputs[{index}][price]'),   
+                'image': request.FILES.get(f'inputs[{index}][image]'),
+                'price': request.data.get(f'inputs[{index}][price]'),
             }
             serializer = serializer_class(data=object_data)
             if serializer.is_valid():
                 if created_parent:
-                    created_object = serializer.save(parent_id=created_parent)
+                    created_object = serializer.save(service=created_parent)
                     created_objects.append((created_object, serializer_class))
                 else:
                     created_object = serializer.save()
@@ -297,7 +411,8 @@ class InventoryViewSet(viewsets.ViewSet):
             else:  
                 print(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
+        # Actualizar los objetos ServiceVariant existentes
         for key, object_id in update_data.items():
             try:
                 index = int(key.split('[')[1].split(']')[0])
@@ -308,10 +423,10 @@ class InventoryViewSet(viewsets.ViewSet):
                     return Response({'error': 'Tipo de contenido no válido'}, status=status.HTTP_400_BAD_REQUEST)
 
                 object_data = {
-                    'service': request.data.get(f'inputs[{index}][parent]'),
+                    'title': request.data.get(f'inputs[{index}][title]'),
                     'description': request.data.get(f'inputs[{index}][description]'),
-                    'duration': request.data.get(f'inputs[{index}][duration]'),
-                    'price': request.data.get(f'inputs[{index}][price]'),   
+                    'image': request.FILES.get(f'inputs[{index}][image]'),
+                    'price': request.data.get(f'inputs[{index}][price]'),
                 }
                 try:
                     instance = serializer_class.Meta.model.objects.get(pk=object_id)
@@ -327,10 +442,8 @@ class InventoryViewSet(viewsets.ViewSet):
 
             except (ValueError, IndexError) as e:
                 return Response({'error': f'Formato de datos incorrecto: {e}'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        response_data = {}
-        
 
+        response_data = {}
         if created_objects:
             response_data['created'] = [serializer(obj).data for obj, serializer in created_objects]
         if updated_objects:

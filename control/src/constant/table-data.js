@@ -5,6 +5,7 @@ import user4 from "@/assets/images/users/user-4.jpg";
 import user5 from "@/assets/images/users/user-5.jpg";
 import user6 from "@/assets/images/users/user-6.jpg";
 
+
 export const tableData = [
   {
     id: 1,
@@ -559,8 +560,6 @@ export const tableData = [
 ];
 
 import customer1 from "@/assets/images/all-img/customer_1.png";
-
-
 
 export const advancedTable = [
   {
@@ -1215,15 +1214,13 @@ export const advancedTable = [
   },
 ];
 
-export const serviceTable = [
-  
-  // ... (resto de los objetos con los campos actualizados)
-];
+export const serviceTable = [];
 
-export const productTable = [
-  
-  // ... (resto de los objetos con los campos actualizados)
-];
+export const productTable = [];
+
+export const serviceVariantTable = [];
+
+export const productVariantTable = [];
 
 export const homeTable = [
   {
