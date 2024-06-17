@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Modal from "@/components/ui/Modal";
-import ServiceForm from '@/components/form/Inventory/ServiceForm'
+import ServiceForm from '@/components/form/Inventory/Creation/ServiceForm'
 
 function ServiceButtons() {
   const [showModal, setShowModal] = useState(false);

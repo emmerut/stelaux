@@ -29,7 +29,7 @@ const Input = memo(({ label, labelClass, className, helpText, showErrorMsg, ...p
 
 const TextArea = memo(({ label, labelClass, className, onEditorChange, showErrorMsg, ...props }) => {
   const editorRef = useRef(null);
-  const { setFieldValue } = useFormikContext(); 
+  const { setFieldValue, values } = useFormikContext(); 
 
   const handleEditorChange = (content) => {
     // Update the Formik field value
@@ -49,6 +49,7 @@ const TextArea = memo(({ label, labelClass, className, onEditorChange, showError
       <Editor
         apiKey='jilhl78tlomd3250tf5ncjjywse6ibcq3uu862mlml03ve6w'
         onInit={(_evt, editor) => editorRef.current = editor}
+        initialValue={values.formData && values.formData.description ? values.formData.description : ''}
         init={{
           height: 300,
           menubar: false,

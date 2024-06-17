@@ -160,6 +160,7 @@ class InventoryViewSet(viewsets.ViewSet):
                         serializer.save()
                         return parent_object
                     else:
+                        print(serializer.errors)
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 except Service.DoesNotExist:
                     return Response({'error': f'No se encontró el objeto Service con ID {id}'},
@@ -225,9 +226,12 @@ class InventoryViewSet(viewsets.ViewSet):
             object_data = {
                 'title': request.data.get('title'),
                 'description': request.data.get('description'),
-                'status': request.data.get('status'),
-                'image': request.FILES.get('image'),
+                'status': request.data.get('status')
             }
+
+            image = request.FILES.get('image')
+            if image:
+                object_data['image'] = image
 
             created_parent = self._create_parent(parent_type, id, object_data)
 
@@ -371,9 +375,12 @@ class InventoryViewSet(viewsets.ViewSet):
             object_data = {
                 'title': request.data.get('title'),
                 'description': request.data.get('description'),
-                'status': request.data.get('status'),
-                'image': request.FILES.get('image'),
+                'status': request.data.get('status')
             }
+
+            image = request.FILES.get('image')
+            if image:
+                object_data['image'] = image
 
             created_parent = self._create_parent(parent_type, id, object_data)
 
