@@ -3,7 +3,7 @@ import Button from '@/components/ui/Button'
 import Modal from "@/components/ui/Modal";
 import ServiceForm from '@/components/form/Inventory/Creation/ServiceForm'
 
-function ServiceButtons() {
+function ServiceButtons({refreshData}) {
   const [showModal, setShowModal] = useState(false);
 
   const openModal = () => {

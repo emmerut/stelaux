@@ -5,9 +5,10 @@ import { Formik, Form, FieldArray, ErrorMessage } from 'formik';
 import { Input, FileInput, NumberInput, DecimalInput, TextArea, SelectInput } from '@/components/form/Form';
 import Buttons from '@/components/ui/Button';
 
-const MyForm = () => {
+const MyForm = ({refreshData}) => {
   const [dataForm, setData] = useState(null);
   const [isLoadingForm, setIsLoadingForm] = useState(false);
+  const [sendingForm, setSendingForm] = useState(false);
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedFile2, setSelectedFile2] = useState(null);
@@ -22,7 +23,7 @@ const MyForm = () => {
   }, []);
 
   const handleSubmit = async (values) => {
-    setIsLoadingForm(true);
+    setSendingForm(true);
     const formData = new FormData();
     formData.append('parent_id', values.inputs.parent.id);
     formData.append(`category`, values.inputs.parent.category);
@@ -61,7 +62,9 @@ const MyForm = () => {
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
     } finally {
-      setIsLoadingForm(false);
+      setSendingForm(false);
+      refreshData();
+      closeModal();
     }
   };
 
@@ -97,6 +100,7 @@ const MyForm = () => {
     { value: 'active', label: 'Activo' },
     { value: 'inactive', label: 'Inactivo' },
   ];
+
   const validate = (values) => {
     let errors = {};
     if (!values.inputs.parent.category) {
@@ -173,7 +177,7 @@ const MyForm = () => {
       if (!res.ok) {
         throw new Error(`Error en la solicitud: ${res.status}`);
       }
-      
+
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
     } finally {
@@ -333,10 +337,11 @@ const MyForm = () => {
             <hr className="m-3" />
             <Buttons
               ariaLabel="botón del formulario"
-              type="submit"
+              isLoading={sendingForm}
+              type={sendingForm || Object.keys(errors).length > 0 ? 'button' : 'submit'}
               className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${Object.keys(errors).length > 0 ? "disabled" : ""
                 }`}
-              disabled={isLoadingForm || Object.keys(errors).length > 0}
+              disabled={sendingForm || Object.keys(errors).length > 0}
               text="Guardar"
               color="#fff"
               size="md"

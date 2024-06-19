@@ -1,4 +1,4 @@
-import re
+import re, json
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -165,6 +165,53 @@ class InventoryViewSet(viewsets.ViewSet):
                 except Service.DoesNotExist:
                     return Response({'error': f'No se encontró el objeto Service con ID {id}'},
                                     status=status.HTTP_404_NOT_FOUND)
+        
+        elif parent_type == 'variant_service':
+            if id is None:
+                serializer = ServiceVariantSerializer(data=object_data)
+                if serializer.is_valid():
+                    parent_object = serializer.save()
+                    return parent_object
+                else:
+                    print(serializer.errors)
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                try:
+                    parent_object = ServiceVariant.objects.get(pk=id)
+                    serializer = ServiceVariantSerializer(parent_object, data=object_data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return parent_object
+                    else:
+                        print(serializer.errors)
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                except Service.DoesNotExist:
+                    return Response({'error': f'No se encontró el objeto Service con ID {id}'},
+                                    status=status.HTTP_404_NOT_FOUND)
+        
+        elif parent_type == 'product_variant':
+            if id is None:
+                serializer = VariantSerializer(data=object_data)
+                if serializer.is_valid():
+                    parent_object = serializer.save()
+                    return parent_object
+                else:
+                    print(serializer.errors)
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                try:
+                    parent_object = Variant.objects.get(pk=id)
+                    serializer = VariantSerializer(parent_object, data=object_data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return parent_object
+                    else:
+                        print(serializer.errors)
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                except Service.DoesNotExist:
+                    return Response({'error': f'No se encontró el objeto Service con ID {id}'},
+                                    status=status.HTTP_404_NOT_FOUND)
+        
         else:
             return Response({'error': 'Tipo de objeto padre no válido'}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -226,7 +273,10 @@ class InventoryViewSet(viewsets.ViewSet):
             object_data = {
                 'title': request.data.get('title'),
                 'description': request.data.get('description'),
-                'status': request.data.get('status')
+                'status': request.data.get('status'),
+                'color': request.data.get('color'),
+                'size': request.data.get('size'),
+                'stock': request.data.get('stock')
             }
 
             image = request.FILES.get('image')
@@ -315,30 +365,31 @@ class InventoryViewSet(viewsets.ViewSet):
             return Response({'message': 'No se crearon ni actualizaron objetos.'}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['delete'])
-    def delete_product(self, request):
-        parent_id = request.data.get('parent_id')
-        parent_type = request.data.get('parent_type')
-        content_type = request.data.get('type')
-        content_id = request.data.get('id')
-
-        serializer_class = self._get_serializer_class(content_type)
-        if not serializer_class:
-            return Response({'error': 'Tipo de contenido no válido'}, status=status.HTTP_400_BAD_REQUEST)
-
+    def delete_batch(self, request):
         try:
-            model = self._get_model(content_type)
-            model.objects.get(pk=content_id).delete()
+            data = json.loads(request.body)
 
-            if parent_id:
-                parent_model = self._get_model(parent_type)
-                parent_instance = model.objects.filter(parent_id=parent_id).count()
-                if parent_instance == 0:
-                    parent_model.objects.get(pk=parent_id).delete()
+            product_ids = [item['id'] for item in data if item['isProduct'] is True]
+            service_ids = [item['id'] for item in data if item['isService'] is True]
+            product_variant_ids = [item['id'] for item in data if item['isProductVariant'] is True]
+            service_variant_ids = [item['id'] for item in data if item['isServiceVariant'] is True]
 
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except:
-            return Response({'error': 'Content not found'}, status=status.HTTP_404_NOT_FOUND)
+            if product_ids:
+                Product.objects.filter(id__in=product_ids).delete()
+            if service_ids:
+                Service.objects.filter(id__in=service_ids).delete()
+            if product_variant_ids:
+                Variant.objects.filter(id__in=product_variant_ids).delete()
+            if service_variant_ids:
+                ServiceVariant.objects.filter(id__in= service_variant_ids).delete()
+
+            return Response({'message': 'Items processed successfully'}, status=status.HTTP_204_NO_CONTENT)
         
+        except json.JSONDecodeError:
+            return Response({'error': 'Invalid JSON data'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     @action(detail=False, methods=['post'])
     def create_service(self, request):
         created_objects = []

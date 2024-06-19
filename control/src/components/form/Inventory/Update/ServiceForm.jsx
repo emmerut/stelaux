@@ -6,9 +6,10 @@ import { Input, FileInput, TextArea, SelectInput } from '@/components/form/Form'
 import { serviceData } from "@/constant/inventoryData";
 import Buttons from '@/components/ui/Button';
 
-const MyForm = ({ objID }) => {
+const MyForm = ({ objID, refreshData }) => {
   const [isLoadingForm, setIsLoadingForm] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [sendingForm, setSendingForm] = useState(false);
   const [formData, setFormData] = useState([]);
 
   useEffect(() => {
@@ -28,7 +29,7 @@ const MyForm = ({ objID }) => {
   }, []);
 
   const handleSubmit = async (values) => {
-    setIsLoadingForm(true);
+    setSendingForm(true);
     const formData = new FormData();
 
     if (selectedFile) {
@@ -62,7 +63,9 @@ const MyForm = ({ objID }) => {
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
     } finally {
-      setIsLoadingForm(false);
+      setSendingForm(false);
+      refreshData();
+      closeModal();
     }
   };
 
@@ -140,7 +143,7 @@ const MyForm = ({ objID }) => {
 
             <Form className="mb-5 pb-5">
               <h3 className="text-lg text-center font-bold text-slate-800 font-oxanium mb-5">
-                Objetivo: Llenar los campos del Servicio Padre y sus Variantes.
+                Objetivo: Llenar los campos del Servicio.
               </h3>
               <SelectInput
                 label={`Categoría Principal`}
@@ -200,10 +203,11 @@ const MyForm = ({ objID }) => {
 
               <Buttons
                 ariaLabel="botón del formulario"
-                type="submit"
+                type={sendingForm || Object.keys(errors).length > 0 ? 'button' : 'submit'}
+                isLoading={sendingForm} 
                 className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${Object.keys(errors).length > 0 ? "disabled" : ""
                   }`}
-                disabled={isLoadingForm || Object.keys(errors).length > 0}
+                disabled={sendingForm || Object.keys(errors).length > 0}
                 text="Guardar"
                 color="#fff"
                 size="md"

@@ -6,9 +6,9 @@ import { Input, FileInput, TextArea, SelectInput, NestedSelectInput } from '@/co
 import { productData } from "@/constant/inventoryData";
 import Buttons from '@/components/ui/Button';
 
-const MyForm = ({ objID }) => {
+const MyForm = ({ objID, refreshData, closeModal }) => {
     const [isLoadingForm, setIsLoadingForm] = useState(false);
-    const [sendingForm, setSendingForm] = useState(null);
+    const [sendingForm, setSendingForm] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [apiSignal, setApiSignal] = useState(false);
     const [formData, setFormData] = useState([]);
@@ -267,6 +267,8 @@ const MyForm = ({ objID }) => {
             console.error('Error al enviar el formulario:', error);
         } finally {
             setSendingForm(false);
+            refreshData();
+            closeModal();
         }
     };
 

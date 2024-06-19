@@ -16,7 +16,8 @@ import GlobalFilter from "./GlobalFilter";
 import ServiceForm from "@/components/form/Inventory/Update/ServiceForm";
 import ProductForm from "@/components/form/Inventory/Update/ProductForm";
 import ServiceVariantForm from "@/components/form/Inventory/Update/VariantServiceForm";
-import ProductVariantForm from '@/components/form/Inventory/Update/VariantProductForm'
+import ProductVariantForm from '@/components/form/Inventory/Update/VariantProductForm';
+import AlertModal from '@/components/ui/ModalAlert'
 
 const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
@@ -47,12 +48,17 @@ const forms = {
   'productVariant': ProductVariantForm,
 };
 
-const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType }) => {
+const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType, refreshData }) => {
+  console.log(dataTable);
   const [filter, setFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [formPK, setFormPK] = useState(null);
   const [selectedData, setSelectedData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedParent, setSelectedParent] = useState(false);
+
+
 
   useEffect(() => {
     if (dataLoaded && dataFetched) {
@@ -85,11 +91,10 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType }) => {
                 <Menu.Item key={i}>
                   <div
                     onClick={() => handleEdit(row.cell.row.index, row.data)}
-                    className={`${
-                      item.name === "delete"
-                        ? "bg-danger-500 text-danger-500 bg-opacity-30   hover:bg-opacity-100 hover:text-white"
-                        : "hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50"
-                    }
+                    className={`${item.name === "delete"
+                      ? "bg-danger-500 text-danger-500 bg-opacity-30   hover:bg-opacity-100 hover:text-white"
+                      : "hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50"
+                      }
                       w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm  last:mb-0 cursor-pointer 
                       first:rounded-t last:rounded-b flex  space-x-2 items-center rtl:space-x-reverse 
                     `}
@@ -188,16 +193,47 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType }) => {
   } = tableInstance;
 
   useEffect(() => {
-    const selectedData = selectedFlatRows.map((row) => row.original);
-    setSelectedData(selectedData);
+    const hasProductOrService = selectedFlatRows.some(
+      (row) => row.original.product || row.original.service
+    );
+    setSelectedParent(hasProductOrService);
+    setSelectedData(selectedFlatRows.map((row) => ({
+      ...row.original, // Include all existing fields
+      isProduct: !!row.original.product, // Check if product exists
+      isService: !!row.original.service, // Check if service exists
+      isProductVariant: !!row.original.variant, // Check if variant and product exist
+      isServiceVariant: !!row.original.variantService // Check if parent and service exist
+    })));
   }, [selectedRowIds, selectedFlatRows]);
 
   const handleButtonClick = () => {
     if (selectedData.length > 0) {
-      // Procesar los datos seleccionados
-      console.log("Selected Data:", selectedData);
+      setShowDeleteModal(true);
     }
   };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+
+  };
+
+  const signalDelete = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:8000/v1/inventory/delete_batch/', {
+        method: 'DELETE',
+        body: JSON.stringify(selectedData),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Error en la solicitud: ${res.status}`);
+      }
+
+    } catch (error) {
+      console.error('Error al enviar el formulario:', error);
+    } finally {
+      refreshData();
+    }
+  }
 
   const ActiveForm = forms[moduleType];
 
@@ -208,7 +244,7 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType }) => {
           <h4 className="card-title"></h4>
           {selectedData.length > 0 && (
             <Button
-              className="text-oxanium bg-danger-500 text-white hover:bg-black-100 hover:text-danger-500 shadow-md px-6 smc:px-4 smc:py-2 smc:text-xs"
+              className="mb-3 text-oxanium bg-danger-500 text-white hover:bg-black-100 hover:text-danger-500 shadow-md px-6 smc:px-4 smc:py-2 smc:text-xs"
               onClick={handleButtonClick}
             >
               Eliminar
@@ -317,9 +353,8 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType }) => {
           <ul className="flex items-center space-x-3 rtl:space-x-reverse">
             <li className="text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180">
               <button
-                className={`${
-                  !canPreviousPage ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`${!canPreviousPage ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 onClick={() => previousPage()}
                 disabled={!canPreviousPage}
               >
@@ -331,11 +366,10 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType }) => {
                 <button
                   href="#"
                   aria-current="page"
-                  className={`${
-                    pageIdx === pageIndex
-                      ? "bg-slate-900 dark:bg-slate-600  dark:text-slate-200 text-white font-medium "
-                      : "bg-slate-100 dark:bg-slate-700 dark:text-slate-400 text-slate-900  font-normal  "
-                  }    text-sm rounded leading-[16px] flex h-6 w-6 items-center justify-center transition-all duration-150`}
+                  className={`${pageIdx === pageIndex
+                    ? "bg-slate-900 dark:bg-slate-600  dark:text-slate-200 text-white font-medium "
+                    : "bg-slate-100 dark:bg-slate-700 dark:text-slate-400 text-slate-900  font-normal  "
+                    }    text-sm rounded leading-[16px] flex h-6 w-6 items-center justify-center transition-all duration-150`}
                   onClick={() => gotoPage(pageIdx)}
                 >
                   {pageIdx + 1}
@@ -344,9 +378,8 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType }) => {
             ))}
             <li className="text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180">
               <button
-                className={`${
-                  !canNextPage ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`${!canNextPage ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 onClick={() => nextPage()}
                 disabled={!canNextPage}
               >
@@ -365,8 +398,14 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType }) => {
         themeClass="bg-indigo-900"
         scrollContent={true}
       >
-      {ActiveForm && <ActiveForm objID={formPK} />}
+        {ActiveForm && <ActiveForm objID={formPK} refreshData={refreshData} closeModal={closeModal} />}
       </Modal>
+      <AlertModal
+        isOpen={showDeleteModal}
+        onClose={closeDeleteModal}
+        onConfirm={signalDelete}
+        signalParent={selectedParent}
+      />
     </>
   );
 };

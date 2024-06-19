@@ -3,7 +3,7 @@ import Button from '@/components/ui/Button';
 import Modal from "@/components/ui/Modal";
 import ProductForm from "@/components/form/Inventory/Creation/ProductForm";
 
-function ProductsButtons() {
+function ProductsButtons({refreshData}) {
   const [showModal, setShowModal] = useState(false);
   const [activeForm, setActiveForm] = useState(null); 
 
@@ -20,7 +20,7 @@ function ProductsButtons() {
   const renderForm = () => {
     switch(activeForm) {
       case 'productForm':
-        return <ProductForm />;
+        return <ProductForm refreshData={refreshData} closeModal={closeModal} />;
       default:
         return null;
     }

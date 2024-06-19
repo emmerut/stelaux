@@ -6,20 +6,23 @@ import { Input, FileInput, TextArea, DecimalInput } from '@/components/form/Form
 import { serviceData } from "@/constant/inventoryData";
 import Buttons from '@/components/ui/Button';
 
-const MyForm = ({ formID }) => {
+const MyForm = ({ objID, refreshData }) => {
     const [isLoadingForm, setIsLoadingForm] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [sendingForm, setSendingForm] = useState(false);
     const [formData, setFormData] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoadingForm(true);
-                const serviceDataResponse = await serviceData();
-                const filteredServices = serviceDataResponse.variants.filter(service => service.id === formID);
-                setFormData(filteredServices[0]);
+                const res = await serviceData();
+                console.log(res.variants)
+                const filteredItems = res.variants.filter(item => item.id === objID);
+                setFormData(filteredItems[0]);
+               
             } catch (error) {
-                console.error("Error fetching services:", error);
+                console.error("Error fetching items:", error);
             } finally {
                 setIsLoadingForm(false);
             }
@@ -28,7 +31,7 @@ const MyForm = ({ formID }) => {
     }, []);
 
     const handleSubmit = async (values) => {
-        setIsLoadingForm(true);
+        setSendingForm(true);
         const formData = new FormData();
 
         if (selectedFile) {
@@ -38,7 +41,7 @@ const MyForm = ({ formID }) => {
         formData.append(`title`, values.formData.title);
         formData.append(`description`, values.formData.description);
         formData.append(`price`, values.formData.price);
-        formData.append('parent_type', 'service')
+        formData.append('parent_type', 'variant_service')
 
         const formDataObject = {};
         for (const [key, value] of formData.entries()) {
@@ -61,7 +64,9 @@ const MyForm = ({ formID }) => {
         } catch (error) {
             console.error('Error al enviar el formulario:', error);
         } finally {
-            setIsLoadingForm(false);
+            setSendingForm(false);
+            refreshData();
+            closeModal();
         }
     };
 
@@ -139,23 +144,23 @@ const MyForm = ({ formID }) => {
                             )}
                             <DecimalInput
                                 name={`formData.price`}
-                                label={`Precio ${index + 1}`}
+                                label={`Precio`}
                             />
                             {errors[`formData.price`] && (
                                 <div className="text-red-500 text-xs mt-1">
                                     {errors[`formData.price`]}
                                 </div>
                             )}
-                            {values.formData.image && (
-                                <p>
-                                    Actual: <a href={values.formData.image} target='_blank'>{values.formData.image}</a>
-                                </p>
-                            )}
                             <FileInput
                                 name='formData.image'
                                 helpText="Tamaño máximo del archivo: 1MB (jpeg, jpg, webp, png) 1920x1100px"
                                 onFileChange={handleFileChange}
                             />
+                            {values.formData.image && (
+                                <p>
+                                    Actual: <a href={values.formData.image}>{values.formData.image}</a>
+                                </p>
+                            )}
                             {errors['formData.image'] && (
                                 <div className="text-red-500 text-xs mt-1">
                                     {errors['formData.image']}
@@ -165,10 +170,11 @@ const MyForm = ({ formID }) => {
 
                             <Buttons
                                 ariaLabel="botón del formulario"
-                                type="submit"
+                                isLoading={sendingForm}
+                                type={sendingForm || Object.keys(errors).length > 0 ? 'button' : 'submit'}
                                 className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${Object.keys(errors).length > 0 ? "disabled" : ""
                                     }`}
-                                disabled={isLoadingForm || Object.keys(errors).length > 0}
+                                disabled={sendingForm || Object.keys(errors).length > 0}
                                 text="Guardar"
                                 color="#fff"
                                 size="md"

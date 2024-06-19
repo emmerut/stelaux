@@ -5,9 +5,10 @@ import { Formik, Form, FieldArray } from 'formik';
 import { Input, FileInput, NestedSelectInput, TextArea, DecimalInput, NumberInput, SelectInput } from '@/components/form/Form';
 import Buttons from '@/components/ui/Button';
 
-const MyForm = () => {
+const MyForm = ({refreshData, closeModal}) => {
     const [dataForm, setData] = useState(null);
     const [isLoadingForm, setIsLoadingForm] = useState(true);
+    const [sendingForm, setSendingForm] = useState(false);
     const [error, setError] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedFile2, setSelectedFile2] = useState(null);
@@ -169,12 +170,11 @@ const MyForm = () => {
 
     //carga formulario api base
     useEffect(() => {
-        console.log('loading dataForm')
         setIsLoadingForm(false);
     }, []);
 
     const handleSubmit = async (values) => {
-        setIsLoadingForm(true);
+        setSendingForm(true);
         const formData = new FormData();
         formData.append('parent_id', values.inputs.parent.id);
         formData.append(`category`, categoryName);
@@ -216,7 +216,9 @@ const MyForm = () => {
         } catch (error) {
             console.error('Error al enviar el formulario:', error);
         } finally {
-            setIsLoadingForm(false);
+            setSendingForm(false);
+            refreshData();
+            closeModal();
         }
     };
 
@@ -2388,10 +2390,11 @@ const MyForm = () => {
                         <hr className="m-3" />
                         <Buttons
                             ariaLabel="botón del formulario"
-                            type="submit"
+                            isLoading={sendingForm}
+                            type={showMissingCategory || sendingForm || Object.keys(errors).length > 0 ? 'button' : 'submit'}
                             className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${Object.keys(errors).length > 0 ? "disabled" : ""
                                 }`}
-                                disabled={showMissingCategory || isLoadingForm || Object.keys(errors).length > 0}
+                            disabled={showMissingCategory || sendingForm || Object.keys(errors).length > 0}
                             text="Guardar"
                             color="#fff"
                             size="md"

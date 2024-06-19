@@ -1,134 +1,46 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DynamicTable from "@/pages/table/react-tables/DynamicTable";
 import { productData, serviceData } from '@/constant/inventoryData';
 import HomeBredCurbs from "@/components/inventory/InventoryBredCurbs";
 
 const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
-  const [service, setService] = useState([]);
-  const [product, setProduct] = useState([]);
   const [dataFetched, setDataFetched] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [productVariant, setProductVariant] = useState([]);
-  const [serviceVariant, setServiceVariant] = useState([]);
   const [dataProductTable, setDataProductTable] = useState([]);
   const [dataServiceTable, setDataServiceTable] = useState([]);
+  const [service, setService] = useState([]);
+  const [product, setProduct] = useState([]);
+  const [productVariant, setProductVariant] = useState([]);
+  const [serviceVariant, setServiceVariant] = useState([]);
   const [dataProductVariantTable, setProductVariantDataTable] = useState([]);
   const [dataServiceVariantTable, setDataServiceVariantTable] = useState([]);
   const [filterMap, setFilterMap] = useState("usa");
 
-  useEffect(() => {
-    const catchFetchService = async () => {
-      try {
-        const res = await serviceData();
-        if (res) {
-          setService(res.services);
-        }
-      } catch (error) {
-        console.error("Error fetching services:", error);
-      }
-    };
-
-    catchFetchService();
-  }, []);
-
-  useEffect(() => {
-    const catchFetchProduct = async () => {
-      try {
-        const res = await productData();
-        if (res) {
-          setProduct(res.products);
-          setDataFetched(true);
-        }
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        setDataFetched(true);
-
-      }
-    };
-
-    catchFetchProduct();
-  }, []);
-
-  useEffect(() => {
-    const catchFetchProductVariant = async () => {
-      try {
-        const res = await productData();
-        if (res) {
-          setProductVariant(res.variants);
-          setDataFetched(true);
-        }
-      } catch (error) {
-        console.error("Error fetching variants:", error);
-        setDataFetched(true);
-      }
-    };
-
-    catchFetchProductVariant();
-  }, []);
-
-  useEffect(() => {
-    const catchFetchServiceVariant = async () => {
-      try {
-        const res = await serviceData();
-        if (res) {
-          setServiceVariant(res.variants);
-
-        }
-      } catch (error) {
-        console.error("Error fetching variants:", error);
-
-      }
-    };
-
-    catchFetchServiceVariant();
-  }, []);
-
-  useEffect(() => {
-
+  const updateTableData = (data, setDataFunction) => {
     const table = [];
-
-    service.forEach(item => {
-      table.push({
-        id: item.id,
-        service: item.title,
-        image: item.image,
-        profit: item.profit,
-        status: item.status,
-        action: null,
-      });
-    });
-    setDataServiceTable(table);
-    setDataLoaded(true);
-
-  }, [service]);
-
-  useEffect(() => {
-
-    const table = [];
-    if (dataFetched) {
-      product.forEach(item => {
-        table.push({
+    data.forEach(item => {
+      // Define the object structure based on the tableType
+      let tableRow;
+      if (tableType === 'services') {
+        tableRow = {
+          id: item.id,
+          service: item.title,
+          image: item.image,
+          profit: item.profit,
+          status: item.status,
+          action: null,
+        };
+      } else if (tableType === 'products') {
+        tableRow = {
           id: item.id,
           product: item.title,
           image: item.image,
           stock: item.total_stock,
           status: item.status,
           action: null,
-        });
-      });
-
-      setDataProductTable(table);
-      setDataLoaded(true);
-    }
-
-  }, [product, dataFetched]);
-
-  useEffect(() => {
-
-    const table = [];
-    if (dataFetched) {
-      productVariant.forEach(item => {
-        table.push({
+        };
+      } else if (tableType === 'products') {
+        tableRow = {
           id: item.id,
           sku: item.sku,
           variant: item.parent,
@@ -138,32 +50,102 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
           stock: item.stock,
           price: item.price,
           action: null,
-        });
-      });
+        };
+      } else if (tableType === 'services') {
+        tableRow = {
+          id: item.id,
+          parent: item.parent,
+          variantService: item.title,
+          image: item.profit,
+          price: item.status,
+          action: null,
+        };
+      }
+      table.push(tableRow);
+    });
+    setDataFunction(table);
+  };
 
-      setProductVariantDataTable(table);
-      setDataLoaded(true);
+  const updateTableChildData = (data, setDataFunction) => {
+    const table = [];
+    data.forEach(item => {
+      // Define the object structure based on the tableType
+      let tableRow;
+      if (tableType === 'products') {
+        tableRow = {
+          id: item.id,
+          sku: item.sku,
+          variant: item.parent,
+          color: item.render_color,
+          size: item.size,
+          image: item.image,
+          stock: item.stock,
+          price: item.price,
+          action: null,
+        };
+      } else if (tableType === 'services') {
+        tableRow = {
+          id: item.id,
+          parent: item.parent,
+          variantService: item.title,
+          image: item.profit,
+          price: item.status,
+          action: null,
+        };
+      }
+      table.push(tableRow);
+    });
+    setDataFunction(table);
+  };
+
+  const fetchData = useCallback(async () => {
+    if (tableType === 'services') {
+      try {
+        const res = await serviceData();
+        if (res.services && res.variants) { // Check if both services and variants exist
+          setService(res.services);
+          setServiceVariant(res.variants);
+          updateTableData(res.services, setDataServiceTable); 
+          updateTableChildData(res.variants, setDataServiceVariantTable);
+          setDataFetched(true);
+        } else {
+          // Handle case where either services or variants is null or undefined
+          console.warn("Missing data in serviceData response. Services:", res.services, "Variants:", res.variants);
+          setDataFetched(true);
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        setDataFetched(true);
+      }
+    } else if (tableType === 'products') {
+      try {
+        const res = await productData();
+        console.log(res)
+        if (res.products && res.variants) { // Check if both products and variants exist
+          setProduct(res.products);
+          setProductVariant(res.variants);
+          updateTableData(res.products, setDataProductTable); 
+          updateTableChildData(res.variants, setProductVariantDataTable);
+          setDataFetched(true);
+        } else {
+          // Handle case where either products or variants is null or undefined
+          console.warn("Missing data in productData response. Products:", res.products, "Variants:", res.variants);
+          setDataFetched(true);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        setDataFetched(true);
+      }
     }
-
-  }, [productVariant, dataFetched]);
+  }, [tableType]);
+  
+  useEffect(() => {
+    fetchData(); 
+  }, [fetchData, tableType]);
 
   useEffect(() => {
-
-    const table = [];
-
-    serviceVariant.forEach(item => {
-      table.push({
-        id: item.id,
-        parent: item.parent,
-        service: item.title,
-        image: item.profit,
-        price: item.status,
-        action: null,
-      });
-    });
-    setDataServiceVariantTable(table);
     setDataLoaded(true);
-  }, [serviceVariant]);
+  }, [service, product, productVariant, serviceVariant]);
 
   const SERVICECOLUMNS = [
     {
@@ -357,8 +339,8 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
       },
     },
     {
-      Header: "service",
-      accessor: "service",
+      Header: "Variante",
+      accessor: "variantService",
       Cell: (row) => {
         return <span>{row?.cell?.value}</span>;
       },
@@ -400,6 +382,7 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
           dataTable={dataServiceTable}
           dataLoaded={dataLoaded}
           dataFetched={dataFetched}
+          refreshData={fetchData} // Add this line
           moduleType="service"
         />
         <br />
@@ -408,6 +391,7 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
           dataTable={dataServiceVariantTable}
           dataLoaded={dataLoaded}
           dataFetched={dataFetched}
+          refreshData={fetchData} // Add this line
           moduleType="serviceVariant"
         />
 
@@ -421,6 +405,7 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
             dataTable={dataProductTable}
             dataLoaded={dataLoaded}
             dataFetched={dataFetched}
+            refreshData={fetchData} // Add this line
             moduleType="product"
           />
           <br />
@@ -429,6 +414,7 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
             dataTable={dataProductVariantTable}
             dataLoaded={dataLoaded}
             dataFetched={dataFetched}
+            refreshData={fetchData} // Add this line
             moduleType="productVariant"
           />
         </>
@@ -436,7 +422,7 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
       : null;
   return (
     <div>
-      <HomeBredCurbs title={mainTitle} setID={buttonSet} />
+      <HomeBredCurbs title={mainTitle} setID={buttonSet} refreshData={fetchData} />
       {tableComponent}
 
     </div>

@@ -33,7 +33,6 @@ export const productData = async () => {
       // Handle empty data as needed
       if (data.products.length === 0) {
         console.warn("Warning: No products available.");
-        return null;
       }
   
       // You might want to process data further here
@@ -42,7 +41,6 @@ export const productData = async () => {
       return data; // Return only the product data
     } catch (error) {
       console.error("Error fetching product data:", error);
-      return null;
     }
 };
 

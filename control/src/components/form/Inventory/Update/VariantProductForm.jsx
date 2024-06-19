@@ -2,22 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { Formik, Form } from 'formik';
 
 // Asumiendo que tienes estos componentes definidos
-import { Input, FileInput, TextArea, DecimalInput } from '@/components/form/Form';
-import { serviceData } from "@/constant/inventoryData";
+import { FileInput, DecimalInput, SelectInput, NumberInput } from '@/components/form/Form';
+import { productData } from "@/constant/inventoryData";
 import Buttons from '@/components/ui/Button';
 
-const MyForm = ({ formID }) => {
+const MyForm = ({ objID, refreshData }) => {
     const [isLoadingForm, setIsLoadingForm] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [sendingForm, setSendingForm] = useState(false);
     const [formData, setFormData] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoadingForm(true);
-                const serviceDataResponse = await serviceData();
-                const filteredServices = serviceDataResponse.variants.filter(service => service.id === formID);
-                setFormData(filteredServices[0]);
+                const res = await productData();
+                const filteredItems = res.variants.filter(item => item.id === objID);
+                setFormData(filteredItems[0]);
             } catch (error) {
                 console.error("Error fetching services:", error);
             } finally {
@@ -28,17 +29,18 @@ const MyForm = ({ formID }) => {
     }, []);
 
     const handleSubmit = async (values) => {
-        setIsLoadingForm(true);
+        setSendingForm(true);
         const formData = new FormData();
 
         if (selectedFile) {
             formData.append('image', selectedFile);
         }
         formData.append('parent_id', values.formData.id);
-        formData.append(`title`, values.formData.title);
-        formData.append(`description`, values.formData.description);
+        formData.append(`color`, values.formData.color);
+        formData.append(`size`, values.formData.size);
+        formData.append(`stock`, values.formData.stock);
         formData.append(`price`, values.formData.price);
-        formData.append('parent_type', 'service')
+        formData.append('parent_type', 'product_variant')
 
         const formDataObject = {};
         for (const [key, value] of formData.entries()) {
@@ -49,7 +51,7 @@ const MyForm = ({ formID }) => {
         console.log('Valores del formulario:', formDataObject);
 
         try {
-            const res = await fetch('http://127.0.0.1:8000/v1/inventory/create_service/', {
+            const res = await fetch('http://127.0.0.1:8000/v1/inventory/create_product/', {
                 method: 'POST',
                 body: formData,
             });
@@ -61,7 +63,9 @@ const MyForm = ({ formID }) => {
         } catch (error) {
             console.error('Error al enviar el formulario:', error);
         } finally {
-            setIsLoadingForm(false);
+            setSendingForm(false);
+            refreshData();
+            closeModal();
         }
     };
 
@@ -73,13 +77,14 @@ const MyForm = ({ formID }) => {
 
     const validate = (values) => {
         let errors = {};
-        if (!values.formData.title) {
-            errors['formData.title'] = 'El título es requerido';
-        } else if (values.formData.title.length > 80) {
-            errors['formData.title'] = 'El título no puede exceder los 80 caracteres';
+        if (!values.formData.stock) {
+            errors['formData.stock'] = 'El stock es requerido';
         }
-        if (!values.formData.description) {
-            errors['formData.description'] = 'La descripción es requerida';
+        if (!values.formData.color) {
+            errors['formData.color'] = 'El color es requerido';
+        }
+        if (!values.formData.size) {
+            errors['formData.description'] = 'El tamaño es requerido';
         }
         if (!values.formData.price) {
             errors['formData.price'] = 'El precio es requerido';
@@ -99,6 +104,34 @@ const MyForm = ({ formID }) => {
         return errors;
     };
 
+    const colors = [
+        { value: '', label: 'Elige un color', disabled: true },
+        { value: 'bg-[#27ae60]', label: 'Verde' },
+        { value: 'bg-[#f56565]', label: 'Rojo' },
+        { value: 'bg-[#edd95a]', label: 'Amarillo' },
+        { value: 'bg-[#4ade80]', label: 'Turquesa' },
+        { value: 'bg-[#8b5cf6]', label: 'Morado' },
+        { value: 'bg-[#1e40af]', label: 'Azul' },
+        { value: 'bg-[#a855f7]', label: 'Lila' },
+        { value: 'bg-[#f97316]', label: 'Naranja' },
+        { value: 'bg-[#3b82f6]', label: 'Azul Cielo' },
+        { value: 'bg-[#10b981]', label: 'Verde Agua' },
+        { value: 'bg-[#ef4444]', label: 'Rojo Oscuro' },
+        { value: 'bg-[#eab308]', label: 'Amarillo Oscuro' },
+        { value: 'bg-[#7835d7]', label: 'Morado Oscuro' },
+    ];
+
+    const size = [
+        { value: '', label: 'Elige un tamaño', disabled: true },
+        { value: 'xs', label: 'Extra Small (XS)' },
+        { value: 's', label: 'Small (S)' },
+        { value: 'm', label: 'Medium (M)' },
+        { value: 'l', label: 'Large (L)' },
+        { value: 'xl', label: 'Extra Large (XL)' },
+        { value: 'xxl', label: 'Extra Extra Large (XXL)' },
+        { value: 'xxxl', label: 'Extra Extra Extra Large (XXXL)' },
+    ];
+    
     return (
         <div>
             {isLoadingForm && (
@@ -112,38 +145,48 @@ const MyForm = ({ formID }) => {
                     onSubmit={handleSubmit}
                     validate={validate}
                 >
-                    {({ values, errors, setFieldValue }) => (
+                    {({ values, errors }) => (
 
                         <Form className="mb-5 pb-5">
                             <h3 className="text-lg text-center font-bold text-slate-800 font-oxanium mb-5">
-                                Objetivo: Llenar los campos del Servicio Padre y sus Variantes.
+                                Objetivo: Llenar los campos de la variante.
                             </h3>
-                            <Input
-                                name='formData.title'
-                                label={`Título Principal`}
+                            <SelectInput
+                                label={`Color`}
+                                name={`formData.color`}
+                                options={colors}
                             />
-                            {errors['formData.title'] && (
+                            {errors[`formData.color`] && (
                                 <div className="text-red-500 text-xs mt-1">
-                                    {errors['service.title']}
+                                    {errors[`formData.color`]}
                                 </div>
                             )}
-                            <TextArea
-                                name='formData.description'
-                                label={`Descripción`}
-                                onEditorChange={(content) => setFieldValue('formData.description', content)}
+                            <SelectInput
+                                label={`Talla`}
+                                name={`formData.size`}
+                                options={size}
                             />
-                            {errors['formData.description'] && (
+                            {errors[`formData.size`] && (
                                 <div className="text-red-500 text-xs mt-1">
-                                    {errors['formData.description']}
+                                    {errors[`formData.size`]}
                                 </div>
                             )}
                             <DecimalInput
                                 name={`formData.price`}
-                                label={`Precio ${index + 1}`}
+                                label={`Precio`}
                             />
                             {errors[`formData.price`] && (
                                 <div className="text-red-500 text-xs mt-1">
                                     {errors[`formData.price`]}
+                                </div>
+                            )}
+                            <NumberInput
+                                name={`formData.stock`}
+                                label={`Stock`}
+                            />
+                            {errors[`formData.stock`] && (
+                                <div className="text-red-500 text-xs mt-1">
+                                    {errors[`formData.stock`]}
                                 </div>
                             )}
                             {values.formData.image && (
@@ -165,10 +208,11 @@ const MyForm = ({ formID }) => {
 
                             <Buttons
                                 ariaLabel="botón del formulario"
-                                type="submit"
+                                isLoading={sendingForm}
+                                type={sendingForm || Object.keys(errors).length > 0 ? 'button' : 'submit'}
                                 className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${Object.keys(errors).length > 0 ? "disabled" : ""
                                     }`}
-                                disabled={isLoadingForm || Object.keys(errors).length > 0}
+                                disabled={sendingForm || Object.keys(errors).length > 0}
                                 text="Guardar"
                                 color="#fff"
                                 size="md"
