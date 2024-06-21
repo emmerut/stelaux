@@ -64,7 +64,6 @@ export const serviceData = async () => {
     // Handle empty data as needed
     if (data.services.length === 0) {
       console.warn("Warning: No services available.");
-      return null;
     }
 
     // You might want to process data further here

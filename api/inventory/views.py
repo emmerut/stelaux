@@ -138,6 +138,7 @@ class InventoryViewSet(viewsets.ViewSet):
                         serializer.save()
                         return parent_object
                     else:
+
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 except Product.DoesNotExist:
                     return Response({'error': f'No se encontró el objeto Product con ID {id}'},
@@ -276,7 +277,8 @@ class InventoryViewSet(viewsets.ViewSet):
                 'status': request.data.get('status'),
                 'color': request.data.get('color'),
                 'size': request.data.get('size'),
-                'stock': request.data.get('stock')
+                'stock': request.data.get('stock'),
+                'price': request.data.get('price'),
             }
 
             image = request.FILES.get('image')
@@ -303,12 +305,16 @@ class InventoryViewSet(viewsets.ViewSet):
             content_type = request.data.get(f'inputs[{index}][content_type]')
             serializer_class = self._get_serializer_class(content_type)
             object_data = {
+                'status': request.data.get(f'inputs[{index}][status]'),
                 'color': request.data.get(f'inputs[{index}][color]'),
                 'size': request.data.get(f'inputs[{index}][size]'),
                 'price': request.data.get(f'inputs[{index}][price]'),
                 'stock': request.data.get(f'inputs[{index}][stock]'),
-                'image': request.FILES.get(f'inputs[{index}][image]'),
             }
+            image = request.FILES.get(f'inputs[{index}][image]')
+            if image:
+                object_data['image'] = image
+                
             serializer = serializer_class(data=object_data)
             if serializer.is_valid():
                 if created_parent:
@@ -332,12 +338,16 @@ class InventoryViewSet(viewsets.ViewSet):
                     return Response({'error': 'Tipo de contenido no válido'}, status=status.HTTP_400_BAD_REQUEST)
 
                 object_data = {
-                    'color': request.data.get(f'inputs[{index}][color]'),
-                    'size': request.data.get(f'inputs[{index}][size]'),
-                    'price': request.data.get(f'inputs[{index}][price]'),
-                    'stock': request.data.get(f'inputs[{index}][stock]'),
-                    'image': request.FILES.get(f'inputs[{index}][image]'),
+                'status': request.data.get(f'inputs[{index}][status]'),
+                'color': request.data.get(f'inputs[{index}][color]'),
+                'size': request.data.get(f'inputs[{index}][size]'),
+                'price': request.data.get(f'inputs[{index}][price]'),
+                'stock': request.data.get(f'inputs[{index}][stock]'),
                 }
+                image = request.FILES.get(f'inputs[{index}][image]')
+                if image:
+                    object_data['image'] = image
+
                 try:
                     instance = serializer_class.Meta.model.objects.get(pk=object_id)
                     serializer = serializer_class(instance, data=object_data, partial=True)
@@ -345,6 +355,7 @@ class InventoryViewSet(viewsets.ViewSet):
                         updated_object = serializer.save()
                         updated_objects.append((updated_object, serializer_class))
                     else:
+                        print(serializer.errors)
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 except serializer_class.Meta.model.DoesNotExist:
                     return Response({'error': f'No se encontró el objeto con ID {object_id}'},
@@ -426,7 +437,8 @@ class InventoryViewSet(viewsets.ViewSet):
             object_data = {
                 'title': request.data.get('title'),
                 'description': request.data.get('description'),
-                'status': request.data.get('status')
+                'status': request.data.get('status'),
+                'price': request.data.get('price'),
             }
 
             image = request.FILES.get('image')
@@ -453,11 +465,15 @@ class InventoryViewSet(viewsets.ViewSet):
             content_type = request.data.get(f'inputs[{index}][content_type]')
             serializer_class = self._get_serializer_class(content_type)
             object_data = {
+                'status': request.data.get(f'inputs[{index}][status]'),
                 'title': request.data.get(f'inputs[{index}][title]'),
                 'description': request.data.get(f'inputs[{index}][description]'),
-                'image': request.FILES.get(f'inputs[{index}][image]'),
                 'price': request.data.get(f'inputs[{index}][price]'),
             }
+            image = request.FILES.get(f'inputs[{index}][image]')
+            if image:
+                object_data['image'] = image
+
             serializer = serializer_class(data=object_data)
             if serializer.is_valid():
                 if created_parent:
@@ -467,25 +483,28 @@ class InventoryViewSet(viewsets.ViewSet):
                     created_object = serializer.save()
                     created_objects.append((created_object, serializer_class))
             else:  
-                print(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # Actualizar los objetos ServiceVariant existentes
         for key, object_id in update_data.items():
+            
             try:
                 index = int(key.split('[')[1].split(']')[0])
                 content_type = request.data.get(f'inputs[{index}][content_type]')
                 serializer_class = self._get_serializer_class(content_type)
-
                 if not serializer_class:
+                    print(f"Tipo de contenido no válido: {content_type}")
                     return Response({'error': 'Tipo de contenido no válido'}, status=status.HTTP_400_BAD_REQUEST)
 
                 object_data = {
-                    'title': request.data.get(f'inputs[{index}][title]'),
-                    'description': request.data.get(f'inputs[{index}][description]'),
-                    'image': request.FILES.get(f'inputs[{index}][image]'),
-                    'price': request.data.get(f'inputs[{index}][price]'),
+                'status': request.data.get(f'inputs[{index}][status]'),
+                'title': request.data.get(f'inputs[{index}][title]'),
+                'description': request.data.get(f'inputs[{index}][description]'),
+                'price': request.data.get(f'inputs[{index}][price]'),
                 }
+                image = request.FILES.get(f'inputs[{index}][image]')
+                if image:
+                    object_data['image'] = image
                 try:
                     instance = serializer_class.Meta.model.objects.get(pk=object_id)
                     serializer = serializer_class(instance, data=object_data, partial=True)
@@ -493,12 +512,14 @@ class InventoryViewSet(viewsets.ViewSet):
                         updated_object = serializer.save()
                         updated_objects.append((updated_object, serializer_class))
                     else:
+                        print(serializer.errors)
                         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 except serializer_class.Meta.model.DoesNotExist:
                     return Response({'error': f'No se encontró el objeto con ID {object_id}'},
                                     status=status.HTTP_404_NOT_FOUND)
 
             except (ValueError, IndexError) as e:
+                print(e)
                 return Response({'error': f'Formato de datos incorrecto: {e}'}, status=status.HTTP_400_BAD_REQUEST)
 
         response_data = {}

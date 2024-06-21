@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import Modal from "@/components/ui/Modal";
-import ProductForm from "@/components/form/Inventory/Creation/ProductForm";
+import ProductForm from "@/components/form/Inventory/ProductForm";
 
 function ProductsButtons({refreshData}) {
   const [showModal, setShowModal] = useState(false);

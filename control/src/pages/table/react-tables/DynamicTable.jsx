@@ -13,10 +13,11 @@ import {
   usePagination,
 } from "react-table";
 import GlobalFilter from "./GlobalFilter";
-import ServiceForm from "@/components/form/Inventory/Update/ServiceForm";
-import ProductForm from "@/components/form/Inventory/Update/ProductForm";
-import ServiceVariantForm from "@/components/form/Inventory/Update/VariantServiceForm";
-import ProductVariantForm from '@/components/form/Inventory/Update/VariantProductForm';
+import ServiceForm from "@/components/form/Inventory/ServiceForm";
+import ProductForm from "@/components/form/Inventory/ProductForm";
+import ServiceVariantForm from "@/components/form/Inventory/VariantServiceForm";
+import ProductVariantForm from "@/components/form/Inventory/VariantProductForm";
+
 import AlertModal from '@/components/ui/ModalAlert'
 
 const IndeterminateCheckbox = React.forwardRef(
@@ -49,7 +50,6 @@ const forms = {
 };
 
 const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType, refreshData }) => {
-  console.log(dataTable);
   const [filter, setFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [formPK, setFormPK] = useState(null);
@@ -59,6 +59,12 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType, refres
   const [selectedParent, setSelectedParent] = useState(false);
 
 
+
+  useEffect(() => {
+    if (dataLoaded && dataFetched) {
+      setLoading(false);
+    }
+  }, [dataTable, dataLoaded, dataFetched]);
 
   useEffect(() => {
     if (dataLoaded && dataFetched) {
@@ -147,6 +153,7 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType, refres
     {
       columns,
       data: filteredData,
+      initialState: { pageSize: 10 },
     },
     useGlobalFilter,
     useSortBy,

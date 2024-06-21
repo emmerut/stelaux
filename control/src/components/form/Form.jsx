@@ -4,6 +4,7 @@ import { useField } from 'formik';
 import { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 
+
 const Input = memo(({ label, labelClass, className, helpText, showErrorMsg, ...props }) => {
   const [field, meta] = useField(props);
   return (
@@ -48,11 +49,13 @@ const TextArea = memo(({ label, labelClass, className, onEditorChange, showError
       </label>
       <Editor
         apiKey='jilhl78tlomd3250tf5ncjjywse6ibcq3uu862mlml03ve6w'
+        htmlFor={props.id || props.name}
         onInit={(_evt, editor) => editorRef.current = editor}
-        initialValue={values.formData && values.formData.description ? values.formData.description : ''}
+        initialValue={props.initialValue} // Ensure initialValue is a string
         init={{
           height: 300,
           menubar: false,
+          directionality: 'ltr', // for left-to-right text direction
           plugins: [
             'advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
             'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',

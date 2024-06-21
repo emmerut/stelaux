@@ -37,10 +37,9 @@ class VariantSerializer(serializers.ModelSerializer):
     def get_render_color(self, obj):
         """Renderiza el color del variante."""
         return obj.get_color()
+    
 
 #Categories
-
-
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -48,13 +47,18 @@ class CategorySerializer(serializers.ModelSerializer):
 
 #Services
 class ServiceSerializer(serializers.ModelSerializer):
-    subcategory_name = serializers.SerializerMethodField()
+    profit = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
     class Meta:
         model = Service
         fields = '__all__'
     
-    def get_subcategory_name(self, obj):
+    def get_category(self, obj):
         return obj.get_subcategory_name()
+    
+    def get_profit(self, obj):
+        """Obtence el profit del servicio"""
+        return obj.get_total_profit()
 
 class ServiceVariantSerializer(serializers.ModelSerializer):
     parent = serializers.SerializerMethodField()

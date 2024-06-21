@@ -6,7 +6,7 @@ import { FileInput, DecimalInput, SelectInput, NumberInput } from '@/components/
 import { productData } from "@/constant/inventoryData";
 import Buttons from '@/components/ui/Button';
 
-const MyForm = ({ objID, refreshData }) => {
+const MyForm = ({ objID, refreshData, closeModal }) => {
     const [isLoadingForm, setIsLoadingForm] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [sendingForm, setSendingForm] = useState(false);
@@ -36,6 +36,7 @@ const MyForm = ({ objID, refreshData }) => {
             formData.append('image', selectedFile);
         }
         formData.append('parent_id', values.formData.id);
+        formData.append('status', values.formData.status);
         formData.append(`color`, values.formData.color);
         formData.append(`size`, values.formData.size);
         formData.append(`stock`, values.formData.stock);
@@ -131,7 +132,13 @@ const MyForm = ({ objID, refreshData }) => {
         { value: 'xxl', label: 'Extra Extra Large (XXL)' },
         { value: 'xxxl', label: 'Extra Extra Extra Large (XXXL)' },
     ];
-    
+
+    const status = [
+        { value: '', label: 'Seleccionar Estado', disabled: true },
+        { value: 'active', label: 'Activo' },
+        { value: 'inactive', label: 'Inactivo' },
+      ];
+
     return (
         <div>
             {isLoadingForm && (
@@ -149,8 +156,18 @@ const MyForm = ({ objID, refreshData }) => {
 
                         <Form className="mb-5 pb-5">
                             <h3 className="text-lg text-center font-bold text-slate-800 font-oxanium mb-5">
-                                Objetivo: Llenar los campos de la variante.
+                                Objetivo: Llenar los campos de las Variantes.
                             </h3>
+                            <SelectInput
+                                label={`Estado`}
+                                name={`formData.status`}
+                                options={status}
+                            />
+                            {errors[`formData.status`] && (
+                                <div className="text-red-500 text-xs mt-1">
+                                    {errors[`formData.status`]}
+                                </div>
+                            )}
                             <SelectInput
                                 label={`Color`}
                                 name={`formData.color`}

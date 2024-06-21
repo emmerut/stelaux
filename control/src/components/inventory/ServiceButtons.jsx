@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Modal from "@/components/ui/Modal";
-import ServiceForm from '@/components/form/Inventory/Creation/ServiceForm'
+import ServiceForm from '@/components/form/Inventory/ServiceForm'
 
 function ServiceButtons({refreshData}) {
   const [showModal, setShowModal] = useState(false);
@@ -28,7 +28,7 @@ function ServiceButtons({refreshData}) {
           scrollContent={true}
         >
           {/* Content of your modal */}
-          <ServiceForm />
+          <ServiceForm refreshData={refreshData} closeModal={closeModal} />
         </Modal>
       </div>
     </div>

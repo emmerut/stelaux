@@ -17,6 +17,7 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
   const [filterMap, setFilterMap] = useState("usa");
 
   const updateTableData = (data, setDataFunction) => {
+  
     const table = [];
     data.forEach(item => {
       // Define the object structure based on the tableType
@@ -49,6 +50,7 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
           image: item.image,
           stock: item.stock,
           price: item.price,
+          status: item.status,
           action: null,
         };
       } else if (tableType === 'services') {
@@ -56,8 +58,9 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
           id: item.id,
           parent: item.parent,
           variantService: item.title,
-          image: item.profit,
-          price: item.status,
+          image: item.image,
+          price: item.price,
+          status: item.status,
           action: null,
         };
       }
@@ -81,6 +84,7 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
           image: item.image,
           stock: item.stock,
           price: item.price,
+          status: item.status,
           action: null,
         };
       } else if (tableType === 'services') {
@@ -88,8 +92,9 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
           id: item.id,
           parent: item.parent,
           variantService: item.title,
-          image: item.profit,
-          price: item.status,
+          image: item.image,
+          price: item.price,
+          status: item.status,
           action: null,
         };
       }
@@ -102,11 +107,12 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
     if (tableType === 'services') {
       try {
         const res = await serviceData();
-        if (res.services && res.variants) { // Check if both services and variants exist
+        if (res.services && res.variants) { 
           setService(res.services);
           setServiceVariant(res.variants);
           updateTableData(res.services, setDataServiceTable); 
           updateTableChildData(res.variants, setDataServiceVariantTable);
+          
           setDataFetched(true);
         } else {
           // Handle case where either services or variants is null or undefined
@@ -114,13 +120,11 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
           setDataFetched(true);
         }
       } catch (error) {
-        console.error("Error fetching services:", error);
         setDataFetched(true);
       }
     } else if (tableType === 'products') {
       try {
         const res = await productData();
-        console.log(res)
         if (res.products && res.variants) { // Check if both products and variants exist
           setProduct(res.products);
           setProductVariant(res.variants);
@@ -133,7 +137,6 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
           setDataFetched(true);
         }
       } catch (error) {
-        console.error("Error fetching products:", error);
         setDataFetched(true);
       }
     }
@@ -192,7 +195,26 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
       Header: "status",
       accessor: "status",
       Cell: (row) => {
-        return <span>{row?.cell?.value}</span>;
+        return (
+          <span className="block w-full">
+            <span
+              className={` inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+                row?.cell?.value === "active"
+                  ? "text-success-500 bg-success-500"
+                  : ""
+              } 
+              ${
+                row?.cell?.value === "inactive"
+                  ? "text-warning-500 bg-warning-500"
+                  : ""
+              }
+              
+               `}
+            >
+              {row?.cell?.value}
+            </span>
+          </span>
+        );
       },
     },
   ];
@@ -242,7 +264,26 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
       Header: "status",
       accessor: "status",
       Cell: (row) => {
-        return <span>{row?.cell?.value}</span>;
+        return (
+          <span className="block w-full">
+            <span
+              className={` inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+                row?.cell?.value === "active"
+                  ? "text-success-500 bg-success-500"
+                  : ""
+              } 
+              ${
+                row?.cell?.value === "inactive"
+                  ? "text-warning-500 bg-warning-500"
+                  : ""
+              }
+              
+               `}
+            >
+              {row?.cell?.value}
+            </span>
+          </span>
+        );
       },
     },
   ];
@@ -315,6 +356,32 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
       },
     },
     {
+      Header: "status",
+      accessor: "status",
+      Cell: (row) => {
+        return (
+          <span className="block w-full">
+            <span
+              className={` inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+                row?.cell?.value === "active"
+                  ? "text-success-500 bg-success-500"
+                  : ""
+              } 
+              ${
+                row?.cell?.value === "inactive"
+                  ? "text-warning-500 bg-warning-500"
+                  : ""
+              }
+              
+               `}
+            >
+              {row?.cell?.value}
+            </span>
+          </span>
+        );
+      },
+    },
+    {
       Header: "precio",
       accessor: "price",
       Cell: (row) => {
@@ -361,6 +428,32 @@ const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {
               </span>
             </span>
           </div>
+        );
+      },
+    },
+    {
+      Header: "status",
+      accessor: "status",
+      Cell: (row) => {
+        return (
+          <span className="block w-full">
+            <span
+              className={` inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+                row?.cell?.value === "active"
+                  ? "text-success-500 bg-success-500"
+                  : ""
+              } 
+              ${
+                row?.cell?.value === "inactive"
+                  ? "text-warning-500 bg-warning-500"
+                  : ""
+              }
+              
+               `}
+            >
+              {row?.cell?.value}
+            </span>
+          </span>
         );
       },
     },
