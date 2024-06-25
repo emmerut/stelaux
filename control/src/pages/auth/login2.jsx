@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import LoginForm from "./common/login-form";
+import LoginForm from "@/components/form/Auth/login-form";
 import Social from "./common/social";
 import { ToastContainer } from "react-toastify";
 import useDarkMode from "@/hooks/useDarkMode";

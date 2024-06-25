@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import RegForm from "./common/reg-from";
+import RegForm from "@/components/form/Auth/reg-from";
 import Social from "./common/social";
 import useDarkmode from "@/hooks/useDarkMode";
 import { ToastContainer } from "react-toastify";
