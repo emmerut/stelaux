@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form } from 'formik';
+import axios from 'axios';
+import FixedBar from '@/components/ui/ProgressBar/FixedBarAlert'
 
 // Asumiendo que tienes estos componentes definidos
 import { Input, FileInput, SelectInput, TextArea, DecimalInput } from '@/components/form/Form';
@@ -11,6 +13,7 @@ const MyForm = ({ objID, refreshData, closeModal }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [sendingForm, setSendingForm] = useState(false);
     const [formData, setFormData] = useState([]);
+    const [progress, setProgress] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -20,7 +23,7 @@ const MyForm = ({ objID, refreshData, closeModal }) => {
                 console.log(res.variants)
                 const filteredItems = res.variants.filter(item => item.id === objID);
                 setFormData(filteredItems[0]);
-               
+
             } catch (error) {
                 console.error("Error fetching items:", error);
             } finally {
@@ -53,13 +56,15 @@ const MyForm = ({ objID, refreshData, closeModal }) => {
         console.log('Valores del formulario:', formDataObject);
 
         try {
-            const res = await fetch('http://127.0.0.1:8000/v1/inventory/create_service/', {
-                method: 'POST',
-                body: formData,
+            const response = await axios.post('http://127.0.0.1:8000/v1/inventory/create_service/', formData, {
+                onUploadProgress: (event) => {
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    setProgress(percent);
+                },
             });
 
-            if (!res.ok) {
-                throw new Error(`Error en la solicitud: ${res.status}`);
+            if (!response.status >= 200 && response.status < 300) {
+                throw new Error(`Error en la solicitud: ${response.status}`);
             }
 
         } catch (error) {
@@ -109,7 +114,7 @@ const MyForm = ({ objID, refreshData, closeModal }) => {
         { value: '', label: 'Seleccionar Estado', disabled: true },
         { value: 'active', label: 'Activo' },
         { value: 'inactive', label: 'Inactivo' },
-      ];
+    ];
 
     return (
         <div>
@@ -185,7 +190,7 @@ const MyForm = ({ objID, refreshData, closeModal }) => {
                                 </div>
                             )}
                             <hr className='my-5' />
-
+                            <FixedBar sendingForm={sendingForm} progress={progress} />
                             <Buttons
                                 ariaLabel="botón del formulario"
                                 isLoading={sendingForm}

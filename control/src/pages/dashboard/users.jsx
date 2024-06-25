@@ -1,45 +1,11 @@
-import React, { useState } from "react";
-import Card from "@/components/ui/Card";
-import Textinput from "@/components/ui/Textinput";
-import FinanceChartHome from "@/components/partials/widget/chart/FinanceChartHome";
-import { Link } from "react-router-dom";
-import SimpleBar from "simplebar-react";
-import HistoryChart from "@/components/partials/widget/chart/history-chart";
-import AccountReceivable from "@/components/partials/widget/chart/account-receivable";
-import AccountPayable from "@/components/partials/widget/chart/account-payable";
-import CardSlider from "@/components/partials/widget/CardSlider";
-import TransactionsTable from "@/components/partials/Table/transactions";
-import SelectMonth from "@/components/partials/SelectMonth";
-import HomeBredCurbs from "@/components/finance/FinanceBredCurbs";
-import NavBredCurbs from "@/components/ui/Breadcrumbs";
+import React, { useState, useEffect, useCallback } from "react";
+import DynamicTable from "@/pages/table/react-tables/DynamicTable";
+import { productData, serviceData } from '@/constant/inventoryData';
+import HomeBredCurbs from "@/components/inventory/InventoryBredCurbs";
+import MessageList from "@/components/partials/widget/message-list";
 
-const users = [
-  {
-    name: "Ab",
-  },
-  {
-    name: "Bc",
-  },
-  {
-    name: "Cd",
-  },
-  {
-    name: "Df",
-  },
-  {
-    name: "Ab",
-  },
-  {
-    name: "Sd",
-  },
-  {
-    name: "Sg",
-  },
-];
-
-const BankingPage = ({mainTitle, buttonSet}) => {
-  const [activeIndex, setActiveIndex] = useState(0);
-    /* const [dataFetched, setDataFetched] = useState(false);
+const ContentPage = ({ mainTitle, buttonSet, tableType }) => {
+  /* const [dataFetched, setDataFetched] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [dataProductTable, setDataProductTable] = useState([]);
   const [dataServiceTable, setDataServiceTable] = useState([]);
@@ -500,90 +466,14 @@ const BankingPage = ({mainTitle, buttonSet}) => {
       },
     },
   ]; */
-  
+
   return (
-   
-    <div className="space-y-5">
-      <HomeBredCurbs title={mainTitle} setID={buttonSet} />
-      <Card>
-        <div className="grid xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5 place-content-center">
-          <FinanceChartHome />
-        </div>
-      </Card>
-      <div className="grid grid-cols-12 gap-5">
-        <div className="lg:col-span-4 col-span-12 space-y-5">
-          <Card title="Solicitud de Retiro">
-            <div className="space-y-6">
-              
-              <div className="bg-slate-100 dark:bg-slate-900 rounded-md p-4">
-                <span
-                  className="text-xs text-slate-500 dark:text-slate-400 block mb-1 cursor-pointer font-normal"
-                  htmlFor="cdp"
-                >
-                  Amount
-                </span>
-                <Textinput
-                  placeholder="$6547"
-                  id="cdp"
-                  className="bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 placeholder:font-medium  h-auto font-medium"
-                />
-              </div>
-              <div className="bg-slate-100 dark:bg-slate-900 rounded-md p-4">
-                <label
-                  className="text-xs text-slate-500 dark:text-slate-400 block cursor-pointer mb-1"
-                  htmlFor="cd"
-                >
-                  Recipient account number
-                </label>
+    <div>
+      <HomeBredCurbs title={mainTitle} />
+        <br />
 
-                <Textinput
-                  placeholder="3458-3548-6548-3244"
-                  isMask
-                  id="cd"
-                  className="bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 h-auto placeholder:font-medium font-medium"
-                />
-              </div>
-              <div className="bg-slate-100 dark:bg-slate-900 rounded-md p-4">
-                <label
-                  className="text-xs text-slate-500 dark:text-slate-400 block cursor-pointer mb-1"
-                  htmlFor="cd"
-                >
-                  Recipient account number
-                </label>
-
-                <Textinput
-                  placeholder="3458-3548-6548-3244"
-                  isMask
-                  id="cd"
-                  className="bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 h-auto placeholder:font-medium font-medium"
-                />
-              </div>
-              <div className="flex justify-between">
-                <div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">
-                    Total amount
-                  </span>
-                  <span className="text-lg font-medium text-slate-900 dark:text-white block">
-                    $6547
-                  </span>
-                </div>
-                <div>
-                  <button type="button" className="btn btn-dark">
-                    Realizar Retiro
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-        <div className="lg:col-span-8 col-span-12">
-          <div className="space-y-5 bank-table">
-            <TransactionsTable />
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
 
-export default BankingPage;
+export default ContentPage;

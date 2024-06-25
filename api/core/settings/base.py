@@ -7,8 +7,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+AUTHENTICATION_BACKENDS = (
+    'users.authentication.CustomBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
+ALLOWED_HOSTS = []
+AUTH_USER_MODEL = 'users.CustomUser'
 #security
 SECRET_KEY = env.str('SECRET_KEY')
 STRIPE_SECRET_KEY = env.str('STRIPE_SECRET_KEY')
@@ -92,7 +97,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 postgres_test = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'data_test',
+        'NAME': 'stela_test',
         'USER': 'stelaux',
         'PASSWORD': env('CLOUD_PASSWORD'),
         'HOST': env('CLOUD_HOST'),

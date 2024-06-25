@@ -158,7 +158,7 @@ const TransactionsTable = () => {
       columns,
       data,
       initialState: {
-        pageSize: 4,
+        pageSize: 5,
       },
     },
 

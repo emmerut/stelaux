@@ -1,106 +1,86 @@
-import React, { useState } from "react";
-import Textinput from "@/components/ui/Textinput";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { useNavigate } from "react-router-dom";
-import Checkbox from "@/components/ui/Checkbox";
-import Button from "@/components/ui/Button";
-import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { useLoginMutation } from "@/store/api/auth/authApiSlice";
-import { setUser } from "@/store/api/auth/authSlice";
+import React from 'react';
+import { Formik, Form } from 'formik';
+import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from "react-toastify";
-const schema = yup
-  .object({
-    email: yup.string().email("Invalid email").required("Email is Required"),
-    password: yup.string().required("Password is Required"),
-  })
-  .required();
-const LoginForm = () => {
-  const [login, { isLoading, isError, error, isSuccess }] = useLoginMutation();
+import { InputLogin } from "@/components/form/Form";
+import Button from '@/components/ui/Button';
 
-  const dispatch = useDispatch();
-
-  const {
-    register,
-    formState: { errors },
-    handleSubmit,
-  } = useForm({
-    resolver: yupResolver(schema),
-    //
-    mode: "all",
-  });
+const Login = () => {
   const navigate = useNavigate();
-  const onSubmit = async (data) => {
+
+  const initialValues = {
+    username: '',
+    password: '',
+    keepMeSignedIn: false
+  };
+
+  const validate = (values) => {
+    const errors = {};
+
+    if (!values.username) {
+      errors.username = 'El nombre de usuario, email o teléfono es requerido';
+    }
+
+    if (!values.password) {
+      errors.password = 'La contraseña es requerida';
+    }
+
+    return errors;
+  };
+
+  const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await login(data);
-
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
-      if (response.data.error) {
-        throw new Error(response.data.error);
-      }
-
-      if (!response.data.token) {
-        throw new Error("Invalid credentials");
-      }
-
-      dispatch(setUser(data));
-      navigate("/dashboard");
+      const response = await axios.post('http://localhost:8000/v1/auth/login/', values);
+      navigate("/console");
       localStorage.setItem("user", JSON.stringify(response.data.user));
-      toast.success("Login Successful");
+      setSubmitting(false);
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.detail || 'Error de autenticación');
+      setSubmitting(false);
     }
   };
 
-  const [checked, setChecked] = useState(false);
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 ">
-      <Textinput
-        name="email"
-        label="email"
-        defaultValue="dashcode@gmail.com"
-        type="email"
-        register={register}
-        error={errors.email}
-        className="h-[48px]"
-      />
-      <Textinput
-        name="password"
-        label="passwrod"
-        type="password"
-        defaultValue="dashcode"
-        register={register}
-        error={errors.password}
-        className="h-[48px]"
-      />
-      <div className="flex justify-between">
-        <Checkbox
-          value={checked}
-          onChange={() => setChecked(!checked)}
-          label="Keep me signed in"
-        />
-        <Link
-          to="/forgot-password"
-          className="text-sm text-slate-800 dark:text-slate-400 leading-6 font-medium"
-        >
-          Forgot Password?{" "}
-        </Link>
-      </div>
-
-      <Button
-        type="submit"
-        text="Sign in"
-        className="btn btn-dark block w-full text-center "
-        isLoading={isLoading}
-      />
-    </form>
+    <Formik
+      initialValues={initialValues}
+      validate={validate}
+      onSubmit={handleSubmit}
+    >
+      {({ isSubmitting, values }) => (
+        <Form>
+          <InputLogin
+            name="username"
+            type="text"
+            placeholder="Ingresa con tu email o teléfono"
+            className="mb-4"
+          />
+          <InputLogin
+            name="password"
+            type="password"
+            placeholder="Ingrese su contraseña"
+            className="mb-4"
+            hasIcon
+          />
+          <div className="flex justify-end my-4">
+            <Link
+              to="/auth/reset-password"
+              className="text-sm text-slate-800 dark:text-slate-400 leading-6 font-medium"
+            >
+              Recuperar Acceso{" "}
+            </Link>
+          </div>
+          <Button
+            type="submit"
+            text="Ingresar"
+            className="btn bg-indigo-900 text-white hover:bg-indigo-800 block w-full text-center"
+            isLoading={isSubmitting}
+            disabled={isSubmitting}
+          />
+        </Form>
+      )}
+    </Formik>
   );
 };
 
-export default LoginForm;
+export default Login;

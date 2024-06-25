@@ -1,9 +1,157 @@
-import React, { memo } from 'react';
-import { useFormikContext } from 'formik';
+import React, { memo, useState } from 'react';
+import { useFormikContext, Field, ErrorMessage } from 'formik';
 import { useField } from 'formik';
 import { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
+import Icon from '@/components/ui/Icon';
+import CheckImage from "@/assets/images/icon/ck-white.svg";
 
+const currentYear = new Date().getFullYear();
+const startYear = 1950;
+const adultYear = currentYear - 18;
+
+const InputLogin = memo(({ type, label, placeholder = "Add placeholder", classLabel = "form-label", className = "", classGroup = "", readOnly, error, icon, disabled, id, horizontal, validate, isMask, msgTooltip, description, hasIcon, options, onFocus, defaultValue, ...props }) => {
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => {
+    setOpen(!open);
+  };
+  const [field, meta] = useField(props);
+
+  return (
+    <div className={`formGroup ${meta.touched && meta.error ? "has-error" : ""} ${horizontal ? "flex" : ""} ${meta.touched && validate ? "is-valid" : ""} ${classGroup}`}>
+      {label && (
+        <label htmlFor={id} className={`block capitalize ${classLabel} ${horizontal ? "flex-0 mr-6 md:w-[100px] w-[60px] break-words" : ""}`}>
+          {label}
+        </label>
+      )}
+      <div className={`relative ${horizontal ? "flex-1" : ""}`}>
+        {!isMask ? (
+          <input
+            type={type === "password" && open ? "text" : type}
+            className={`form-control py-2 ${className} ${meta.touched && meta.error ? "has-error" : ""}`}
+            {...field}
+            placeholder={placeholder}
+            readOnly={readOnly}
+            disabled={disabled}
+            defaultValue={defaultValue}
+            id={id}
+          />
+        ) : (
+          <Cleave
+            className={`form-control py-2 ${className} ${meta.touched && meta.error ? "has-error" : ""}`}
+            {...field}
+            placeholder={placeholder}
+            options={options}
+            readOnly={readOnly}
+            disabled={disabled}
+            defaultValue={defaultValue}
+            id={id}
+            onFocus={onFocus}
+          />
+        )}
+        <div className="flex text-xl absolute ltr:right-[14px] rtl:left-[14px] top-1/2 -translate-y-1/2 space-x-1 rtl:space-x-reverse">
+          {hasIcon && (
+            <span className="cursor-pointer text-secondary-500" onClick={handleOpen}>
+              {open && type === "password" ? (
+                <Icon icon="heroicons-outline:eye" />
+              ) : (
+                <Icon icon="heroicons-outline:eye-off" />
+              )}
+            </span>
+          )}
+          {meta.touched && meta.error && (
+            <span className="text-danger-500">
+              <Icon icon="heroicons-outline:information-circle" />
+            </span>
+          )}
+          {meta.touched && validate && (
+            <span className="text-success-500">
+              <Icon icon="bi:check-lg" />
+            </span>
+          )}
+        </div>
+      </div>
+      {meta.touched && meta.error && (
+        <div className={`mt-2 ${msgTooltip ? "inline-block bg-danger-500 text-white text-[10px] px-2 py-1 rounded" : "text-danger-500 block text-sm"}`}>
+          {meta.error}
+        </div>
+      )}
+      {meta.touched && validate && (
+        <div className={`mt-2 ${msgTooltip ? "inline-block bg-success-500 text-white text-[10px] px-2 py-1 rounded" : "text-success-500 block text-sm"}`}>
+          {validate}
+        </div>
+      )}
+      {description && <span className="input-description">{description}</span>}
+    </div>
+  );
+});
+
+const BirthDateField = memo(() => {
+  const { setFieldValue, values } = useFormikContext();
+
+  const handleDateChange = (field, value) => {
+    setFieldValue(field, value);
+  };
+
+  return (
+    <div className="mb-4">
+      <label htmlFor="day" className="block text-gray-700 text-sm font-bold mb-2">
+        Fecha de nacimiento
+        <span className="text-xs text-gray-400">(opcional)</span>
+      </label>
+      <div className="flex space-x-2">
+        <Field
+          as="select"
+          id="day"
+          name="day"
+          className="flex-1 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          onChange={(e) => handleDateChange('day', e.target.value)}
+          value={values.day}
+        >
+          <option value="" disabled label="Día" />
+          {[...Array(31).keys()].map((day) => (
+            <option key={day + 1} value={day + 1}>
+              {day + 1}
+            </option>
+          ))}
+        </Field>
+        <Field
+          as="select"
+          id="month"
+          name="month"
+          className="flex-1 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          onChange={(e) => handleDateChange('month', e.target.value)}
+          value={values.month}
+        >
+          <option value="" disabled label="Mes" />
+          {['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((month, index) => (
+            <option key={index} value={index + 1}>
+              {month}
+            </option>
+          ))}
+        </Field>
+        <Field
+          as="select"
+          id="year"
+          name="year"
+          className="flex-1 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          onChange={(e) => handleDateChange('year', e.target.value)}
+          value={values.year}
+        >
+          <option value="" disabled label="Año" />
+          {[...Array(adultYear - startYear + 1).keys()].map((year) => (
+            <option key={year + startYear} value={year + startYear}>
+              {year + startYear}
+            </option>
+          ))}
+        </Field>
+      </div>
+      <ErrorMessage name="day" component="div" className="text-red-500 text-sm mt-1" />
+      <ErrorMessage name="month" component="div" className="text-red-500 text-sm mt-1" />
+      <ErrorMessage name="year" component="div" className="text-red-500 text-sm mt-1" />
+    </div>
+  );
+});
 
 const Input = memo(({ label, labelClass, className, helpText, showErrorMsg, ...props }) => {
   const [field, meta] = useField(props);
@@ -30,18 +178,18 @@ const Input = memo(({ label, labelClass, className, helpText, showErrorMsg, ...p
 
 const TextArea = memo(({ label, labelClass, className, onEditorChange, showErrorMsg, ...props }) => {
   const editorRef = useRef(null);
-  const { setFieldValue, values } = useFormikContext(); 
+  const { setFieldValue, values } = useFormikContext();
 
   const handleEditorChange = (content) => {
     // Update the Formik field value
     setFieldValue(props.name, content);
     if (onEditorChange) {
       // Call the original onEditorChange if it exists
-      onEditorChange(content); 
-      
+      onEditorChange(content);
+
     }
   };
-  
+
   return (
     <div className='my-6'>
       <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 ${labelClass}`}>
@@ -62,7 +210,7 @@ const TextArea = memo(({ label, labelClass, className, onEditorChange, showError
             'media', 'table', 'emoticons', 'help'
           ],
           toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent |' +
-            'bullist numlist | table', 
+            'bullist numlist | table',
           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
         }}
         onEditorChange={handleEditorChange}
@@ -71,19 +219,63 @@ const TextArea = memo(({ label, labelClass, className, onEditorChange, showError
   );
 });
 
-const Checkbox = memo(({ label, labelClass, className, children, ...props }) => {
+const Checkbox = memo(({ label, labelClass, className, ...props }) => {
   const [field, meta] = useField(props);
+
+  const handleChange = (e) => {
+    field.onChange(e);
+    console.log(`${props.name}: ${e.target.checked}`);
+  };
+
   return (
     <label className={`inline-flex items-center ${labelClass ? ` ${labelClass}` : ""}`}>
       <input
         type="checkbox"
-        className={`form-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded ${className}${meta.touched && meta.error ? " border-red-500" : ""
-          }`}
+        className={`form-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded ${className}${meta.touched && meta.error ? " border-red-500" : ""}`}
         {...field}
         {...props}
+        onChange={handleChange}
       />
-      <span className="ml-2 text-sm text-gray-600">
-        {children}
+      <span className="ml-2 mb-4 text-sm leading-tight text-gray-600">
+        {label}
+      </span>
+    </label>
+  );
+});
+
+const CheckboxInput = memo(({ label, classLabel = "form-label", className = "", activeClass = "ring-black-500 bg-slate-900 dark:bg-slate-700 dark:ring-slate-700", ...props }) => {
+  const [field, meta] = useField({ ...props, type: 'checkbox' });
+
+  const handleChange = (e) => {
+    field.onChange(e);
+    console.log(`${props.name}: ${e.target.checked}`);
+  };
+
+  return (
+    <label
+      className={`flex items-center ${meta.error && meta.touched ? " has-error" : ""} ${props.disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"} ${className}`}
+      htmlFor={props.id || props.name}
+    >
+      <input
+        type="checkbox"
+        className="hidden"
+        {...field}
+        {...props}
+        onChange={handleChange}
+      />
+      <span
+        className={`h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150 ${field.checked ? activeClass + " ring-2 ring-offset-2 dark:ring-offset-slate-800" : "bg-slate-100 dark:bg-slate-600 dark:border-slate-600"}`}
+      >
+        {field.checked && (
+          <img
+            src={CheckImage}
+            alt=""
+            className="h-[10px] w-[10px] block m-auto"
+          />
+        )}
+      </span>
+      <span className="text-slate-500 dark:text-slate-400 text-sm leading-6 capitalize">
+        {label}
       </span>
     </label>
   );
@@ -234,4 +426,8 @@ FileInput.defaultProps = {
   showErrorMsg: true,
 };
 
-export { Input, TextArea, Checkbox, FileInput, SelectInput, NumberInput, DecimalInput, NestedSelectInput }; 
+export {
+  Input, TextArea, Checkbox, FileInput, SelectInput,
+  NumberInput, DecimalInput, NestedSelectInput, InputLogin,
+  CheckboxInput, BirthDateField
+}; 

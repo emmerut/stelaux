@@ -38,7 +38,7 @@ const ForgotPass2 = () => {
               <div className="md:max-w-[345px] mx-auto font-normal text-slate-500 dark:text-slate-400 2xl:mt-12 mt-8 uppercase text-sm">
                 Forget It,
                 <Link
-                  to="/"
+                  to="/auth/login"
                   className="text-slate-900 dark:text-white font-medium hover:underline"
                 >
                   Send me Back

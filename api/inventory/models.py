@@ -1,3 +1,4 @@
+import random, string, time
 from django.db import models
 from django.utils.text import slugify
 
@@ -95,24 +96,16 @@ class Variant(models.Model):
         return self.product.title
     
     def generate_sku(self):
-        """Generates a SKU based on product title, color, and size."""
-
-        # 1. Create a slug from the product title (for better readability)
-        slug = slugify(self.product.title)
-
-        # 2. Append color and size (if available)
-        if self.color:
-            slug += f'-{self.color}'
-        if self.size:
-            slug += f'-{self.size}'
-
-        # 3. Ensure uniqueness by adding a counter if needed (optional)
+        random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        timestamp = int(time.time())
+        sku = f'{random_string}-{timestamp}'
         counter = 1
-        while Variant.objects.filter(sku=slug).exists():
-            slug = f'{slug}-{counter}'
+        unique_sku = sku
+        while Variant.objects.filter(sku=unique_sku).exists():
+            unique_sku = f'{sku}-{counter}'
             counter += 1
 
-        return slug
+        return unique_sku
     
     def get_color(self):
         """Genera un div con el color en estilo Tailwind."""
@@ -127,7 +120,6 @@ class Variant(models.Model):
             return ""  # Devuelve una cadena vacía si no hay color
 
     def save(self, *args, **kwargs):
-        # Generate SKU if it doesn't exist
         if not self.sku:
             self.sku = self.generate_sku()
 

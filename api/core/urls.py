@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1/stela-editor/', include('content.urls')),
     path('v1/inventory/', include('inventory.urls')),
+    path('v1/auth/', include('users.urls')),
     path('v1/docs', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
 ]

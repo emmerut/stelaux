@@ -9,7 +9,10 @@
 .modal-scroll::-webkit-scrollbar-thumb {
   background: #d4d1d4;
 }
-
+.shadow-png {
+  -webkit-filter: drop-shadow(5px 5px 5px #4d039ccf);
+  filter: drop-shadow(5px 5px 5px #66059a8d);
+}
 .loader-overlay {
   position: fixed;
   top: 0;

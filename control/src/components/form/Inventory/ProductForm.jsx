@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, FieldArray } from 'formik';
+import axios from 'axios';
+import FixedBar from '@/components/ui/ProgressBar/FixedBarAlert'
 
 // Asumiendo que tienes estos componentes definidos
 import { Input, FileInput, NestedSelectInput, TextArea, DecimalInput, NumberInput, SelectInput } from '@/components/form/Form';
@@ -22,7 +24,7 @@ const MyForm = ({ objID, refreshData, closeModal }) => {
     const [selectedFinalSubcategory, setSelectedFinalSubcategory] = useState(null);
     const [fourthSubcategories, setFourthSubcategories] = useState([]);
     const [selectedFourthSubcategory, setSelectedFourthSubcategory] = useState(null);
-
+    const [progress, setProgress] = useState(0);
     const [categoryName, setCategoryName] = useState(null);
     const [subCategoryName, setSubCategoryName] = useState(null);
     const [subCategoryName2, setSubCategoryName2] = useState(null);
@@ -308,24 +310,26 @@ const MyForm = ({ objID, refreshData, closeModal }) => {
 
         // Mostrar el objeto plano en la consola
         console.log('Valores del formulario:', formDataObject);
-
+        
         try {
-            const res = await fetch('http://127.0.0.1:8000/v1/inventory/create_product/', {
-                method: 'POST',
-                body: formData,
+            const response = await axios.post('http://127.0.0.1:8000/v1/inventory/create_product/', formData, {
+              onUploadProgress: (event) => {
+                const percent = Math.round((event.loaded / event.total) * 100);
+                setProgress(percent);
+              },
             });
-
-            if (!res.ok) {
-                throw new Error(`Error en la solicitud: ${res.status}`);
+      
+            if (!response.status >= 200 && response.status < 300) {
+              throw new Error(`Error en la solicitud: ${response.status}`);
             }
-
-        } catch (error) {
+      
+          } catch (error) {
             console.error('Error al enviar el formulario:', error);
-        } finally {
+          } finally {
             setSendingForm(false);
             refreshData();
             closeModal();
-        }
+          }
     };
 
     const handleFileChange = (file) => {
@@ -2311,7 +2315,7 @@ const MyForm = ({ objID, refreshData, closeModal }) => {
     };
 
     useEffect(() => {
-        console.log(categoriesList);
+    
         if (categoriesList) {
             const { subcategory3 } = categoriesList;
             // Find the category and its subcategories in one pass
@@ -2529,6 +2533,7 @@ const MyForm = ({ objID, refreshData, closeModal }) => {
                                 )}
                             </FieldArray>
                             <hr className="m-3" />
+                            <FixedBar sendingForm={sendingForm} progress={progress} />
                             <Buttons
                                 ariaLabel="botón del formulario"
                                 isLoading={sendingForm}

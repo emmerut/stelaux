@@ -36,24 +36,21 @@ export const menuItems = [
   },
   {
     title: "Finanzas",
+    isHide: true,
     icon: "fluent:building-bank-28-filled",
-    link: "#",
-    child: [
-      {
-        childtitle: "Facturación",
-        childlink: "projects",
-      },
-      {
-        childtitle: "Pagos Recibidos",
-        childlink: "projects",
-      },
-    ],
+    link: "finance",
+  },
+  {
+    title: "Pedidos",
+    isHide: true,
+    icon: "ic:baseline-local-grocery-store",
+    link: "orders",
   },
   {
     title: "Usuarios",
     isHide: true,
     icon: "mdi:users",
-    link: "calender",
+    link: "users",
   },
   
   //APPS
@@ -75,30 +72,54 @@ export const menuItems = [
   //   link: "kanban",
   // },
   {
+    title: "Zenith",
+    isHide: true,
+    icon: "ic:baseline-rocket-launch",
+    link: "zenith",
+  },
+  {
+    title: "Post Pro",
+    isHide: true,
+    icon: "solar:posts-carousel-horizontal-bold-duotone",
+    link: "postpro",
+  },
+  {
+    title: "Stela IA",
+    isHide: true,
+    icon: "mdi:robot-happy",
+    link: "prostela",
+  },
+  {
+    title: "Whatsapp Manager",
+    isHide: true,
+    icon: "mage:whatsapp-filled",
+    link: "whatsapp",
+  },
+  {
     title: "Finyx Contabilidad",
     icon: "material-symbols:finance-rounded",
-    link: "#",
+    link: "finyx",
     isHide: true,
     child: [
       {
         childtitle: "Transacciones",
-        childlink: "projects",
+        childlink: "transactions",
       },
       {
         childtitle: "Libro Diario",
-        childlink: "project-details",
+        childlink: "diarybook",
       },
       {
         childtitle: "Libro Mayor",
-        childlink: "project-details",
+        childlink: "majorbook",
       },
       {
         childtitle: "Balances",
-        childlink: "project-details",
+        childlink: "balance",
       },
       {
         childtitle: "Configuración",
-        childlink: "project-details",
+        childlink: "config",
       },
     ],
   },
@@ -159,24 +180,6 @@ export const menuItems = [
         childlink: "project-details",
       },
     ],
-  },
-  {
-    title: "Post Pro",
-    isHide: true,
-    icon: "solar:posts-carousel-horizontal-bold-duotone",
-    link: "calender",
-  },
-  {
-    title: "Stela IA",
-    isHide: true,
-    icon: "mdi:robot-happy",
-    link: "todo",
-  },
-  {
-    title: "Whatsapp Manager",
-    isHide: true,
-    icon: "mage:whatsapp-filled",
-    link: "chat",
   },
   /** 
   //PAGES

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import RegForm from "./common/reg-from";
+import TokenForm from "./common/token-form";
 import Social from "./common/social";
 import useDarkmode from "@/hooks/useDarkMode";
 import { ToastContainer } from "react-toastify";
@@ -35,13 +35,12 @@ const register2 = () => {
                 </Link>
               </div>
               <div className="text-center 2xl:mb-10 mb-5">
-                <h2 className="text-2xl font-bold mb-2 text-center">Crea una cuenta</h2>
+                <h2 className="text-2xl font-bold mb-2 text-center">Cuenta Creada</h2>
                 <div className="text-slate-500 dark:text-slate-400 text-base">
-                  y lleva tu talento, servicios o productos a otro nivel...
+                  Hemos enviado un codigo vía SMS a tu teléfono.
                 </div>
               </div>
-              <RegForm />
-
+              <TokenForm />
             </div>
             <div className="auth-footer text-center">
               Copyright {currentYear}, Emmerut LLC All Rights Reserved.
