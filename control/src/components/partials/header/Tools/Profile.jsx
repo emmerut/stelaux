@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
 import Dropdown from "@/components/ui/Dropdown";
 import Icon from "@/components/ui/Icon";
 import { Menu, Transition } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logOut } from "@/store/api/auth/authSlice";
+import { deleteCookie } from "@/constant/sessions"
 
 import UserAvatar from "@/assets/images/all-img/user.png";
 
@@ -37,9 +37,8 @@ const Profile = () => {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    // Clear user data from local storage
-    localStorage.removeItem("user");
-    dispatch(logOut());
+    deleteCookie("user_token");
+    navigate("/auth/login");
   };
 
   const ProfileMenu = [

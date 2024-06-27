@@ -1,3 +1,6 @@
+import random, string
+from django.utils import timezone
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -9,3 +12,4 @@ class CustomUser(AbstractUser):
     plan_ecommerce = models.BooleanField(default=False)
     plan_ultimate = models.BooleanField(default=False)
     birthday = models.DateField(null=True, blank=True)
+    

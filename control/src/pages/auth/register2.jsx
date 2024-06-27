@@ -11,7 +11,8 @@ import { motion } from "framer-motion";
 import LogoWhite from "@/assets/images/auth/logo.png";
 import Logo from "@/assets/images/logo/logo.svg";
 import bgImage from "@/assets/images/all-img/login-bg.png";
-const register2 = () => {
+const register2 = ({handleVerification}) => {
+  const [region, setRegion] = useState(["VE"]);
   const [texts, setTexts] = useState([
     "Impulso.",
     "Potencial.",
@@ -40,7 +41,7 @@ const register2 = () => {
                   y lleva tu talento, servicios o productos a otro nivel...
                 </div>
               </div>
-              <RegForm />
+              <RegForm handleVerification={handleVerification} />
 
             </div>
             <div className="auth-footer text-center">

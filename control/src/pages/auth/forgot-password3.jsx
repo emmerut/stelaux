@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import ForgotPass from "./common/forgot-pass";
+import ForgotPass from "../../components/form/Auth/forgot-pass";
 import useDarkMode from "@/hooks/useDarkMode";
 
 import LogoWhite from "@/assets/images/logo/logo-white.svg";

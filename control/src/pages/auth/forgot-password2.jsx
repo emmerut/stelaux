@@ -1,13 +1,19 @@
-import React from "react";
-
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import ForgotPass from "./common/forgot-pass";
+import ForgotPass from "../../components/form/Auth/forgot-pass";
 import useDarkMode from "@/hooks/useDarkMode";
-
-import LogoWhite from "@/assets/images/logo/logo-white.svg";
+import { ReactTyped } from "react-typed"; // Import ReactTyped
+import { motion } from "framer-motion";
+import LogoWhite from "@/assets/images/auth/logo.png";
 import Logo from "@/assets/images/logo/logo.svg";
 import bgImage from "@/assets/images/all-img/login-bg.png";
 const ForgotPass2 = () => {
+  const currentYear = new Date().getFullYear();
+  const [texts, setTexts] = useState([
+    "Impulso.",
+    "Potencial.",
+    "Alcance.",
+  ]);
   const [isDark] = useDarkMode();
   return (
     <div className="loginwrapper">
@@ -25,29 +31,24 @@ const ForgotPass2 = () => {
                 </Link>
               </div>
               <div className="text-center 2xl:mb-10 mb-5">
-                <h4 className="font-medium mb-4">Forgot Your Password?</h4>
+                <h4 className="font-medium mb-4">¿No puedes acceder a tu cuenta?</h4>
                 <div className="text-slate-500 dark:text-slate-400 text-base">
-                  Reset Password with Dashcode.
+                ¡Recuperala rapidamente en pocos minutos!
                 </div>
               </div>
-              <div className="font-normal text-base text-slate-500 dark:text-slate-400 text-center px-2 bg-slate-100 dark:bg-slate-600 rounded py-3 mb-4 mt-10">
-                Enter your Email and instructions will be sent to you!
-              </div>
-
               <ForgotPass />
               <div className="md:max-w-[345px] mx-auto font-normal text-slate-500 dark:text-slate-400 2xl:mt-12 mt-8 uppercase text-sm">
-                Forget It,
                 <Link
                   to="/auth/login"
                   className="text-slate-900 dark:text-white font-medium hover:underline"
                 >
-                  Send me Back
+                  Quiero regresar&nbsp;
                 </Link>
-                to The Sign In
+                A la página de inicio de sesión
               </div>
             </div>
             <div className="auth-footer text-center">
-              Copyright 2021, Dashcode All Rights Reserved.
+              Copyright {currentYear}, Emmerut LLC All Rights Reserved.
             </div>
           </div>
         </div>
@@ -60,15 +61,41 @@ const ForgotPass2 = () => {
           <div className="flex flex-col h-full justify-center">
             <div className="flex-1 flex flex-col justify-center items-center">
               <Link to="/">
-                <img src={LogoWhite} alt="" className="mb-10" />
+                <motion.div
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: "easeInOut", delay: 0.8 }}
+                >
+                  <Link to="/">
+                    <img
+                      width={200}
+                      src={LogoWhite}
+                      alt=""
+                      className="mb-10 shadow-png"
+                    />
+                  </Link>
+                </motion.div>
               </Link>
             </div>
-            <div>
-              <div className="black-500-title max-w-[525px] mx-auto pb-20 text-center">
-                Unlock your Project
-                <span className="text-white font-bold">performance</span>
-              </div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut", delay: 1.2 }}
+              className="black-500-title max-w-[525px] mx-auto pb-20 text-center"
+            >
+              Desbloquea tu máximo
+              <br />
+              <span className="text-white font-bold uppercase">
+                <ReactTyped
+                  strings={texts}
+                  typeSpeed={80}
+                  backSpeed={50}
+                  backDelay={1000}
+                  loop={false}
+                  className="text-white font-bold uppercase" // Apply styling
+                />
+              </span>
+            </motion.div>
           </div>
         </div>
       </div>

@@ -1,13 +1,13 @@
-import React, { lazy, useState, useEffect } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import React, { lazy, useState, useEffect, createContext, useContext } from "react";
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
+import { getCookie } from "@/constant/sessions"
 
 //auth section
 import AuthLayout from "./layout/AuthLayout";
 const Login = lazy(() => import("./pages/auth/login2"));
 const Register = lazy(() => import("./pages/auth/register2"));
 const ForgotPass = lazy(() => import("./pages/auth/forgot-password2"));
-const TokenPassSMS = lazy(() => import("./pages/auth/token-sms"));
-const TokenPassEmail = lazy(() => import("./pages/auth/token-email"));
+const Verify = lazy(() => import("./pages/auth/verifyToken"));
 
 //layout
 
@@ -34,52 +34,87 @@ const sectionTitles = {
   users: "central de usuarios",
 };
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+export const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [isRegistered, setIsRegistered] = useState(() => {
+    return JSON.parse(localStorage.getItem("isRegistered")) || false;
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const token = getCookie('user_token');
+    return token ? true : false;
+  });
 
   useEffect(() => {
-    // Simulación de verificación de autenticación (reemplaza con tu lógica real)
-    setIsAuthenticated(false);
-  }, []);
+    localStorage.setItem("isRegistered", JSON.stringify(isRegistered));
+  }, [isRegistered]);
 
   useEffect(() => {
-    const authRoutes = ['/auth/login', '/auth/signup', '/auth/reset-password', '/auth/confirm-email', '/auth/confirm-phone'];
-    const protectedRoutes = ['/console', '/products', '/services', '/finance', '/orders', '/users'];
-
-    if (isAuthenticated) {
-      // Redirecciona a la ruta protegida solicitada si está autenticado y no está en una ruta prohibida
-      if (!protectedRoutes.includes(location.pathname)) {
-        navigate('/console');
-      }
-    } else {
-      // Redirecciona a /auth/login si no está autenticado y no está tratando de acceder a una ruta de autenticación
-      if (protectedRoutes.includes(location.pathname) || !authRoutes.includes(location.pathname)) {
-        navigate('/auth/login');
-      }
+    const token = getCookie('user_token');
+    if (!token) {
+      setIsAuthenticated(false);
     }
-  }, [isAuthenticated, navigate, location.pathname]);
+  }, [isAuthenticated]);
 
+  // Función para restablecer isRegistered a false
+  const resetRegistration = () => {
+    setIsRegistered(false);
+  };
+
+  // Función para restablecer isAuthenticated a false
+  const resetAuthentication = () => {
+    setIsAuthenticated(false);
+  };
+  return (
+    <AuthContext.Provider value={{
+      resetRegistration,
+      resetAuthentication,
+      isRegistered,
+      setIsRegistered,
+      isAuthenticated,
+      setIsAuthenticated
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+const ProtectedVerifyRoute = ({ children }) => {
+  const { isRegistered } = useContext(AuthContext);
+
+  if (!isRegistered) {
+    return <Navigate to="/auth/signup" replace />;
+  }
+
+  return children;
+};
+
+function App() {
   return (
     <main className="App  relative">
-      <Routes>
-        <Route path="/auth" element={<AuthLayout setIsAuthenticated={setIsAuthenticated} />}>
-          <Route path="login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
-          <Route path="signup" element={<Register setIsAuthenticated={setIsAuthenticated} />} />
-          <Route path="confirm-email" element={<TokenPassEmail setIsAuthenticated={setIsAuthenticated} />} />
-          <Route path="confirm-phone" element={<TokenPassSMS setIsAuthenticated={setIsAuthenticated} />} />
-          <Route path="reset-password" element={<ForgotPass setIsAuthenticated={setIsAuthenticated} />} />
-        </Route>
-        <Route path="/*" element={<Layout />}>
-          <Route path="console" element={<Ecommerce />} />
-          <Route path="products" element={<InventoryPage mainTitle={sectionTitles.products} buttonSet={'productButtons'} tableType={'products'} />} />
-          <Route path="services" element={<InventoryPage mainTitle={sectionTitles.services} buttonSet={'serviceButtons'} tableType={'services'} />} />
-          <Route path="finance" element={<BankingPage mainTitle={sectionTitles.billing} buttonSet={'billingButton'} />} />
-          <Route path="orders" element={<OrdersPage mainTitle={sectionTitles.orders} />} />
-          <Route path="users" element={<UsersPage mainTitle={sectionTitles.users} />} />
-        </Route>
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/auth" element={<AuthLayout />}>
+            <Route path="login" element={<Login />} />
+            <Route path="signup" element={<Register />} />
+            <Route path="verify" element={
+              <ProtectedVerifyRoute>
+                <Verify />
+              </ProtectedVerifyRoute>
+            } />
+            <Route path="reset-password" element={<ForgotPass />} />
+          </Route>
+
+          <Route path="/*" element={<Layout />}>
+              <Route path="console" element={<Ecommerce />} />
+              <Route path="products" element={<InventoryPage mainTitle={sectionTitles.products} buttonSet={'productButtons'} tableType={'products'} />} />
+              <Route path="services" element={<InventoryPage mainTitle={sectionTitles.services} buttonSet={'serviceButtons'} tableType={'services'} />} />
+              <Route path="finance" element={<BankingPage mainTitle={sectionTitles.billing} buttonSet={'billingButton'} />} />
+              <Route path="orders" element={<OrdersPage mainTitle={sectionTitles.orders} />} />
+              <Route path="users" element={<UsersPage mainTitle={sectionTitles.users} />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
     </main>
   );
 }

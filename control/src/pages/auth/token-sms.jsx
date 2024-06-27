@@ -40,7 +40,7 @@ const register2 = () => {
                   Hemos enviado un codigo vía SMS a tu teléfono.
                 </div>
               </div>
-              <TokenForm />
+              <TokenForm action="sms" />
             </div>
             <div className="auth-footer text-center">
               Copyright {currentYear}, Emmerut LLC All Rights Reserved.

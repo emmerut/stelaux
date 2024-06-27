@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import axios from 'axios';
+import { AuthContext } from '@/App';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
-import { InputLogin } from "@/components/form/Form";
+import { setCookie } from '@/constant/sessions';
 import Button from '@/components/ui/Button';
 
-const VerificationForm = () => {
+const VerificationForm = ({ uid }) => {
+  const { setIsAuthenticated, setIsRegistered } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const initialValues = {
@@ -15,22 +17,32 @@ const VerificationForm = () => {
 
   const validate = (values) => {
     const errors = {};
-
-    // Validación para el código de verificación
     if (values.code.some((val) => !val)) {
       errors.code = 'Por favor ingresa el código de verificación';
     }
-
     return errors;
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
     const code = values.code.join('');
     try {
-      // Aquí realizas la llamada a la API para verificar el código
-      await axios.post('http://localhost:8000/v1/auth/verify/', { code });
-      navigate("/console");
-      setSubmitting(false);
+      const response = await axios.post('http://localhost:8000/v1/auth/verify/', {
+        code,
+        twilio_sid: import.meta.env.VITE_TWILIO_SID,
+        twilio_auth_token: import.meta.env.VITE_TWILIO_AUTH_TOKEN,
+        service_sid_sms: import.meta.env.VITE_TWILIO_SERVICE_SID,
+        service_sid_email: import.meta.env.VITE_TWILIO_SERVICE_SID_EMAIL,
+        token: uid
+      });
+      if (response.data.token) {
+        const authToken = response.data.token;
+        setCookie('user_token', authToken, 1);
+        toast.success('Cuenta activada');
+        setIsRegistered(false);
+        navigate("/console");
+      } else {
+        toast.error('Error al recibir el token de autenticación');
+      }
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Error de verificación');
       setSubmitting(false);

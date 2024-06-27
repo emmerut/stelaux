@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Formik, Form } from 'formik';
+import { AuthContext } from '@/App';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from "react-toastify";
@@ -7,6 +8,8 @@ import Button from '@/components/ui/Button';
 import { InputLogin, BirthDateField } from "@/components/form/Form";
 
 const SignupForm = () => {
+  
+  const { setIsRegistered } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const initialValues = {
@@ -15,8 +18,8 @@ const SignupForm = () => {
     day: '',
     month: '',
     year: '',
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
   };
 
   const validate = (values) => {
@@ -24,18 +27,25 @@ const SignupForm = () => {
 
     if (!values.email_or_phone) {
       errors.email_or_phone = 'El correo electrónico o número de teléfono es obligatorio';
+    } else {
+      const combinedRegex = /^(\+58\d{10}|\+1\d{10}|[^\s@]+@[^\s@]+\.[^\s@]+)$/;
+      
+      if (!combinedRegex.test(values.email_or_phone)) {
+        errors.email_or_phone = 'Por favor ingrese un valor válido. Debe tener el código de área o ser un número de teléfono válido de Venezuela (+58) o Estados Unidos (+1). Ejemplos: +581234567891, +11234567891 o example@dominio.com';
+      }
     }
+
 
     if (!values.password) {
       errors.password = 'La contraseña es obligatoria';
     }
 
-    if (!values.firstName) {
-      errors.firstName = 'El nombre es obligatorio';
+    if (!values.first_name) {
+      errors.first_name = 'El nombre es obligatorio';
     }
 
-    if (!values.lastName) {
-      errors.lastName = 'El apellido es obligatorio';
+    if (!values.last_name) {
+      errors.last_name = 'El apellido es obligatorio';
     }
 
     // Validaciones para los campos de fecha
@@ -55,16 +65,21 @@ const SignupForm = () => {
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
+    const customValues = {
+      ...values,
+      template_id: import.meta.env.VITE_TEMPLATE_ID,
+      from: import.meta.env.VITE_FROM,
+      from_name: import.meta.env.VITE_FROM_NAME,
+      twilio_sid: import.meta.env.VITE_TWILIO_SID,
+      twilio_auth_token: import.meta.env.VITE_TWILIO_AUTH_TOKEN,
+      service_sid_sms: import.meta.env.VITE_TWILIO_SERVICE_SID,
+      service_sid_email: import.meta.env.VITE_TWILIO_SERVICE_SID_EMAIL
+    };
     try {
-      const res = await axios.post('http://localhost:8000/v1/auth/register/', values);
-      if (res.data.call === "email") {
-        navigate('/auth/confirm-email'); 
-      } else if (res.data.call === "phone") {
-        navigate('/auth/confirm-phone');
-      } else {
-        navigate('/auth/login'); 
-      }
+      const res = await axios.post('http://localhost:8000/v1/auth/register/', customValues);
+      setIsRegistered(true);
       toast.success('Cuenta creada exitosamente');
+      navigate(`/auth/verify?type=${res.data.call}&uid=${res.data.token}`);
       setSubmitting(false);
     } catch (error) {
       console.error(error);
@@ -96,21 +111,20 @@ const SignupForm = () => {
           />
           <BirthDateField />
           <InputLogin
-            name="firstName"
+            name="first_name"
             type="text"
             placeholder="Nombre"
             className="mb-4"
           />
           <InputLogin
-            name="lastName"
+            name="last_name"
             type="text"
             placeholder="Apellido"
             className="mb-4"
           />
           <p className="text-sm text-gray-600 mb-4">
             Al hacer clic en "Registrarte", aceptas nuestras
-            <Link to="/auth/privacy" className="text-blue-500 hover:text-blue-700"> Condiciones, la Política de privacidad y la Política de cookies</Link>. Es posible que te enviemos notificaciones por
-            SMS, que puedes desactivar cuando quieras.
+            <Link to="/auth/privacy" className="text-blue-500 hover:text-blue-700"> Condiciones, la Política de privacidad y la Política de cookies</Link>. 
           </p>
           <Button
             type="submit"
@@ -120,7 +134,7 @@ const SignupForm = () => {
             disabled={isSubmitting}
           />
           <p className="text-center mt-4">
-          <Link to="/auth/login" className="text-blue-500 hover:text-blue-700">¿Ya tienes una cuenta?</Link>
+            <Link to="/auth/login" className="text-blue-500 hover:text-blue-700">¿Ya tienes una cuenta?</Link>
           </p>
         </Form>
       )}

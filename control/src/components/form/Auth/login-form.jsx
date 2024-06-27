@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Formik, Form } from 'formik';
 import axios from 'axios';
+import { AuthContext } from '@/App';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from "react-toastify";
 import { InputLogin } from "@/components/form/Form";
 import Button from '@/components/ui/Button';
+import { setCookie } from '@/constant/sessions'
 
 const Login = () => {
+  const { setIsAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const initialValues = {
@@ -31,9 +34,12 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await axios.post('http://localhost:8000/v1/auth/login/', values);
+      const res = await axios.post('http://localhost:8000/v1/auth/login/', values);
+      const authToken = res.data.token;
+      setCookie('user_token', authToken, 1);
+      toast.success('Autenticación exitosa');
+      setIsAuthenticated(true);
       navigate("/console");
-      localStorage.setItem("user", JSON.stringify(response.data.user));
       setSubmitting(false);
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Error de autenticación');

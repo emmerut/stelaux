@@ -1,4 +1,5 @@
-import React, { useEffect, Suspense, Fragment, useRef } from "react";
+import React, { useEffect, Suspense, Fragment, useRef, useContext } from "react";
+import { AuthContext } from '@/App';
 import { Outlet, useNavigate } from "react-router-dom";
 import Header from "@/components/partials/header";
 import Sidebar from "@/components/partials/sidebar";
@@ -21,13 +22,13 @@ const Layout = () => {
   const { width, breakpoints } = useWidth();
   const [collapsed] = useSidebar();
   const navigate = useNavigate();
-  const { isAuth, user } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useContext(AuthContext);
 
   useEffect(() => {
-    if (!isAuth || !user) {
-      navigate("/login");
+    if (!isAuthenticated) {
+      navigate("/auth/login");
     }
-  }, [isAuth, navigate]);
+  }, [isAuthenticated, navigate]);
   const switchHeaderClass = () => {
     if (menuType === "horizontal" || menuHidden) {
       return "ltr:ml-0 rtl:mr-0";

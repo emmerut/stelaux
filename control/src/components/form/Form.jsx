@@ -95,7 +95,7 @@ const BirthDateField = memo(() => {
 
   return (
     <div className="mb-4">
-      <label htmlFor="day" className="block text-gray-700 text-sm font-bold mb-2">
+      <label htmlFor="day" className="block text-slate-500 dark:text-slate-400 text-sm font-bold mb-2">
         Fecha de nacimiento
       </label>
       <div className="flex space-x-2">

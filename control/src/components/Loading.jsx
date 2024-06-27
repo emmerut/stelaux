@@ -1,7 +1,7 @@
 import React from "react";
 import useDarkMode from "@/hooks/useDarkMode";
-import LogoWhite from "@/assets/images/logo/logo-white.svg";
-import Logo from "@/assets/images/logo/logo.svg";
+import LogoWhite from "@/assets/images/logo/stela_dark.png";
+import Logo from "@/assets/images/logo/stela_white.png";
 import { useSelector } from "react-redux";
 const Loading = () => {
   const [isDark] = useDarkMode();
@@ -9,8 +9,8 @@ const Loading = () => {
   return (
     <div className="flex flex-col items-center justify-center app_height">
       {!isAuth && (
-        <div className="mb-3">
-          <img src={isDark ? LogoWhite : Logo} alt="Logo" />
+        <div className="mb-4 mr-5">
+          <img width={100} src={isDark ? LogoWhite : Logo} alt="Logo" />
         </div>
       )}
       <svg

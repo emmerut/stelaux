@@ -77,7 +77,6 @@ const login2 = () => {
           className="left-column bg-cover bg-no-repeat bg-center"
           style={{
             backgroundImage: `url(${bgImage})`,
-            backgroundBlendMode: "multiply", // Blend image with dark background
             backdropFilter: "blur(5px)", // Add blur effect
           }}
         >

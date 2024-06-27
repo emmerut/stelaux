@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import TokenForm from "@/components/form/Auth/token-form";
-import Social from "./common/social";
 import useDarkmode from "@/hooks/useDarkMode";
-import { ToastContainer } from "react-toastify";
 import { ReactTyped } from "react-typed"; // Import ReactTyped
 import { motion } from "framer-motion";
 
@@ -19,6 +17,11 @@ const register2 = () => {
   ]);
   const currentYear = new Date().getFullYear();
   const [isDark] = useDarkmode();
+  const [searchParams] = useSearchParams(); // Obtener los parámetros de la URL
+  const type = searchParams.get("type"); // Obtener el tipo de verificación
+  const uid = searchParams.get("uid"); // Obtener el ID de usuario
+
+
   return (
     <div className="loginwrapper">
       <div className="lg-inner-column">
@@ -40,7 +43,7 @@ const register2 = () => {
                   Hemos enviado un codigo a tu correo electronico.
                 </div>
               </div>
-              <TokenForm />
+              <TokenForm uid={uid} />
             </div>
             <div className="auth-footer text-center">
               Copyright {currentYear}, Emmerut LLC All Rights Reserved.
