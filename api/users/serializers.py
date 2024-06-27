@@ -15,8 +15,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['email_or_phone', 'password', 'first_name', 'last_name', 'day', 'month', 'year']
 
     def validate_email_or_phone(self, value):
-        if User.objects.filter(Q(email=value) | Q(phone=value)).exists():
-            raise serializers.ValidationError("Usuario ya ha sido registrado con este email o teléfono.")
+        # Buscar usuario con el email o teléfono proporcionado
+        get_user = User.objects.filter(Q(email=value) | Q(phone=value)).first()
+        
+        if get_user:
+            # Si el usuario existe y no está activo
+            if not get_user.is_active:
+                get_user.delete()  # Eliminar el usuario inactivo
+            else:
+                # Lanzar error si el usuario está activo
+                raise serializers.ValidationError("Usuario ya ha sido registrado con este email o teléfono.")
+        
         return value
 
     def create(self, validated_data):
