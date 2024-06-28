@@ -79,7 +79,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             user = serializer.save()
             payload = {
-                'exp': timezone.now() + datetime.timedelta(minutes=20),  # Expiración del token
+                'exp': timezone.now() + datetime.timedelta(days=1),  # Expiración del token
             }
             if user.email:
                 payload['email'] = user.email
@@ -168,58 +168,112 @@ class UserViewSet(viewsets.ModelViewSet):
         
     @action(methods=['post'], detail=False)
     def password_reset_request(self, request):
+        twilio_sid = request.data.get('twilio_sid')
+        twilio_auth_token = request.data.get('twilio_auth_token')
+        service_sid_sms = request.data.get('service_sid_sms')
+        service_sid_email = request.data.get('service_sid_email')
+        template_id = request.data.get('template_id')
+        from_ = request.data.get('from')
+        from_name = request.data.get('from_name')
         serializer = PasswordResetRequestSerializer(data=request.data)
         if serializer.is_valid():
             email_or_phone = serializer.validated_data['email_or_phone']
             user = User.objects.filter(Q(email=email_or_phone) | Q(phone=email_or_phone)).first()
             if not user:
                 return Response({"detail": "Email o teléfono no registrado."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Generar un token de 6 dígitos
-            token = ''.join(random.choices('0123456789', k=6))
-            user.reset_password_token = token
-            user.reset_password_expires = timezone.now() + timedelta(minutes=10)
-            user.save()
-
-            # Enviar correo con el token de 6 dígitos
+            payload = {
+                'exp': timezone.now() + datetime.timedelta(days=1),  # Expiración del token
+            }
             if user.email:
-                send_mail(
-                    'Restablece tu contraseña',
-                    f'Tu token de restablecimiento es: {token}',
-                    'your-email@gmail.com',
-                    [user.email]
+                payload['email'] = user.email
+                token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+                arguments = (
+                    twilio_sid, twilio_auth_token, service_sid_email,
+                    'email', user.email,
+                    {
+                        "template_id": template_id,
+                        "from": from_,
+                        "from_name": from_name,
+                    }
                 )
-
-            # Enviar SMS si el usuario tiene un teléfono
-            if user.phone:
-                client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-                client.messages.create(
-                    body=f'Tu token de restablecimiento es: {token}',
-                    from_=settings.TWILIO_PHONE_NUMBER,
-                    to=user.phone
+                self.send_verification(*arguments)
+                return Response({'call': 'email_reset', 'token': token})
+            elif user.phone:
+                payload['phone'] = user.phone
+                token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+                arguments = (
+                    twilio_sid, twilio_auth_token, service_sid_sms,
+                    'sms', user.phone,
                 )
-
-            return Response({"detail": "Token de restablecimiento enviado."}, status=status.HTTP_200_OK)
+                self.send_verification(*arguments)
+                return Response({'call': 'phone_reset', 'token': token})
+        else:
+            print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['post'], detail=False)
-    def password_reset(self, request):
+    def password_reset_confirm(self, request):
+        account_sid = request.data.get('twilio_sid')
+        auth_token = request.data.get('twilio_auth_token')
+        service_sid_sms = request.data.get('service_sid_sms')
+        service_sid_email = request.data.get('service_sid_email')
+        token = request.data.get('token')
+        code = request.data.get('code')
+
+        if not all([account_sid, auth_token, service_sid_sms, service_sid_email, token, code]):
+            return Response({"detail": "Información incompleta."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+
+            # Obtén el campo email o phone del payload
+            recipient = payload.get('email') or payload.get('phone')
+
+            if not recipient:
+                raise AuthenticationFailed('Token inválido')
+
+            user = User.objects.get(Q(email=recipient) | Q(phone=recipient))
+            service_sid = service_sid_email if 'email' in payload else service_sid_sms
+
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Token expirado')
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed('Token inválido')
+        except User.DoesNotExist:
+            raise AuthenticationFailed('Usuario no encontrado')
+        except AuthenticationFailed as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        client = Client(account_sid, auth_token)
+        try:
+            client = Client(account_sid, auth_token)
+
+            verification_check = client.verify.v2.services(
+                service_sid
+            ).verification_checks.create(to=recipient, code=code)
+
+            if verification_check.status == 'approved':
+                payload = {
+                    'user_id': user.id,
+                    'exp': timezone.now() + timezone.timedelta(hours=1)
+                }
+                session_token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+                return Response({"detail": "Cuenta verificada exitosamente.", "token": session_token}, status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": "Código de verificación incorrecto o expirado."}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post'], detail=False)
+    def new_password(self, request):
         serializer = PasswordResetSerializer(data=request.data)
         if serializer.is_valid():
-            token = serializer.validated_data['token']
-            new_password = serializer.validated_data['new_password']
-            user = User.objects.filter(
-                reset_password_token=token, 
-                reset_password_expires__gte=timezone.now()
-            ).first()
-            if not user:
-                return Response({"detail": "Token inválido o expirado."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            user.set_password(new_password)
-            user.reset_password_token = None
-            user.reset_password_expires = None
-            user.save()
-
-            return Response({"detail": "Contraseña restablecida con éxito."}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+            try:
+                serializer.save()
+                return Response({'detail': 'Contraseña actualizada correctamente'}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print(serializer.errors)
+            return Response({'detail': 'falla en la validacion'}, status=status.HTTP_400_BAD_REQUEST)

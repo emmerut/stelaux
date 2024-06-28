@@ -8,6 +8,8 @@ const Login = lazy(() => import("./pages/auth/login2"));
 const Register = lazy(() => import("./pages/auth/register2"));
 const ForgotPass = lazy(() => import("./pages/auth/forgot-password2"));
 const Verify = lazy(() => import("./pages/auth/verifyToken"));
+const NewPassword = lazy(() => import("./pages/auth/new-password"));
+
 
 //layout
 
@@ -40,6 +42,7 @@ export const AuthProvider = ({ children }) => {
   const [isRegistered, setIsRegistered] = useState(() => {
     return JSON.parse(localStorage.getItem("isRegistered")) || false;
   });
+  const [isRecovery, setIsRecovery] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const token = getCookie('user_token');
     return token ? true : false;
@@ -48,6 +51,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("isRegistered", JSON.stringify(isRegistered));
   }, [isRegistered]);
+
 
   useEffect(() => {
     const token = getCookie('user_token');
@@ -67,6 +71,8 @@ export const AuthProvider = ({ children }) => {
   };
   return (
     <AuthContext.Provider value={{
+      isRecovery,
+      setIsRecovery,
       resetRegistration,
       resetAuthentication,
       isRegistered,
@@ -89,6 +95,16 @@ const ProtectedVerifyRoute = ({ children }) => {
   return children;
 };
 
+const ProtectedRecoveryRoute = ({ children }) => {
+  const { isRecovery } = useContext(AuthContext);
+
+  if (!isRecovery) {
+    return <Navigate to="/auth/reset-password" replace />;
+  }
+
+  return children;
+};
+
 function App() {
   return (
     <main className="App  relative">
@@ -102,16 +118,26 @@ function App() {
                 <Verify />
               </ProtectedVerifyRoute>
             } />
+            <Route path="reset-verify" element={
+              <ProtectedRecoveryRoute>
+                <Verify />
+              </ProtectedRecoveryRoute>
+            } />
             <Route path="reset-password" element={<ForgotPass />} />
+            <Route path="reset-confirm" element={
+              <ProtectedRecoveryRoute>
+                <NewPassword />
+              </ProtectedRecoveryRoute>
+            } />
           </Route>
 
           <Route path="/*" element={<Layout />}>
-              <Route path="console" element={<Ecommerce />} />
-              <Route path="products" element={<InventoryPage mainTitle={sectionTitles.products} buttonSet={'productButtons'} tableType={'products'} />} />
-              <Route path="services" element={<InventoryPage mainTitle={sectionTitles.services} buttonSet={'serviceButtons'} tableType={'services'} />} />
-              <Route path="finance" element={<BankingPage mainTitle={sectionTitles.billing} buttonSet={'billingButton'} />} />
-              <Route path="orders" element={<OrdersPage mainTitle={sectionTitles.orders} />} />
-              <Route path="users" element={<UsersPage mainTitle={sectionTitles.users} />} />
+            <Route path="console" element={<Ecommerce />} />
+            <Route path="products" element={<InventoryPage mainTitle={sectionTitles.products} buttonSet={'productButtons'} tableType={'products'} />} />
+            <Route path="services" element={<InventoryPage mainTitle={sectionTitles.services} buttonSet={'serviceButtons'} tableType={'services'} />} />
+            <Route path="finance" element={<BankingPage mainTitle={sectionTitles.billing} buttonSet={'billingButton'} />} />
+            <Route path="orders" element={<OrdersPage mainTitle={sectionTitles.orders} />} />
+            <Route path="users" element={<UsersPage mainTitle={sectionTitles.users} />} />
           </Route>
         </Routes>
       </AuthProvider>

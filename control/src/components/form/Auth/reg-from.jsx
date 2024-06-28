@@ -37,8 +37,10 @@ const SignupForm = () => {
 
 
     if (!values.password) {
-      errors.password = 'La contraseña es obligatoria';
-    }
+      errors.password = 'La nueva contraseña es obligatoria';
+  } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(values.password)) {
+      errors.password = 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un caracter especial (@$!%*?&).';
+  }
 
     if (!values.first_name) {
       errors.first_name = 'El nombre es obligatorio';

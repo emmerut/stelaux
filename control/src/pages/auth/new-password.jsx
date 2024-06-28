@@ -1,33 +1,28 @@
 import React, { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import TokenForm from "@/components/form/Auth/token-form";
-import useDarkmode from "@/hooks/useDarkMode";
+import PasswordForm from "../../components/form/Auth/password-form";
+import useDarkMode from "@/hooks/useDarkMode";
 import { ReactTyped } from "react-typed"; // Import ReactTyped
 import { motion } from "framer-motion";
-
-// image import
 import LogoWhite from "@/assets/images/auth/logo.png";
 import Logo from "@/assets/images/logo/logo.svg";
 import bgImage from "@/assets/images/all-img/login-bg.png";
-const register2 = () => {
+const ForgotPass2 = () => {
+  const [searchParams] = useSearchParams(); // Obtener los parámetros de la URL
+  const uid = searchParams.get("uid");
+  const currentYear = new Date().getFullYear();
   const [texts, setTexts] = useState([
     "Impulso.",
     "Potencial.",
     "Alcance.",
   ]);
-  const currentYear = new Date().getFullYear();
-  const [isDark] = useDarkmode();
-  const [searchParams] = useSearchParams(); // Obtener los parámetros de la URL
-  const type = searchParams.get("type"); // Obtener el tipo de verificación
-  const uid = searchParams.get("uid"); // Obtener el ID de usuario
-
-
+  const [isDark] = useDarkMode();
   return (
     <div className="loginwrapper">
       <div className="lg-inner-column">
         <div className="right-column relative">
           <div className="inner-content h-full flex flex-col bg-white dark:bg-slate-800">
-            <div className="auth-box h-full flex flex-col justify-center">
+            <div className="auth-box2 flex flex-col justify-center h-full">
               <div className="mobile-logo text-center mb-6 lg:hidden block">
                 <Link to="/">
                   <img
@@ -37,48 +32,13 @@ const register2 = () => {
                   />
                 </Link>
               </div>
-              {type === "email" && (
-                <div className="text-center 2xl:mb-10 mb-5">
-                  <h2 className="text-2xl font-bold mb-2 text-center">
-                    Cuenta Creada
-                  </h2>
-                  <div className="text-slate-500 dark:text-slate-400 text-base">
-                    Hemos enviado un codigo a tu correo electronico.
-                  </div>
-                </div>
-              )}
-              {type === "phone" && (
-                <div className="text-center 2xl:mb-10 mb-5">
-                  <h2 className="text-2xl font-bold mb-2 text-center">
-                    Cuenta Creada
-                  </h2>
-                  <div className="text-slate-500 dark:text-slate-400 text-base">
-                    Hemos enviado un codigo a tu teléfono via sms.
-                  </div>
-                </div>
-              )}
-              {type === "email_reset" && (
-                <div className="text-center 2xl:mb-10 mb-5">
-                  <h2 className="text-2xl font-bold mb-2 text-center">
-                    Recuperación de Cuenta
-                  </h2>
-                  <div className="text-slate-500 dark:text-slate-400 text-base">
-                    Hemos enviado un codigo a tu correo electronico.
-                  </div>
-                </div>
-              )}
-              {type === "phone_reset" && (
-                <div className="text-center 2xl:mb-10 mb-5">
-                  <h2 className="text-2xl font-bold mb-2 text-center">
-                    Recuperación de Cuenta
-                  </h2>
-                  <div className="text-slate-500 dark:text-slate-400 text-base">
-                    Hemos enviado un codigo a tu teléfono via sms.
-                  </div>
-                </div>
-              )}
-              
-              <TokenForm type={type} uid={uid} />
+              <div className="text-center 2xl:mb-10 mb-5">
+                <h4 className="font-medium mb-4">Establece tu nueva contraseña</h4>
+              </div>
+              <PasswordForm uid={uid} />
+              <div className="md:max-w-[345px] mx-auto font-normal text-slate-500 dark:text-slate-400 2xl:mt-12 mt-8 uppercase text-sm">
+                
+              </div>
             </div>
             <div className="auth-footer text-center">
               Copyright {currentYear}, Emmerut LLC All Rights Reserved.
@@ -136,4 +96,4 @@ const register2 = () => {
   );
 };
 
-export default register2;
+export default ForgotPass2;

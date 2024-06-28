@@ -1,7 +1,29 @@
 from rest_framework import serializers
 from .models import CustomUser as User
 from django.db.models import Q
-import datetime
+from rest_framework.exceptions import AuthenticationFailed
+import jwt
+from django.conf import settings
+import datetime, jwt
+
+def get_user_from_token(token):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        # Obtén el campo email o phone del payload
+        recipient = payload.get('email') or payload.get('phone') or payload.get('user_id')
+
+        if not recipient:
+            raise AuthenticationFailed('Token inválido')
+
+        user = User.objects.get(Q(email=recipient) | Q(phone=recipient) | Q(id=recipient))
+        if not user.is_active:
+            raise AuthenticationFailed('Usuario inactivo')
+        return user
+
+    except jwt.ExpiredSignatureError:
+        raise AuthenticationFailed('Token ha expirado')
+    except jwt.InvalidTokenError:
+        raise AuthenticationFailed('Token inválido')
 
 class RegisterSerializer(serializers.ModelSerializer):
     email_or_phone = serializers.CharField(write_only=True)
@@ -52,7 +74,21 @@ class RegisterSerializer(serializers.ModelSerializer):
 class PasswordResetRequestSerializer(serializers.Serializer):
     email_or_phone = serializers.CharField()
 
-
 class PasswordResetSerializer(serializers.Serializer):
     token = serializers.CharField()
     new_password = serializers.CharField()
+
+    def validate_token(self, value):
+        user = get_user_from_token(value)
+        if not user:
+            raise serializers.ValidationError("Token inválido.")
+        return value
+
+    def save(self, **kwargs):
+        token = self.validated_data['token']
+        new_password = self.validated_data['new_password']
+        user = get_user_from_token(token)
+
+        # Establecer nueva contraseña
+        user.set_password(new_password)
+        user.save()

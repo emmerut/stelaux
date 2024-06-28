@@ -7,10 +7,10 @@ import { toast } from "react-toastify";
 import { setCookie } from '@/constant/sessions';
 import Button from '@/components/ui/Button';
 
-const VerificationForm = ({ uid }) => {
-  const { setIsAuthenticated, setIsRegistered } = useContext(AuthContext);
+const VerificationForm = ({ type, uid }) => {
+  const { setIsRegistered, setIsRecovery } = useContext(AuthContext);
   const navigate = useNavigate();
-
+  
   const initialValues = {
     code: ['', '', '', '', '', ''],
   };
@@ -26,24 +26,50 @@ const VerificationForm = ({ uid }) => {
   const handleSubmit = async (values, { setSubmitting }) => {
     const code = values.code.join('');
     try {
-      const response = await axios.post('http://localhost:8000/v1/auth/verify/', {
-        code,
-        twilio_sid: import.meta.env.VITE_TWILIO_SID,
-        twilio_auth_token: import.meta.env.VITE_TWILIO_AUTH_TOKEN,
-        service_sid_sms: import.meta.env.VITE_TWILIO_SERVICE_SID,
-        service_sid_email: import.meta.env.VITE_TWILIO_SERVICE_SID_EMAIL,
-        token: uid
-      });
-      if (response.data.token) {
-        const authToken = response.data.token;
-        setCookie('user_token', authToken, 1);
-        toast.success('Cuenta activada');
-        setIsRegistered(false);
-        navigate("/console");
+      let response;
+
+      if (type === 'email' || type === 'phone') {
+        response = await axios.post('http://localhost:8000/v1/auth/verify/', {
+          code,
+          twilio_sid: import.meta.env.VITE_TWILIO_SID,
+          twilio_auth_token: import.meta.env.VITE_TWILIO_AUTH_TOKEN,
+          service_sid_email: import.meta.env.VITE_TWILIO_SERVICE_SID_EMAIL,
+          service_sid_sms: import.meta.env.VITE_TWILIO_SERVICE_SID_SMS,
+          token: uid
+
+        });
+        if (response.data.token) {
+          const authToken = response.data.token;
+          setCookie('user_token', authToken, 1);
+          toast.success('Cuenta activada');
+          setIsRegistered(false);
+          navigate("/console");
+        } else {
+          toast.error('Error al recibir el token de autenticación');
+        }
+      } else if (type === 'email_reset' || type === 'phone_reset') {
+        response = await axios.post('http://localhost:8000/v1/auth/password_reset_confirm/', {
+          code,
+          twilio_sid: import.meta.env.VITE_TWILIO_SID,
+          twilio_auth_token: import.meta.env.VITE_TWILIO_AUTH_TOKEN,
+          service_sid_email: import.meta.env.VITE_TWILIO_SERVICE_SID_EMAIL,
+          service_sid_sms: import.meta.env.VITE_TWILIO_SERVICE_SID,
+          token: uid,
+        });
+        if (response.data.token) {
+          const authToken = response.data.token;
+          setCookie('user_token', authToken, 1);
+          setIsRecovery(true);
+          toast.success('Cuenta recuperada');
+          navigate(`/auth/reset-confirm?&uid=${response.data.token}`);
+        } else {
+          toast.error('Error al recibir el token de autenticación');
+        }
       } else {
-        toast.error('Error al recibir el token de autenticación');
+        throw new Error('Invalid verification type');
       }
     } catch (error) {
+      setIsRecovery(false);
       toast.error(error.response?.data?.detail || 'Error de verificación');
       setSubmitting(false);
     }
