@@ -18,11 +18,12 @@ import { ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
 import Loading from "@/components/Loading";
 import { motion, AnimatePresence } from "framer-motion";
+
 const Layout = () => {
   const { width, breakpoints } = useWidth();
   const [collapsed] = useSidebar();
   const navigate = useNavigate();
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, userData } = useContext(AuthContext);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -49,7 +50,7 @@ const Layout = () => {
   return (
     <>
       <ToastContainer />
-      <Header className={width > breakpoints.xl ? switchHeaderClass() : ""} />
+      <Header userData={userData} className={width > breakpoints.xl ? switchHeaderClass() : ""} />
       {menuType === "vertical" && width > breakpoints.xl && !menuHidden && (
         <Sidebar />
       )}
@@ -57,7 +58,7 @@ const Layout = () => {
       <MobileMenu
         className={`${width < breakpoints.xl && mobileMenu
             ? "left-0 visible opacity-100  z-[9999]"
-            : "left-[-300px] invisible opacity-0  z-[-999] "
+            : "left-[-300px] invisible opacity-0"
           }`}
       />
       {/* mobile menu overlay*/}
@@ -112,7 +113,7 @@ const Layout = () => {
           </div>
         </div>
       </div>
-      {width < breakpoints.md && <MobileFooter />}
+      {width < breakpoints.md && <MobileFooter userData={userData} />}
       {width > breakpoints.md && (
         <Footer className={width > breakpoints.xl ? switchHeaderClass() : ""} />
       )}

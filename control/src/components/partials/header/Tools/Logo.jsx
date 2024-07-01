@@ -5,8 +5,8 @@ import useWidth from "@/hooks/useWidth";
 
 import MainLogo from "@/assets/images/logo/logo.svg";
 import LogoWhite from "@/assets/images/logo/logo-white.svg";
-import MobileLogo from "@/assets/images/logo/logo-c.svg";
-import MobileLogoWhite from "@/assets/images/logo/logo-c-white.svg";
+import MobileLogo from "@/assets/images/logo/stela_white.png";
+import MobileLogoWhite from "@/assets/images/logo/stela_dark.png";
 const Logo = () => {
   const [isDark] = useDarkMode();
   const { width, breakpoints } = useWidth();
@@ -17,7 +17,7 @@ const Logo = () => {
         {width >= breakpoints.xl ? (
           <img src={isDark ? LogoWhite : MainLogo} alt="" />
         ) : (
-          <img src={isDark ? MobileLogoWhite : MobileLogo} alt="" />
+          <img src={isDark ? MobileLogoWhite : MobileLogo} alt="" width={60} />
         )}
       </Link>
     </div>

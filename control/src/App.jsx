@@ -1,6 +1,7 @@
 import React, { lazy, useState, useEffect, createContext, useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { getCookie } from "@/constant/sessions"
+import { getUserData } from '@/constant/sessionData'
 
 //auth section
 import AuthLayout from "./layout/AuthLayout";
@@ -47,11 +48,25 @@ export const AuthProvider = ({ children }) => {
     const token = getCookie('user_token');
     return token ? true : false;
   });
+  
+  const [userData, setUserData] = useState(null);
+
+  // Fetch user data when the component mounts
+  useEffect(() => {
+    const fetchData = async () => { 
+      try {
+        const res = await getUserData(); 
+        setUserData(res); // Update user data state
+      } catch (error) {
+        console.error('Error fetching data:', error); 
+      }
+    };
+    fetchData(); // Call the async function
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("isRegistered", JSON.stringify(isRegistered));
   }, [isRegistered]);
-
 
   useEffect(() => {
     const token = getCookie('user_token');
@@ -69,6 +84,7 @@ export const AuthProvider = ({ children }) => {
   const resetAuthentication = () => {
     setIsAuthenticated(false);
   };
+
   return (
     <AuthContext.Provider value={{
       isRecovery,
@@ -78,7 +94,9 @@ export const AuthProvider = ({ children }) => {
       isRegistered,
       setIsRegistered,
       isAuthenticated,
-      setIsAuthenticated
+      setIsAuthenticated,
+      userData,
+      setUserData
     }}>
       {children}
     </AuthContext.Provider>
@@ -106,6 +124,7 @@ const ProtectedRecoveryRoute = ({ children }) => {
 };
 
 function App() {
+
   return (
     <main className="App  relative">
       <AuthProvider>

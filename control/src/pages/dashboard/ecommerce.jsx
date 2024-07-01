@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Card from "@/components/ui/Card";
+import { AuthContext } from "@/App";
 import ImageBlock2 from "@/components/partials/widget/block/image-block-2";
 import GroupChart2 from "@/components/partials/widget/chart/group-chart-2";
 import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-chart";
@@ -13,16 +14,16 @@ import BasicArea from "../../pages/chart/appex-chart/BasicArea";
 import VisitorRadar from "../../components/partials/widget/chart/visitor-radar";
 import MostSales2 from "../../components/partials/widget/most-sales2";
 import Products from "../../components/partials/widget/products";
-import HomeBredCurbs from "./HomeBredCurbs";
 
 const Ecommerce = () => {
+  const { userData } = useContext(AuthContext);
   const [filterMap, setFilterMap] = useState("usa");
+
   return (
     <div>
-      <HomeBredCurbs title="StelaUX Tablero Principal" />
       <div className="grid grid-cols-12 gap-5 mb-5">
         <div className="2xl:col-span-3 lg:col-span-4 col-span-12">
-          <ImageBlock2 />
+          <ImageBlock2 name={userData?.full_name || null } />
         </div>
         <div className="2xl:col-span-9 lg:col-span-8 col-span-12">
           <div className="grid md:grid-cols-3 grid-cols-1 gap-4">

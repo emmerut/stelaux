@@ -4,7 +4,7 @@ import { Formik, Form, FieldArray } from 'formik';
 
 // Asumiendo que tienes estos componentes definidos
 import { Input, FileInput, NumberInput, DecimalInput, TextArea, SelectInput } from '@/components/form/Form';
-import { serviceData } from "@/constant/inventoryData";
+import { serviceData } from "@/constant/sessionData";
 import Buttons from '@/components/ui/Button';
 import FixedBar from '@/components/ui/ProgressBar/FixedBarAlert'
 

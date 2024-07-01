@@ -1,29 +1,38 @@
 from rest_framework import serializers
 from .models import CustomUser as User
 from django.db.models import Q
-from rest_framework.exceptions import AuthenticationFailed
-import jwt
-from django.conf import settings
-import datetime, jwt
+import datetime
+from functions import get_user_from_token
 
-def get_user_from_token(token):
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-        # Obtén el campo email o phone del payload
-        recipient = payload.get('email') or payload.get('phone') or payload.get('user_id')
+from rest_framework import serializers
+from .models import CustomUser, Notification, Message, Subscription
 
-        if not recipient:
-            raise AuthenticationFailed('Token inválido')
+class UserSerializer(serializers.ModelSerializer):
+    notifications_count = serializers.SerializerMethodField()
+    messages_count = serializers.SerializerMethodField()
+    active_plan = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
 
-        user = User.objects.get(Q(email=recipient) | Q(phone=recipient) | Q(id=recipient))
-        if not user.is_active:
-            raise AuthenticationFailed('Usuario inactivo')
-        return user
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'first_name', 'last_name', 
+                  'phone', 'address', 'profile', 'plan_startups', 
+                  'plan_ecommerce', 'plan_ultimate', 'birthday', 'notifications_count', 
+                  'messages_count', 'active_plan', 'full_name'
+                  ]
+        read_only_fields = ['id', 'username', 'email', 'notifications_count', 'messages_count', 'active_plan']
 
-    except jwt.ExpiredSignatureError:
-        raise AuthenticationFailed('Token ha expirado')
-    except jwt.InvalidTokenError:
-        raise AuthenticationFailed('Token inválido')
+    def get_notifications_count(self, obj):
+        return obj.notifications.filter(is_read=False).count()
+
+    def get_messages_count(self, obj):
+        return obj.received_messages.filter(is_read=False).count()
+
+    def get_active_plan(self, obj):
+        return obj.active_plan
+    
+    def get_full_name(self, obj):  # Define the get_full_name method
+        return f"{obj.first_name} {obj.last_name}"
 
 class RegisterSerializer(serializers.ModelSerializer):
     email_or_phone = serializers.CharField(write_only=True)

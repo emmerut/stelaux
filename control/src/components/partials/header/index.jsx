@@ -18,7 +18,7 @@ import useMobileMenu from "@/hooks/useMobileMenu";
 import MonoChrome from "./Tools/MonoChrome";
 import HeaderCart from "./Tools/cart";
 
-const Header = ({ className = "custom-class" }) => {
+const Header = ({ className = "custom-class", userData }) => {
   const [collapsed, setMenuCollapsed] = useSidebar();
   const { width, breakpoints } = useWidth();
   const [navbarType] = useNavbarType();
@@ -94,7 +94,7 @@ const Header = ({ className = "custom-class" }) => {
                   <Icon icon="heroicons-outline:menu-alt-3" />
                 </div>
               )}
-              <SearchModal />
+              
             </div>
           )}
           {/* For Horizontal  */}
@@ -120,9 +120,9 @@ const Header = ({ className = "custom-class" }) => {
           <div className="nav-tools flex items-center lg:space-x-6 space-x-3 rtl:space-x-reverse">
             <Language />
             <SwitchDark />
-            {width >= breakpoints.md && <Message />}
-            {width >= breakpoints.md && <Notification />}
-            {width >= breakpoints.md && <Profile />}
+            {width >= breakpoints.md && <Message counter={userData?.messages_count} />}
+            {width >= breakpoints.md && <Notification counter={userData?.notifications_count} />}
+            {width >= breakpoints.md && <Profile userData={userData} />}
             {width <= breakpoints.md && (
               <div
                 className="cursor-pointer text-slate-900 dark:text-white text-2xl"

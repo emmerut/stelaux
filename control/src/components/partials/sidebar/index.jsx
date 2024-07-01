@@ -34,7 +34,7 @@ const Sidebar = () => {
     <div className={isSemiDark ? "dark" : ""}>
       <div
         className={`sidebar-wrapper bg-white dark:bg-slate-800     ${
-          collapsed ? "w-[72px] close_sidebar" : "w-[248px]"
+          collapsed ? "w-[72px] close_sidebar overflow-y-auto overflow-x-hidden" : "w-[248px]"
         }
       ${menuHover ? "sidebar-hovered" : ""}
       ${

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-
+import useWidth from "@/hooks/useWidth";
 import Navmenu from "./Navmenu";
 import { menuItems } from "@/constant/data";
 import SimpleBar from "simplebar-react";
@@ -11,11 +11,12 @@ import useMobileMenu from "@/hooks/useMobileMenu";
 import Icon from "@/components/ui/Icon";
 
 // import images
-import MobileLogo from "@/assets/images/logo/logo-c.svg";
-import MobileLogoWhite from "@/assets/images/logo/logo-c-white.svg";
+import MobileLogo from "@/assets/images/logo/stela_white.png";
+import MobileLogoWhite from "@/assets/images/logo/stela_dark.png";
 import svgRabitImage from "@/assets/images/svg/rabit.svg";
 
 const MobileMenu = ({ className = "custom-class" }) => {
+  const { width, breakpoints } = useWidth();
   const scrollableNodeRef = useRef();
   const [scroll, setScroll] = useState(false);
   useEffect(() => {
@@ -36,22 +37,22 @@ const MobileMenu = ({ className = "custom-class" }) => {
   const [mobileMenu, setMobileMenu] = useMobileMenu();
   return (
     <div
-      className={`${className} fixed  top-0 bg-white dark:bg-slate-800 shadow-lg  h-full   w-[248px]`}
+    className={`
+      simple-bar fixed top-0 bg-white dark:bg-slate-800 shadow-lg h-full w-[248px] 
+      ${width < breakpoints.xl && mobileMenu ? 'open' : 'closed'} 
+    `}
     >
       <div className="logo-segment flex justify-between items-center bg-white dark:bg-slate-800 z-[9] h-[85px]  px-4 ">
         <Link to="/dashboard">
           <div className="flex items-center space-x-4">
             <div className="logo-icon">
               {!isDark && !isSemiDark ? (
-                <img src={MobileLogo} alt="" />
+                <img src={MobileLogo} alt="" width={150}/>
               ) : (
-                <img src={MobileLogoWhite} alt="" />
+                <img src={MobileLogoWhite} alt="" width={150}/>
               )}
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
-                DashCode
-              </h1>
             </div>
           </div>
         </Link>
@@ -65,13 +66,17 @@ const MobileMenu = ({ className = "custom-class" }) => {
       </div>
 
       <div
-        className={`h-[60px]  absolute top-[80px] nav-shadow z-[1] w-full transition-all duration-200 pointer-events-none ${
+        className={`h-[60px]  absolute top-[80px] nav-shadow z-[1] pointer-events-none ${
           scroll ? " opacity-100" : " opacity-0"
         }`}
       ></div>
       <SimpleBar
-        className="sidebar-menu px-4 h-[calc(100%-80px)]"
+        className="sidebar-menu px-4 h-[calc(100%-80px)] transition-all duration-200"
         scrollableNodeProps={{ ref: scrollableNodeRef }}
+        style={{
+          // Añade la transición a simplebar para un desplazamiento suave
+          transition: "transform 8s ease-in-out", // Ajusta la duración y la función de transición según sea necesario
+        }}
       >
         <Navmenu menus={menuItems} />
         <div className="bg-slate-900 mb-24 lg:mb-10 mt-24 p-4 relative text-center rounded-2xl text-white">

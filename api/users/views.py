@@ -1,19 +1,17 @@
-import random, jwt, datetime
+import jwt, datetime
 from django.utils import timezone
 from twilio.rest import Client
 from django.conf import settings
 from django.utils import timezone
-from datetime import timedelta
 from django.core.mail import send_mail
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 from rest_framework import status
 from rest_framework.decorators import action
-from .serializers import RegisterSerializer, PasswordResetRequestSerializer, PasswordResetSerializer
+from .serializers import RegisterSerializer, PasswordResetRequestSerializer, PasswordResetSerializer, UserSerializer
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
+from functions import get_user_from_token
 from .models import CustomUser as User
 from django.db.models import Q
 
@@ -39,7 +37,13 @@ class UserViewSet(viewsets.ModelViewSet):
         
         return verification
     
-    queryset = User.objects.all()
+    @action(detail=False, methods=['get'])
+    def user_all_data(self, request):
+        user_token=request.META.get('HTTP_AUTHORIZATION')
+        user=get_user_from_token(user_token)
+        
+        data = UserSerializer(user).data
+        return Response(data)
     
     @action(methods=['post'], detail=False)
     def login(self, request):

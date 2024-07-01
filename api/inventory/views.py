@@ -10,7 +10,7 @@ from .serializers import (
     ServiceSerializer,
     ServiceVariantSerializer
 )
-
+from functions import get_user_from_token
 
 class InventoryViewSet(viewsets.ViewSet):
     def _get_serializer_class(self, product_type):
@@ -226,7 +226,7 @@ class InventoryViewSet(viewsets.ViewSet):
             'variants': VariantSerializer(variants, many=True).data,
         }
         return Response(data)
-
+    
     @action(detail=False, methods=['get'])
     def list_service_all(self, request):
         services = Service.objects.all()
