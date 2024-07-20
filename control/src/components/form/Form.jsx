@@ -1,10 +1,11 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { useFormikContext, Field, ErrorMessage } from 'formik';
 import { useField } from 'formik';
 import { useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import Icon from '@/components/ui/Icon';
 import CheckImage from "@/assets/images/icon/ck-white.svg";
+import { fetchCountries } from "@/constant/data"
 
 const currentYear = new Date().getFullYear();
 const startYear = 1950;
@@ -156,7 +157,7 @@ const Input = memo(({ label, labelClass, className, helpText, showErrorMsg, ...p
   const [field, meta] = useField(props);
   return (
     <div className={`relative ${meta.touched && meta.error ? "error" : ""}`}>
-      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 ${labelClass}`}>
+      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
         {label}
       </label>
       <input
@@ -191,7 +192,7 @@ const TextArea = memo(({ label, labelClass, className, onEditorChange, showError
 
   return (
     <div className='my-6'>
-      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 ${labelClass}`}>
+      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
         {label}
       </label>
       <Editor
@@ -289,7 +290,7 @@ const FileInput = memo(({ label, labelClass, className, showErrorMsg, helpText, 
   };
   return (
     <div className={`relative ${labelClass ? ` ${labelClass}` : ""}`}>
-      <label htmlFor={props.id || props.name} className="block text-sm font-medium text-gray-700">
+      <label htmlFor={props.id || props.name} className="block text-sm font-medium text-gray-700 dark:text-slate-300">
         {label}
       </label>
       <input
@@ -316,7 +317,7 @@ const SelectInput = memo(({ label, labelClass, className, showErrorMsg, options,
 
   return (
     <div className={`relative ${meta.touched && meta.error ? "error" : ""}`}>
-      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 ${labelClass}`}>
+      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
         {label}
       </label>
       <select
@@ -341,18 +342,18 @@ const SelectInput = memo(({ label, labelClass, className, showErrorMsg, options,
 });
 
 const NestedSelectInput = memo(({ label, labelClass, className, showErrorMsg, handler, value, options, ...props }) => {
-  const [field, meta] = useField(props); // Obtener el campo y el metadato de Formik
+  const [field, meta] = useField(props);
   return (
     <div className={`relative ${meta.touched && meta.error ? "error" : ""}`}>
-      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 ${labelClass}`}>
+      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
         {label}
       </label>
       <select
         className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
         ${meta.touched && meta.error ? "border-red-500" : ""} ${className}`}
-        {...field} // Spread field properties
-        {...props} // Spread props
-        value={value} // Set the selected value
+        {...field}
+        {...props}
+        value={value}
       >
         {options.map((option, index) => (
           <option key={index} value={option.value} disabled={option.disabled} style={{ color: option.disabled ? 'graytext' : 'inherit' }}>
@@ -369,11 +370,48 @@ const NestedSelectInput = memo(({ label, labelClass, className, showErrorMsg, ha
   );
 });
 
+const CountrySelect = ({ fetchRegions }) => {
+  const [countriesData, setCountriesData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCountries = async () => {
+      try {
+        const res = await fetchCountries({});
+        setCountriesData(res);
+      } catch (error) {
+        console.error('Error al obtener los países:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCountries();
+  }, []);
+
+  const { setFieldValue } = useFormikContext();
+
+  return loading ? (
+    <div>Cargando países...</div>
+  ) : (
+    <NestedSelectInput
+      name="country"
+      label="País"
+      options={[...countriesData.map(geo => ({ value: geo.name, label: geo.name }))]}
+      onChange={e => {
+        const selectedCountryCode = e.target.value;
+        setFieldValue('country', selectedCountryCode);
+        fetchRegions(selectedCountryCode);
+      }}
+    />
+  );
+};
+
 const NumberInput = memo(({ label, labelClass, className, helpText, showErrorMsg, ...props }) => {
   const [field, meta] = useField(props);
   return (
     <div className={`relative ${meta.touched && meta.error ? "error" : ""}`}>
-      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 ${labelClass}`}>
+      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
         {label}
       </label>
       <input
@@ -397,7 +435,7 @@ const DecimalInput = memo(({ label, labelClass, className, showErrorMsg, ...prop
   const [field, meta] = useField(props);
   return (
     <div className={`relative ${meta.touched && meta.error ? "error" : ""}`}>
-      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 ${labelClass}`}>
+      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
         {label}
       </label>
       <input
@@ -428,5 +466,5 @@ FileInput.defaultProps = {
 export {
   Input, TextArea, Checkbox, FileInput, SelectInput,
   NumberInput, DecimalInput, NestedSelectInput, InputLogin,
-  CheckboxInput, BirthDateField
+  CheckboxInput, BirthDateField, CountrySelect
 }; 

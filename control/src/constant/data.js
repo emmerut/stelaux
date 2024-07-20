@@ -1,11 +1,24 @@
+import { getCookie } from '@/constant/sessions';
+
 export const menuItems = [
   {
     isHeadr: true,
     title: "Website Control",
   },
-
   {
-    title: "Stela Editor",
+    title: "Dominios",
+    isHide: true,
+    icon: "clarity:world-solid-badged",
+    link: "domains",
+  },
+  {
+    title: "Templates",
+    isHide: true,
+    icon: "ic:outline-web",
+    link: "templates",
+  },
+  {
+    title: "Web Editor",
     icon: "streamline:magic-wand-2-solid",
     link: "#",
     child: [
@@ -1399,3 +1412,56 @@ export const payments = [
     value: "vougepay",
   },
 ];
+
+export const fetchCountries = async ({ countryCode } = {}) => {
+  const token = getCookie('user_token');
+  try {
+    let response;
+    
+    if (countryCode) {
+      // Se asume que tienes una API que retorna regiones por código de país
+      response = await fetch(`http://127.0.0.1:8000/v1/geolocation/region_list/?country_code=${countryCode}`, {
+        headers: {
+          'Authorization': token  
+        }
+      });
+    } else {
+      response = await fetch('http://127.0.0.1:8000/v1/geolocation/country_list/', {
+        headers: {
+          'Authorization': token 
+        }
+      });
+    }
+
+    if (!response.ok) {
+      throw new Error(`Error en la consulta: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (countryCode) {
+       // Procesar regiones
+      const regions = data.map(region => ({
+        name: region.name,
+        code: region.code,
+      }));
+      regions.sort((a, b) => a.name.localeCompare(b.name));
+      return regions;
+    } else {
+      // Procesar países
+      const countries = data.map(country => ({
+        name: country.name,
+        code: country.code,
+      }));
+      countries.sort((a, b) => a.name.localeCompare(b.name));
+      
+      // Agregar la opción inicial para seleccionar país
+      countries.unshift({ name: 'Seleccionar país', code: '' });
+      
+      return countries;
+    }
+  } catch (error) {
+    console.error('Error al obtener la lista de países o regiones:', error);
+    return []; // Siempre retornar un array
+  }
+};

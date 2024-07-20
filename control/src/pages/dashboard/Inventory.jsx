@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import DynamicTable from "@/pages/table/react-tables/DynamicTable";
-import { productData, serviceData } from '@/constant/sessionData';
+import { productData, serviceData } from '@/constant/apiData';
 import HomeBredCurbs from "@/components/inventory/InventoryBredCurbs";
 
 const Ecommerce = ({ mainTitle, buttonSet, tableType }) => {

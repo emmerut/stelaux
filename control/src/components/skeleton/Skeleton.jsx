@@ -126,7 +126,7 @@ export const SkeletionTable = ({ items, count }) => {
     );
 };
 
-export const SkeletionTitle = ({className}) => {
+export const SkeletionTitle = ({ className }) => {
     return (
         <div className="animate-pulse">
             <div className={`h-4 bg-[#C4C4C4] dark:bg-slate-500 rounded-full ${className}`}></div>
@@ -134,7 +134,30 @@ export const SkeletionTitle = ({className}) => {
     );
 };
 
-export const SkeletionAvatar = ({width}) => {
+export const SkeletionGrid = ({count = 3}) => {
+    return (
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
+            {Array.from({ length: count }).map((_, index) => (
+                <SkeletionCard key={index} />
+            ))}
+        </div>
+    );
+};
+
+const SkeletionCard = () => {
+    return (
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+            <div className="space-y-6">
+                <SkeletionTitle className="w-40 mb-2" />
+                <SkeletionTitle className="w-24 mb-2" />
+                <SkeletionTitle className="w-16 mb-2" />
+                <div className="animate-pulse h-4 bg-[#C4C4C4] dark:bg-slate-500 rounded-full w-24"></div>
+            </div>
+        </div>
+    );
+};
+
+export const SkeletionAvatar = ({ width }) => {
     return (
         <div className={`animate-pulse rounded-full bg-[#C4C4C4] dark:bg-slate-500 ${width ? width : `h-10 w-10`}`}></div>
     );

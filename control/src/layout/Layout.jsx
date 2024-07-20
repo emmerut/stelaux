@@ -23,13 +23,42 @@ const Layout = () => {
   const { width, breakpoints } = useWidth();
   const [collapsed] = useSidebar();
   const navigate = useNavigate();
-  const { isAuthenticated, userData } = useContext(AuthContext);
-
+  const { isAuthenticated, userData, isActivePlan, checkoutSignal } = useContext(AuthContext);
+  
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/auth/login");
     }
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (!isActivePlan && !checkoutSignal) {
+      if (!isAuthenticated) {
+        navigate("/auth/login");
+      } else {
+        navigate("/plans");
+      }
+    } else if (isActivePlan && checkoutSignal) {
+      if (!isAuthenticated) {
+        navigate("/auth/login");
+      } else {
+        navigate("/plans");
+      }
+    } else if (isActivePlan && !checkoutSignal && window.location.pathname === '/checkout') {
+      if (!isAuthenticated) {
+        navigate("/auth/login");
+      } else {
+        navigate("/console");
+      }
+    } else if (!isActivePlan && checkoutSignal && window.location.pathname !== '/checkout') {
+      if (!isAuthenticated) {
+        navigate("/auth/login");
+      } else {
+        navigate("/plans");
+      }
+    }
+  }, [isActivePlan, checkoutSignal, navigate]);
+
   const switchHeaderClass = () => {
     if (menuType === "horizontal" || menuHidden) {
       return "ltr:ml-0 rtl:mr-0";

@@ -1,7 +1,7 @@
 import React, { lazy, useState, useEffect, createContext, useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { getCookie } from "@/constant/sessions"
-import { getUserData } from '@/constant/sessionData'
+import { getUserData } from '@/constant/apiData'
 
 //auth section
 import AuthLayout from "./layout/AuthLayout";
@@ -10,7 +10,6 @@ const Register = lazy(() => import("./pages/auth/register2"));
 const ForgotPass = lazy(() => import("./pages/auth/forgot-password2"));
 const Verify = lazy(() => import("./pages/auth/verifyToken"));
 const NewPassword = lazy(() => import("./pages/auth/new-password"));
-
 
 //layout
 
@@ -24,6 +23,12 @@ const InventoryPage = lazy(() => import("./pages/dashboard/inventory"));
 const BankingPage = lazy(() => import("./pages/dashboard/banking"));
 const OrdersPage = lazy(() => import("./pages/dashboard/orders"));
 const UsersPage = lazy(() => import("./pages/dashboard/users"));
+const Profile = lazy(() => import("./pages/utility/profile"));
+const PaymentsPage = lazy(() => import("./pages/utility/payments"));
+const Plans = lazy(() => import("./pages/dashboard/plans"));
+const Checkout = lazy(() => import("./pages/dashboard/checkout"));
+
+
 
 
 import Layout from "./layout/Layout";
@@ -35,6 +40,7 @@ const sectionTitles = {
   billing: "sistema de finanzas",
   orders: "ordenes",
   users: "central de usuarios",
+  payments: "configuración de pagos",
 };
 
 export const AuthContext = createContext();
@@ -43,13 +49,16 @@ export const AuthProvider = ({ children }) => {
   const [isRegistered, setIsRegistered] = useState(() => {
     return JSON.parse(localStorage.getItem("isRegistered")) || false;
   });
-  const [isRecovery, setIsRecovery] = useState(false);
+  const [isRecovery, setIsRecovery] = useState(false); 
+
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const token = getCookie('user_token');
     return token ? true : false;
   });
   
   const [userData, setUserData] = useState(null);
+  const [isActivePlan, setIsActivePlan] = useState(false);
+  const [checkoutSignal, setCheckoutSignal] = useState(false);
 
   // Fetch user data when the component mounts
   useEffect(() => {
@@ -75,6 +84,13 @@ export const AuthProvider = ({ children }) => {
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (userData && userData.active_subscription) {
+      setIsActivePlan(true);
+    } else {
+      setIsActivePlan(false);
+    }
+  }, [userData]);
   // Función para restablecer isRegistered a false
   const resetRegistration = () => {
     setIsRegistered(false);
@@ -96,7 +112,10 @@ export const AuthProvider = ({ children }) => {
       isAuthenticated,
       setIsAuthenticated,
       userData,
-      setUserData
+      setUserData,
+      isActivePlan,
+      checkoutSignal,
+      setCheckoutSignal
     }}>
       {children}
     </AuthContext.Provider>
@@ -157,7 +176,12 @@ function App() {
             <Route path="finance" element={<BankingPage mainTitle={sectionTitles.billing} buttonSet={'billingButton'} />} />
             <Route path="orders" element={<OrdersPage mainTitle={sectionTitles.orders} />} />
             <Route path="users" element={<UsersPage mainTitle={sectionTitles.users} />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="payments" element={<PaymentsPage mainTitle={sectionTitles.payments} buttonSet={'paymentsButton'} />} />
           </Route>
+          
+          <Route path="plans" element={<Plans />} />
+          <Route path="checkout" element={<Checkout />} />
         </Routes>
       </AuthProvider>
     </main>

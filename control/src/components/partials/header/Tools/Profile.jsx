@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { deleteCookie } from "@/constant/sessions"
 import { AuthContext } from "@/App";
 import { SkeletionTitle, SkeletionAvatar } from "@/components/skeleton/Skeleton";
-import UserAvatar from "@/assets/images/all-img/user.png";
+import UserAvatar from "@/assets/images/avatar/default_user.jpg";
 
 const profileLabel = ({ name, avatar }) => {
   return (
@@ -44,7 +44,7 @@ const Profile = ({ userData }) => {
 
   const ProfileMenu = [
     {
-      label: "Profile",
+      label: "Perfíl",
       icon: "heroicons-outline:user",
 
       action: () => {
@@ -52,14 +52,14 @@ const Profile = ({ userData }) => {
       },
     },
     {
-      label: "Settings",
-      icon: "heroicons-outline:cog",
+      label: "Seguridad",
+      icon: "clarity:lock-line",
       action: () => {
         navigate("/settings");
       },
     },
     {
-      label: "Logout",
+      label: "Salir",
       icon: "heroicons-outline:login",
       action: () => {
         dispatch(handleLogout);

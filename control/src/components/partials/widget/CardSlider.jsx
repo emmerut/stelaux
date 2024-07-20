@@ -45,6 +45,7 @@ const CardSlider = () => {
                 Card balance
               </div>
               <div className="text-2xl font-semibold">$10,975</div>
+              <div className="font-semibold">Activa</div>
             </div>
           </SwiperSlide>
         ))}

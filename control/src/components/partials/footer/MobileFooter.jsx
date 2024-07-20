@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import Icon from "@/components/ui/Icon";
 import { SkeletionAvatar } from "@/components/skeleton/Skeleton";
-import FooterAvatar from "@/assets/images/users/user-1.jpg";
+import FooterAvatar from "@/assets/images/avatar/default_user.jpg";
 const MobileFooter = ({ userData }) => {
   return (
     <div className="bg-white bg-no-repeat custom-dropshadow footer-bg dark:bg-slate-700 flex justify-around items-center backdrop-filter backdrop-blur-[40px] fixed left-0 w-full z-[9999] bottom-0 py-[12px] px-4">

@@ -149,7 +149,7 @@ const actions = [
   },
 ];
 
-const TransactionsTable = () => {
+const TransactionsTable = ({title}) => {
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => advancedTable, []);
 
@@ -191,7 +191,7 @@ const TransactionsTable = () => {
     <>
       <Card noborder>
         <div className="md:flex justify-between items-center mb-6">
-          <h4 className="card-title">All transactions</h4>
+          <h4 className="card-title">{title}</h4>
           <div>
             <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
           </div>

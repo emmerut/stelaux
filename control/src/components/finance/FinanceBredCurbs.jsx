@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import BillingButton from '@/components/finance/BillingButtons'
+import BillingButton from '@/components/finance/BillingButtons';
+import PaymentButtons from '@/components/user/PaymentButtons';
+
 
 const buttonSet = {
   'billingButton': BillingButton,
+  'paymentsButton': PaymentButtons
 };
 
 const HomeBredCurbs = ({ title, setID }) => {

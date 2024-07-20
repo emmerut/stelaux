@@ -51,13 +51,16 @@ INSTALLED_APPS = [
     'coreapi',
     'content',
     'finance',
+    'geolocation',
     'users',
     'finyx',
     'corsheaders',
     'inventory',
     'kairos',
     'marketing',
-    'stelai'
+    'stelai',
+    'cities_light',
+    'payments'
 ]
 
 MIDDLEWARE = [
@@ -103,10 +106,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 postgres_test = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'stela_test',
+        'NAME': 'steladb',
         'USER': 'stelaux',
-        'PASSWORD': env('CLOUD_PASSWORD'),
-        'HOST': env('CLOUD_HOST'),
+        'PASSWORD': env('LOCAL_PASSWORD'),
+        'HOST': env('LOCAL_HOST'),
         'PORT': '5432',
     },
 
@@ -177,3 +180,5 @@ STATICFILES_STORAGE = 'core.storages.StaticStorage'
 PUBLIC_MEDIA_LOCATION = 'media'
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
 DEFAULT_FILE_STORAGE = 'core.storages.PublicMediaStorage'
+
+CITIES_LIGHT_APP_NAME = 'geolocation'

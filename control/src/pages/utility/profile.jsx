@@ -1,14 +1,40 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import Modal from "@/components/ui/Modal";
 import Icon from "@/components/ui/Icon";
 import Card from "@/components/ui/Card";
 import BasicArea from "../chart/appex-chart/BasicArea";
 import EditProfile from "@/pages/utility/settings";
+import BusinessForm from "@/components/form/Profile/BusinessForm";
+import ProfileForm from "@/components/form/Profile/ProfileForm";
+import { AuthContext } from "@/App";
+import { SkeletionTitle, SkeletionAvatar, SkeletionGrid } from "@/components/skeleton/Skeleton";
 
 // import images
-import ProfileImage from "@/assets/images/users/user-1.jpg";
+import ProfileImage from "@/assets/images/avatar/default_user.jpg";
 
 const profile = () => {
+  const { userData } = useContext(AuthContext);
+
+  const [showModal, setShowModal] = useState(false);
+  const [formName, setFormName] = useState(null);
+  const [formPK, setFormPK] = useState(null);
+
+  const handleEdit = (name) => {
+    setFormName(name); 
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const forms = {
+    'profileForm': ProfileForm,
+    'businessForm': BusinessForm,
+  };
+
+  const ActiveForm = forms[formName];
   return (
     <div>
       <div className="space-y-5 profile-page mb-6">
@@ -18,57 +44,30 @@ const profile = () => {
             <div className="md:flex items-end md:space-x-6 rtl:space-x-reverse">
               <div className="flex-none">
                 <div className="md:h-[186px] md:w-[186px] h-[140px] w-[140px] md:ml-0 md:mr-0 ml-auto mr-auto md:mb-0 mb-4 rounded-full ring-4 ring-slate-100 relative">
-                  <img
-                    src={ProfileImage}
+                  {userData ? <img
+                    src={userData.avatar ? userData.avatar : ProfileImage}
                     alt=""
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                  <Link
-                    to="#"
-                    className="absolute right-2 h-8 w-8 bg-slate-50 text-slate-600 rounded-full shadow-sm flex flex-col items-center justify-center md:top-[140px] top-[100px]"
-                  >
-                    <Icon icon="heroicons:pencil-square" />
-                  </Link>
+                    className="block w-full h-full object-cover rounded-full"
+                  /> : <SkeletionAvatar width="md:h-[186px] md:w-[186px] h-[140px] w-[140px]" />}
                 </div>
               </div>
               <div className="flex-1">
                 <div className="text-2xl font-medium text-slate-900 dark:text-slate-200 mb-[3px]">
-                  Albert Flores
+                  {userData ? userData.full_name : <SkeletionTitle className="w-28" />}
                 </div>
                 <div className="text-sm font-light text-slate-600 dark:text-slate-400">
-                  Front End Developer
+                  Administrador
                 </div>
               </div>
             </div>
           </div>
-
-          <div className="profile-info-500 md:flex md:text-start text-center flex-1 max-w-[516px] md:space-y-0 space-y-4">
-            <div className="flex-1">
-              <div className="text-base text-slate-900 dark:text-slate-300 font-medium mb-1">
-                $32,400
-              </div>
-              <div className="text-sm text-slate-600 font-light dark:text-slate-300">
-                Total Balance
-              </div>
-            </div>
-
-            <div className="flex-1">
-              <div className="text-base text-slate-900 dark:text-slate-300 font-medium mb-1">
-                200
-              </div>
-              <div className="text-sm text-slate-600 font-light dark:text-slate-300">
-                Board Card
-              </div>
-            </div>
-
-            <div className="flex-1">
-              <div className="text-base text-slate-900 dark:text-slate-300 font-medium mb-1">
-                3200
-              </div>
-              <div className="text-sm text-slate-600 font-light dark:text-slate-300">
-                Calender Events
-              </div>
-            </div>
+          <div className="flex justify-center">
+            <button 
+              onClick={() => handleEdit('profileForm')}
+              className="btn btn-outline-warning">
+              {/* Add your button's text or icon here */}
+              Completar Perfíl
+            </button>
           </div>
         </div>
         <div className="grid grid-cols-12 gap-6">
@@ -87,26 +86,39 @@ const profile = () => {
                       href="mailto:someone@example.com"
                       className="text-base text-slate-600 dark:text-slate-50"
                     >
-                      info-500@dashcode.com
+                      {userData ? userData.email : <SkeletionTitle className="w-28" />}
                     </a>
                   </div>
+                  {userData && (
+                    userData.email_verified ? (
+                      true //  No need to render anything if the email exists
+                    ) : (
+                      <button className="px-4 py-2 btn btn-outline-warning">Verificar</button>
+                    )
+                  )}
                 </li>
-
                 <li className="flex space-x-3 rtl:space-x-reverse">
                   <div className="flex-none text-2xl text-slate-600 dark:text-slate-300">
                     <Icon icon="heroicons:phone-arrow-up-right" />
                   </div>
                   <div className="flex-1">
                     <div className="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
-                      PHONE
+                      TELÉFONO
                     </div>
                     <a
                       href="tel:0189749676767"
                       className="text-base text-slate-600 dark:text-slate-50"
                     >
-                      +1-202-555-0151
+                      {userData ? userData.phone : <SkeletionTitle className="w-28" />}
                     </a>
                   </div>
+                  {userData && userData.phone !== "Ingrese Información" && (
+                    userData.phone_verified ? (
+                      true //  No need to render anything if the email exists            
+                    ) : (
+                      <button className="px-4 py-2 btn btn-outline-warning">Verificar</button>
+                    )
+                  )}
                 </li>
 
                 <li className="flex space-x-3 rtl:space-x-reverse">
@@ -115,10 +127,10 @@ const profile = () => {
                   </div>
                   <div className="flex-1">
                     <div className="uppercase text-xs text-slate-500 dark:text-slate-300 mb-1 leading-[12px]">
-                      LOCATION
+                      DIRECCIÓN
                     </div>
                     <div className="text-base text-slate-600 dark:text-slate-50">
-                      Home# 320/N, Road# 71/B, Mohakhali, Dhaka-1207, Bangladesh
+                      {userData ? userData.address : <SkeletionTitle className="w-28" />}
                     </div>
                   </div>
                 </li>
@@ -126,14 +138,26 @@ const profile = () => {
             </Card>
           </div>
           <div className="lg:col-span-8 col-span-12">
-            <Card title="User Overview">
+            <Card title="Solicitudes API">
               <BasicArea height={190} />
             </Card>
           </div>
         </div>
       </div>
-      <EditProfile />
+      {userData ? <EditProfile userID={userData.id} /> : <SkeletionGrid />}
+      <Modal
+        activeModal={showModal}
+        onClose={closeModal}
+        centered={true}
+        className="max-w-4xl modal-scroll"
+        title="Control de datos"
+        themeClass="bg-indigo-900"
+        scrollContent={true}
+      >
+        {ActiveForm && <ActiveForm objID={formPK} closeModal={closeModal} />}
+      </Modal>
     </div>
+    
   );
 };
 

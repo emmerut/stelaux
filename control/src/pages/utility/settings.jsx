@@ -1,9 +1,33 @@
-import React from "react";
+import React, {useState} from "react";
 import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
 import { Link } from "react-router-dom";
+import BusinessForm from "@/components/form/Profile/BusinessForm";
+import ProfileForm from "@/components/form/Profile/ProfileForm";
+import Modal from "@/components/ui/Modal";
 
-const settings = () => {
+const settings = ({userID}) => {
+  const [showModal, setShowModal] = useState(false);
+  const [formName, setFormName] = useState(null);
+  const [formPK, setFormPK] = useState(userID);
+
+  const handleEdit = (name) => {
+    setFormName(name); // Set the ID when editing
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const forms = {
+    'profileForm': ProfileForm,
+    'businessForm': BusinessForm,
+  };
+
+  const ActiveForm = forms[formName];
+
+
   return (
     <div>
       <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
@@ -14,18 +38,18 @@ const settings = () => {
                 <Icon icon="heroicons:building-office-2" />
               </div>
               <div className="flex-1 text-base text-slate-900 dark:text-white font-medium">
-                Company Settings
+                Configuración de Negocio
               </div>
             </div>
             <div className="text-slate-600 dark:text-slate-300 text-sm">
-              Set up your company profile, add your company logo, and more
+              Configura tu perfil de empresa, agrega tu logotipo y más.
             </div>
-            <Link
-              to="#"
-              className="inline-flex items-center space-x-3 rtl:space-x-reverse text-sm capitalize font-medium text-slate-600 dark:text-slate-300"
+             <div
+              onClick={() => handleEdit('businessForm')} // Assuming you have IDs for each card
+              className="inline-flex cursor-pointer items-center space-x-3 rtl:space-x-reverse text-sm capitalize font-medium text-slate-600 dark:text-slate-300"
             >
-              <span>Chnage Settings</span> <Icon icon="heroicons:arrow-right" />
-            </Link>
+              <span>Modificar</span> <Icon icon="heroicons:arrow-right" />
+            </div>
           </div>
         </Card>
         <Card>
@@ -35,17 +59,17 @@ const settings = () => {
                 <Icon icon="heroicons:credit-card" />
               </div>
               <div className="flex-1 text-base text-slate-900 dark:text-white font-medium">
-                Payment Settings
+                Configuración de Pagos
               </div>
             </div>
             <div className="text-slate-600 dark:text-slate-300 text-sm">
-              Connect your bank account to your company profile, and more
+              Vincula tu metodo de pago.
             </div>
             <Link
-              to="#"
+              to="/payments"
               className="inline-flex items-center space-x-3 rtl:space-x-reverse text-sm capitalize font-medium text-slate-600 dark:text-slate-300"
             >
-              <span>Chnage Settings</span> <Icon icon="heroicons:arrow-right" />
+              <span>Modificar</span> <Icon icon="heroicons:arrow-right" />
             </Link>
           </div>
         </Card>
@@ -56,22 +80,34 @@ const settings = () => {
                 <Icon icon="heroicons:users" />
               </div>
               <div className="flex-1 text-base text-slate-900 dark:text-white font-medium">
-                Profile Settings
+                Configuración de Perfíl
               </div>
             </div>
             <div className="text-slate-600 dark:text-slate-300 text-sm">
-              Set up your profile, add your profile photo, and more
+              Configura tu perfil, añade tu foto de perfil y más.
             </div>
-            <Link
-              to="#"
-              className="inline-flex items-center space-x-3 rtl:space-x-reverse text-sm capitalize font-medium text-slate-600 dark:text-slate-300"
+            <div
+              onClick={() => handleEdit('profileForm')} // Assuming you have IDs for each card
+              className="inline-flex cursor-pointer items-center space-x-3 rtl:space-x-reverse text-sm capitalize font-medium text-slate-600 dark:text-slate-300"
             >
-              <span>Chnage Settings</span> <Icon icon="heroicons:arrow-right" />
-            </Link>
+              <span>Modificar</span> <Icon icon="heroicons:arrow-right" />
+            </div>
           </div>
         </Card>
       </div>
+      <Modal
+        activeModal={showModal}
+        onClose={closeModal}
+        centered={true}
+        className="max-w-4xl modal-scroll"
+        title="Control de datos"
+        themeClass="bg-indigo-900"
+        scrollContent={true}
+      >
+        {ActiveForm && <ActiveForm objID={formPK} closeModal={closeModal} />}
+      </Modal>
     </div>
+    
   );
 };
 

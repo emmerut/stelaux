@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
+import { AuthContext } from '@/App';
 import Card from "@/components/ui/Card";
 import { colors } from "@/constant/data";
 import Textinput from "@/components/ui/Textinput";
 import FinanceChartHome from "@/components/partials/widget/chart/FinanceChartHome";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import HistoryChart from "@/components/partials/widget/chart/history-chart";
 import AccountReceivable from "@/components/partials/widget/chart/account-receivable";
@@ -14,7 +15,7 @@ import SelectMonth from "@/components/partials/SelectMonth";
 import HomeBredCurbs from "@/components/finance/FinanceBredCurbs";
 import NavBredCurbs from "@/components/ui/Breadcrumbs";
 
-import { financeData } from '@/constant/sessionData'
+import { financeData } from '@/constant/apiData'
 
 const users = [
   {
@@ -47,6 +48,8 @@ const BankingPage = ({ mainTitle, buttonSet }) => {
   const [lastBalances, setLastBalances] = useState([]);
   const [lastWithdrawals, setLastWithdrawals] = useState([]);
   const [lastPending, setLastPending] = useState([]);
+  const navigate = useNavigate();
+  const { userData } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchData = async () => { 
