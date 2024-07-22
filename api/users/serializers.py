@@ -62,6 +62,7 @@ class UserSerializer(serializers.ModelSerializer):
             "phone_verified",
             "id_verified",
             "active_subscription",
+            "customer_id"
         ]
         read_only_fields = [
             "id",
@@ -70,6 +71,7 @@ class UserSerializer(serializers.ModelSerializer):
             "notifications_count",
             "messages_count",
             "active_plan",
+            "customer_id"
         ]
 
     def get_active_subscription(self, obj):

@@ -10,8 +10,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const { userData } = useContext(AuthContext);
   const [purchaseData, setPurchaseData] = useState(null); 
-  const [paymentMethods, setPaymentMethods] = useState([]); 
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -23,7 +22,6 @@ const CheckoutPage = () => {
 
         // Update states with fetched data
         setPurchaseData(purchaseDataResponse);
-        setPaymentMethods(paymentMethodsResponse);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -42,7 +40,7 @@ const CheckoutPage = () => {
         transition={{ duration: 1, ease: "easeInOut" }}
       >
         {/* Pass purchaseData and paymentMethods to Checkout */}
-        <Checkout purchaseData={purchaseData} paymentMethods={paymentMethods} /> 
+        {userData && <Checkout purchaseData={purchaseData} userData={userData} />} 
       </motion.div>
     </div>
   );

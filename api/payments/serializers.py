@@ -5,7 +5,7 @@ from decimal import Decimal
 class PaymentMethodSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentMethods
-        fields = ['id', 'method_type', 'provider', 'token', 'last_four_digits', 'expiry_date', 'is_default']
+        fields = ['id', 'method_type', 'provider', 'token', 'last_4_digits', 'expiry_date', 'is_default']
 
 class PaymentIntentSerializer(serializers.ModelSerializer):
     tax_amount = serializers.SerializerMethodField()

@@ -83,7 +83,8 @@ const plans = [
 
 
 const PricingPage = () => {
-  const { checkoutSignal, setCheckoutSignal } = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const { setCheckoutSignal } = useContext(AuthContext);
   const navigate = useNavigate();
   const [check, setCheck] = useState(true);
   const toggle = () => {
@@ -91,9 +92,10 @@ const PricingPage = () => {
   };
 
   const triggerCheckout = async (title, price, check) => {
+    setIsLoading(true);
     const res = await triggerNewcomerPlan(title, price, check)
-
     if (res.ok) {
+      setIsLoading(false);
       setCheckoutSignal(true);
       navigate('/checkout');
     } else {
@@ -234,10 +236,13 @@ const PricingPage = () => {
                   <div>
                     <Button
                       text={item.button}
+                      isLoading={isLoading}
                       className={`w-full ${item.bg === "bg-indigo-900" ? "text-slate-100 border-slate-300 border" : "btn-outline-dark dark:border-slate-400"} `}
                       onClick={(event) => {
-                        const subscriptionType = !check;
-                        triggerCheckout(item.title, subscriptionType ? item.price_Monthly : item.price_Yearly, check);
+                        if (!isLoading) {
+                          const subscriptionType = !check;
+                          triggerCheckout(item.title, subscriptionType ? item.price_Monthly : item.price_Yearly, check);
+                        }
                       }}
                     />
                   </div>

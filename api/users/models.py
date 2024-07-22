@@ -17,6 +17,7 @@ class CustomUser(AbstractUser):
     phone_verified = models.BooleanField(default=False)
     id_verified = models.BooleanField(default=False)
     profile_complete = models.BooleanField(default=False)
+    customer_id = models.CharField(max_length=255, null=True, blank=True)
 
     @property
     def active_plan(self):

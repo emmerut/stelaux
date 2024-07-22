@@ -59,6 +59,7 @@ export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [isActivePlan, setIsActivePlan] = useState(false);
   const [checkoutSignal, setCheckoutSignal] = useState(false);
+  const [isPaymentSet, setIsPaymentSet] = useState(false)
 
   // Fetch user data when the component mounts
   useEffect(() => {
@@ -115,7 +116,9 @@ export const AuthProvider = ({ children }) => {
       setUserData,
       isActivePlan,
       checkoutSignal,
-      setCheckoutSignal
+      setCheckoutSignal,
+      isPaymentSet,
+      setIsPaymentSet
     }}>
       {children}
     </AuthContext.Provider>

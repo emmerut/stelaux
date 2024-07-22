@@ -1,33 +1,75 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { AuthContext } from '@/App';
+import { useStripe, useElements, Elements } from '@stripe/react-stripe-js';
 import Loading from "@/components/Loading";
 import Button from "@/components/ui/Button"
 import Modal from "@/components/ui/Modal";
 import CheckoutForm from "@/components/form/Payments/CheckoutForm"
 import { useNavigate } from "react-router-dom";
+import { createPaymentIntent } from "@/constant/apiData";
 
-function Checkout({ purchaseData, paymentMethods }) {
+
+function Checkout({ purchaseData, userData }) {
     const navigate = useNavigate();
-    const [isPaymentSet, setIsPaymentSet ] = useState(false);
     const [showModal, setShowModal] = useState(false);
-    const [activeForm, setActiveForm] = useState(null);
-    const [isLoading, setIsLoading] = useState(true); // State for loading
+    const [paymentMethods, setPaymentMethods] = useState([]); 
+    const [cardPaymentDefault, setCardPaymentDefault] = useState(false);
+    const [googlePaymentDefault, setGooglePaymentDefault] = useState(false);
+    const [applePaymentDefault, setApplePaymentDefault] = useState(false);
+    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false); // State for loading
+    
+    const { isPaymentSet } = useContext(AuthContext);
+
+    const [clientSecret, setClientSecret] = useState(null);
+
+    const stripePromise = loadStripe('pk_test_51KBfHRJv2H8qjTLAIS6S63B7D2FA6xxAiqALqjgYjrTd7cdeCUxIBUjBJ4lqlgBlA3uPVSsGExqtjf7C9SyEhiz300cg6ioA1m');
+
+    const appearance = {
+        theme: 'stripe',
+        variables: {
+            colorPrimary: '#0570de',
+            colorBackground: '#ffffff',
+            colorText: '#30313d',
+            fontFamily: 'Arial, sans-serif',
+            spacingUnit: '2px',
+        },
+        rules: {
+            '.Label': {
+                color: '#30313d',
+            }
+        }
+    };
+
+    useEffect(() => {
+        const fetchClientSecret = async () => {
+            try {
+                const res = await createPaymentIntent(purchaseData.total_amount, purchaseData.currency); // Replace with your actual endpoint
+                setClientSecret(res.client_secret);
+            } catch (error) {
+                console.error('Error fetching client secret:', error);
+                setError(error);
+            }
+        };
+
+        fetchClientSecret();
+    }, [purchaseData]);
 
     const openModal = () => {
         setShowModal(true);
     };
-    
+
 
     const closeModal = () => {
         setShowModal(false);
-        setActiveForm(null);
     };
 
     useEffect(() => {
-        // Check if purchaseData is available
-        if (purchaseData && paymentMethods) {
-            setIsLoading(false); // Set loading to false if data is available
+        if (isPaymentSet) {
+            closeModal(); 
         }
-    }, [purchaseData, paymentMethods]);
+    }, [isPaymentSet]);
 
     const [sendingForm, setSendingForm] = useState(false); // State for button loading
 
@@ -51,7 +93,7 @@ function Checkout({ purchaseData, paymentMethods }) {
 
     return (
         <div className="flex flex-col items-center min-h-screen px-4 md:px-8 relative z-10">
-            {isLoading ? ( // Render loading state if isLoading is true
+            {isLoading || !clientSecret ? ( // Render loading state if isLoading is true
                 <Loading />
             ) : ( // Render checkout content if isLoading is false
                 <div className="flex flex-col items-center min-h-screen px-4 md:px-8 relative z-10"> {/* Añadido padding responsive */}
@@ -71,9 +113,9 @@ function Checkout({ purchaseData, paymentMethods }) {
                                     Mis tarjetas de crédito y débito
                                 </h2>
                                 <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-                                    <button 
-                                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg flex items-center"
-                                    onClick={openModal}
+                                    <button
+                                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg flex items-center"
+                                        onClick={openModal}
                                     >
                                         <svg
                                             className="w-4 h-4"
@@ -169,7 +211,7 @@ function Checkout({ purchaseData, paymentMethods }) {
                                 text="Activar Suscripción"
                                 color="#fff"
                                 size="md"
-                                onClick={isPaymentSet ? handlePayment : () => {}}  // Call handlePayment on click
+                                onClick={isPaymentSet ? handlePayment : () => { }}  // Call handlePayment on click
                             />
                         </div>
                         <div className="w-full max-w-xs p-6 bg-gray-100 rounded-lg shadow-md  md:mt-0"> {/* Quitado margen izquierdo en pantallas medianas */}
@@ -219,7 +261,9 @@ function Checkout({ purchaseData, paymentMethods }) {
                         themeClass="bg-indigo-900"
                         scrollContent={true}
                     >
-                    <CheckoutForm amount={purchaseData.total_amount} currency={purchaseData.currency} setIsPaymentSet={setIsPaymentSet} /> {/* Pasa la función setIsPaymentSet al CheckoutForm */}
+                        <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
+                            <CheckoutForm userData={userData} /> {/* Pasa la función setIsPaymentSet al CheckoutForm */}
+                        </Elements>
                     </Modal>
                 </div>
 

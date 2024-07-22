@@ -249,22 +249,18 @@ export const triggerNewcomerPlan = async (title, price, check) => {
   }
 };
 
-export const createPaymentIntent = async (amount, currency) => {
+export const createPaymentIntent = async () => {
   const csrftoken = getCookie('csrftoken');
   const userToken = getCookie('user_token');
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/v1/payments/create_payment_intent/', {
+    const res = await fetch('http://127.0.0.1:8000/v1/payments/create_setup_intent/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken,
         'Authorization': `${userToken}`
       },
-      body: JSON.stringify({
-        amount,
-        currency
-      })
     });
 
     if (!res.ok) {
@@ -272,10 +268,40 @@ export const createPaymentIntent = async (amount, currency) => {
     }
 
     const data = await res.json();
-    return data.client_secret; // Assuming the API returns the clientSecret
+    return data; // Assuming the API returns the clientSecret
 
   } catch (error) {
     console.error('Error creating payment intent:', error);
+  }
+};
+
+export const createPaymentMethod = async ({type, setup_id}) => {
+  const csrftoken = getCookie('csrftoken');
+  const userToken = getCookie('user_token');
+
+  try {
+    const res = await fetch('http://127.0.0.1:8000/v1/payments/create_payment_method/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+        'Authorization': `${userToken}`
+      },
+      body: JSON.stringify({
+        type,
+        setup_id
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error('Error creating payment method:', res.status);
+    }
+
+    const data = await res.json();
+    return data; // Assuming the API returns the clientSecret
+
+  } catch (error) {
+    console.error('Error creating payment method:', error);
   }
 };
 

@@ -1,79 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { createPaymentIntent } from "@/constant/apiData"; // Assuming these functions handle Stripe integration
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '@/App';
+import { createPaymentMethod } from "@/constant/apiData"; // Assuming these functions handle Stripe integration
+import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
 import Loading from "@/components/PaymentsLoader";
+import Button from "@/components/ui/Button"
+import { useNavigate } from "react-router-dom";
 
-const CheckoutForm = ({ amount, currency, setIsPaymentSet }) => {
-  const [stripe, setStripe] = useState(null);
-  const [clientSecret, setClientSecret] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // State for loading
+const CheckoutForm = ({ userData }) => {
+
+  const [isConnect, setisConnect] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isFailed, setIsFailed] = useState(false);
   const [error, setError] = useState(null); // State for errors
 
-  useEffect(() => {
-    // Fetch the client secret from your backend
-    const fetchClientSecret = async () => {
-      try {
-        const res = await createPaymentIntent(amount, currency); // Replace with your actual endpoint
-        setClientSecret(res);
-      } catch (error) {
-        console.error('Error fetching client secret:', error);
-        setError(error);
-      }
-    };
+  const { setIsPaymentSet } = useContext(AuthContext);
 
-    fetchClientSecret();
-  }, []);
+  const stripe = useStripe();
+  const elements = useElements();
 
-  useEffect(() => {
-    if (clientSecret) {
-      // Initialize Stripe.js when the client secret is available
-      const stripeScript = document.createElement('script');
-      stripeScript.src = 'https://js.stripe.com/v3/';
-      stripeScript.onload = () => {
-        setStripe(window.Stripe('pk_test_51KBfHRJv2H8qjTLAIS6S63B7D2FA6xxAiqALqjgYjrTd7cdeCUxIBUjBJ4lqlgBlA3uPVSsGExqtjf7C9SyEhiz300cg6ioA1m')); // Replace with your actual publishable key
-        setIsLoading(false);
-      };
-      document.body.appendChild(stripeScript);
-    }
-  }, [clientSecret]);
-
-  useEffect(() => {
-    if (stripe && clientSecret) {
-      // Render the card element when Stripe is initialized and clientSecret is available
-      const elements = stripe.elements();
-      const cardElement = elements.create('card');
-      cardElement.mount('#card-element');
-    }
-  }, [stripe, clientSecret]);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setisConnect(true);
 
-    if (!stripe || !clientSecret) {
+    if (!stripe || !elements) {
+      console.error('Stripe.js has not loaded or paymentElement is not mounted.');
       return;
     }
 
-    setIsLoading(true); // Set loading state to true
-
     try {
-      // ... (rest of the handleSubmit logic remains the same)
+      const { error, setupIntent } = await stripe.confirmSetup({
+        elements,
+        redirect: 'if_required',
+      });
+
+      if (error) {
+        setErrorMessage(error.message);
+      } else if (setupIntent.status === 'succeeded') {
+        try {
+          const res = await createPaymentMethod({
+            type: 'card',
+            setup_id: setupIntent.id,
+          });
+
+          if (res.message === "method_created_successfully") {
+            setisConnect(false);
+            setIsSuccess(true);
+            setIsPaymentSet(true);
+          } else if (res.message === "method_failed") {
+            setisConnect(false)
+            setIsFailed(true);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          setError('Hubo un error al procesar la tarjeta.');
+          setisConnect(false);
+        }
+
+      } else {
+        console.log('Estado del SetupIntent:', setupIntent.status);
+      }
+
     } catch (error) {
-      // ... (error handling remains the same)
+      console.error('Error:', error);
+      setError('Hubo un error al procesar la tarjeta.');
+      setisConnect(false);
     }
   };
 
   return (
     <div>
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <form onSubmit={handleSubmit}>
-          {error && <div className="error">{error}</div>}
-          <div id="card-element"></div> {/* This div will now contain the card element */}
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Processing...' : 'Guardar'}
-          </button>
-        </form>
-      )}
+      {isConnect && <Loading loadCall='connect' />}
+      {isSuccess && <Loading loadCall='success' />}
+      {isFailed && <Loading loadCall='failed' />}
+      <form onSubmit={handleSubmit}
+        className={`${isConnect || isSuccess || isFailed ? 'hidden' : ''}`}> 
+        {error && <div className="error">{error}</div>}
+        <h6 className='font-oxanium'>Titular: {userData.full_name}</h6>
+        <PaymentElement className={`my-4`} />
+        {errorMessage && <span className='text-danger-600'>{errorMessage}</span>}
+        <Button
+          ariaLabel="botón del formulario"
+          isLoading={isConnect}
+          type={isConnect ? 'button' : 'submit'}
+          className={`text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md px-6 font-medium font-oxanium rounded-none uppercase text-[11px] float-end ${isConnect ? "disabled" : ""
+            }`}
+          disabled={isConnect}
+          text="guardar"
+          color="#fff"
+          size="xs"
+        />
+      </form>
     </div>
   );
 };

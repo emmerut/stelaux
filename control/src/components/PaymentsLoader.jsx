@@ -4,14 +4,26 @@ import LogoWhite from "@/assets/images/logo/stela_dark.png";
 import Logo from "@/assets/images/logo/stela_white.png";
 import { useSelector } from "react-redux";
 import Lottie from "react-lottie";
-import loadingAnimation from "@/assets/animations/loadPayment.json";
+import loadCardAnimation from "@/assets/animations/loadCard.json";
+import loadConnectAnimation from "@/assets/animations/loadCardConnect.json";
+import loadSuccessAnimation from "@/assets/animations/loadCardSuccess.json";
+import loadFailedAnimation from "@/assets/animations/loadCardFailed.json";
 
 
-const Loading = () => {
+const Loading = ({loadCall}) => {
+    const animations = {
+        'card': loadCardAnimation,
+        'connect': loadConnectAnimation,
+        'success': loadSuccessAnimation,
+        'failed': loadFailedAnimation,
+    };
+
+    const animationData = animations[loadCall] || loadCardAnimation; // Default to loadCardAnimation if loadCall is invalid
+
     const defaultOptions = {
         loop: true,
         autoplay: true,
-        animationData: loadingAnimation,
+        animationData: animationData,
         rendererSettings: {
             preserveAspectRatio: "xMidYMid slice",
         },

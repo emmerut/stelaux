@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.utils import timezone
 from datetime import timedelta
 from users.models import CustomUser
+from functions import unix_to_datetime
 
 # Create your models here.
 class Subscription(models.Model):
@@ -64,7 +65,9 @@ class PaymentIntent(models.Model):
     transaction_type = models.CharField(max_length=50, default='purchase')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payment_intents')
     product_name = models.CharField(max_length=255, null=True, blank=True)  
-    client_secret = models.CharField(max_length=255, null=True, blank=True)  
+    client_secret = models.CharField(max_length=255, null=True, blank=True) 
+    setup_intent_id = models.CharField(max_length=255, null=True, blank=True) 
+    payment_intent_id = models.CharField(max_length=255, null=True, blank=True)  
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=10, default='usd')
     annually = models.BooleanField(default=False)
@@ -87,8 +90,8 @@ class PaymentMethods(models.Model):
     method_type = models.CharField(max_length=50)
     provider = models.CharField(max_length=50, null=True, blank=True)  
     token = models.CharField(max_length=255, null=True, blank=True)  
-    last_four_digits = models.CharField(max_length=4, null=True, blank=True)  
-    expiry_date = models.DateField(null=True, blank=True)  
+    last_4_digits = models.CharField(max_length=4, null=True, blank=True)  
+    expiry_date = models.CharField(max_length=255, null=True, blank=True) 
     is_default = models.BooleanField(default=False)  
 
     def __str__(self):
@@ -99,3 +102,4 @@ class PaymentMethods(models.Model):
         self.user.payment_methods.update(is_default=False)  
         self.is_default = True
         self.save()
+

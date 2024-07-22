@@ -22,3 +22,14 @@ def get_user_from_token(token):
         raise AuthenticationFailed('Token ha expirado')
     except jwt.InvalidTokenError:
         raise AuthenticationFailed('Token inválido')
+
+from datetime import datetime
+
+def unix_to_datetime(unix_timestamp):
+  """Converts a Unix timestamp to a datetime object."""
+  return datetime.fromtimestamp(unix_timestamp)
+
+# Example usage:
+unix_timestamp = 1721692401
+datetime_object = unix_to_datetime(unix_timestamp)
+
