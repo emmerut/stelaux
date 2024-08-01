@@ -539,7 +539,7 @@ class PaymentsViewSet(viewsets.ViewSet):
             subscription = Subscription.objects.get(user=user)
             subscription.plan = product['name']
             subscription.plan_id = new_subscription.id
-            subscription.product_id = plan_id
+            subscription.product_id = product['id']
             subscription.price_id = price.id
             subscription.coupon_id = (coupon if coupon else None)
             subscription.is_active = True
@@ -549,7 +549,7 @@ class PaymentsViewSet(viewsets.ViewSet):
                 user=user,
                 plan=product['name'],
                 plan_id=new_subscription.id,
-                product_id=plan_id,
+                product_id=product['id'],
                 price_id=price.id,
                 coupon_id=(coupon if coupon else None),
                 is_active=True,
