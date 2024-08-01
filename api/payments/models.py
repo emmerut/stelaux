@@ -7,17 +7,17 @@ from users.models import CustomUser
 from functions import unix_to_datetime
 
 # Create your models here.
+
 class Subscription(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='subscriptions')
-    plan = models.CharField(max_length=20, choices=[
-        ("Free", "Free"),
-        ("Starter", "Starter"),
-        ("Ecommerce", "Ecommerce"),
-        ("Ultimate", "Ultimate")
-    ], default="Free")
+    plan = models.CharField(max_length=100, default="Free")
+    plan_id = models.CharField(max_length=100, null=True, blank=True)
+    price_id = models.CharField(max_length=100, null=True, blank=True)
+    product_id = models.CharField(max_length=100, null=True, blank=True)
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(null=True, blank=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
+    coupon_id = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.plan}"
@@ -65,6 +65,7 @@ class PaymentIntent(models.Model):
     transaction_type = models.CharField(max_length=50, default='purchase')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payment_intents')
     product_name = models.CharField(max_length=255, null=True, blank=True)  
+    product_id = models.CharField(max_length=255, null=True, blank=True) 
     client_secret = models.CharField(max_length=255, null=True, blank=True) 
     setup_intent_id = models.CharField(max_length=255, null=True, blank=True) 
     payment_intent_id = models.CharField(max_length=255, null=True, blank=True)  
@@ -92,6 +93,7 @@ class PaymentMethods(models.Model):
     token = models.CharField(max_length=255, null=True, blank=True)  
     last_4_digits = models.CharField(max_length=4, null=True, blank=True)  
     expiry_date = models.CharField(max_length=255, null=True, blank=True) 
+    funding = models.CharField(max_length=255, null=True, blank=True)  
     is_default = models.BooleanField(default=False)  
 
     def __str__(self):

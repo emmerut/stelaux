@@ -5,7 +5,6 @@ import { Menu, Transition } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteCookie } from "@/constant/sessions"
-import { AuthContext } from "@/App";
 import { SkeletionTitle, SkeletionAvatar } from "@/components/skeleton/Skeleton";
 import UserAvatar from "@/assets/images/avatar/default_user.jpg";
 

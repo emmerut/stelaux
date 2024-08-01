@@ -8,7 +8,7 @@ import { setCookie } from '@/constant/sessions';
 import Button from '@/components/ui/Button';
 
 const VerificationForm = ({ type, uid }) => {
-  const { setIsRegistered, setIsRecovery } = useContext(AuthContext);
+  const { setIsRegistered, setIsRecovery, setIsAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
   
   const initialValues = {
@@ -42,6 +42,7 @@ const VerificationForm = ({ type, uid }) => {
           const authToken = response.data.token;
           setCookie('user_token', authToken, 1);
           toast.success('Cuenta activada');
+          setIsAuthenticated(true);
           setIsRegistered(false);
           navigate("/console");
         } else {

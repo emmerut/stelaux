@@ -1,4 +1,5 @@
 import { getCookie } from '@/constant/sessions'
+import { Navigate } from 'react-router-dom';
 
 function getCSRF(name) {
   let cookieValue = null;
@@ -158,8 +159,7 @@ export const getUserData = async () => {
 
     return data; // Return only the service data
   } catch (error) {
-    console.error("Error fetching service data:", error);
-    return null;
+    return;
   }
 };
 
@@ -184,8 +184,7 @@ export const retrievePurchase = async () => {
 
     return data; // Return only the service data
   } catch (error) {
-    console.error("Error fetching service data:", error);
-    return null;
+    Navigate('/plans')
   }
 
 }
@@ -216,8 +215,34 @@ export const getPaymentMethods = async () => {
   }
 };
 
+export const getPlans = async () => {
+  const csrftoken = getCSRF('csrftoken');
+  const userToken = getCookie('user_token');
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/v1/payments/get_plans/', { // Adjust URL if needed
+      method: 'GET',
+      headers: {
+        'X-CSRFToken': csrftoken,
+        'Authorization': `${userToken}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Error fetching payment methods');
+    }
+
+    const data = await response.json();
+
+    return data; // Return the payment methods data
+  } catch (error) {
+    console.error("Error fetching payment methods:", error);
+    return null;
+  }
+};
+
 /* metodos POST */
-export const triggerNewcomerPlan = async (title, price, check) => {
+export const triggerNewcomerPlan = async (title, price, check, plan_id) => {
   try {
     const response = await fetch(
       `http://127.0.0.1:8000/v1/payments/create_purchase/`,
@@ -230,6 +255,7 @@ export const triggerNewcomerPlan = async (title, price, check) => {
         body: JSON.stringify({
           title,
           price,
+          plan_id,
           token: getCookie('user_token'),
           annually: check,
           type: 'newcomerPlan'
@@ -275,7 +301,7 @@ export const createPaymentIntent = async () => {
   }
 };
 
-export const createPaymentMethod = async ({type, setup_id}) => {
+export const createPaymentMethod = async ({ type, setup_id }) => {
   const csrftoken = getCookie('csrftoken');
   const userToken = getCookie('user_token');
 
@@ -305,5 +331,91 @@ export const createPaymentMethod = async ({type, setup_id}) => {
   }
 };
 
+export const handlerCoupon = async (couponCode) => {
+
+  const csrftoken = getCookie('csrftoken');
+  const userToken = getCookie('user_token');
+
+  try {
+    const res = await fetch('http://127.0.0.1:8000/v1/payments/handler_coupon/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+        'Authorization': `${userToken}`,
+      },
+      body: JSON.stringify({ couponCode }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error handling coupon: ${res.status}`);
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error('Error handling coupon:', error);
+    throw error; // Re-throw the error for proper handling
+  }
+};
+
+export const createSubscription = async (plan_id, coupon) => {
+
+  const csrftoken = getCookie('csrftoken');
+  const userToken = getCookie('user_token');
+
+  try {
+    const res = await fetch('http://127.0.0.1:8000/v1/payments/create_subscription/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+        'Authorization': `${userToken}`,
+      },
+      body: JSON.stringify({
+        plan_id,
+        coupon
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error handling coupon: ${res.status}`);
+    }
+
+    return res;
+  } catch (error) {
+    console.error('Error handling coupon:', error);
+    throw error; // Re-throw the error for proper handling
+  }
+};
+
+/* metodos DELETE */
+export const deletePaymentMethod = async (pay_id) => {
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/v1/payments/delete_payment_method/`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRF('csrftoken'),
+        },
+        body: JSON.stringify({
+          token: getCookie('user_token'),
+          pay_id,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Error:', response.status);
+    }
+
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.error('Error during checkout:', error);
+  }
+};
 
 

@@ -77,8 +77,12 @@ class UserSerializer(serializers.ModelSerializer):
     def get_active_subscription(self, obj):
         subscription = obj.subscriptions.all()
         if subscription:
-            return BillingSerializer(subscription.billing).data
-        return None
+            if subscription[0].is_active:
+                return True
+            else:
+                return False
+        else:
+            return True
 
     def get_notifications_count(self, obj):
         return obj.notifications.filter(is_read=False).count()

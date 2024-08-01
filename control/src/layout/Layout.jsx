@@ -23,7 +23,7 @@ const Layout = () => {
   const { width, breakpoints } = useWidth();
   const [collapsed] = useSidebar();
   const navigate = useNavigate();
-  const { isAuthenticated, userData, isActivePlan, checkoutSignal } = useContext(AuthContext);
+  const { isAuthenticated, userData, isActivePlan } = useContext(AuthContext);
   
   useEffect(() => {
     if (!isAuthenticated) {
@@ -32,32 +32,21 @@ const Layout = () => {
   }, [isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (!isActivePlan && !checkoutSignal) {
-      if (!isAuthenticated) {
-        navigate("/auth/login");
+    if (!userData) {
+      return;
+    } else {
+      if (isActivePlan || userData.active_subscription) {
+        
       } else {
-        navigate("/plans");
-      }
-    } else if (isActivePlan && checkoutSignal) {
-      if (!isAuthenticated) {
-        navigate("/auth/login");
-      } else {
-        navigate("/plans");
-      }
-    } else if (isActivePlan && !checkoutSignal && window.location.pathname === '/checkout') {
-      if (!isAuthenticated) {
-        navigate("/auth/login");
-      } else {
-        navigate("/console");
-      }
-    } else if (!isActivePlan && checkoutSignal && window.location.pathname !== '/checkout') {
-      if (!isAuthenticated) {
-        navigate("/auth/login");
-      } else {
-        navigate("/plans");
+        if (!isAuthenticated) {
+          navigate("/auth/login");
+        } else {
+          navigate("/plans");
+        }
       }
     }
-  }, [isActivePlan, checkoutSignal, navigate]);
+    
+  }, [userData, isAuthenticated, navigate]);
 
   const switchHeaderClass = () => {
     if (menuType === "horizontal" || menuHidden) {
@@ -109,36 +98,40 @@ const Layout = () => {
               contentWidth === "boxed" ? "container mx-auto" : "container-fluid"
             }
           >
-            <Suspense fallback={<Loading />}>
-              <motion.div
-                key={location.pathname}
-                initial="pageInitial"
-                animate="pageAnimate"
-                exit="pageExit"
-                variants={{
-                  pageInitial: {
-                    opacity: 0,
-                    y: 50,
-                  },
-                  pageAnimate: {
-                    opacity: 1,
-                    y: 0,
-                  },
-                  pageExit: {
-                    opacity: 0,
-                    y: -50,
-                  },
-                }}
-                transition={{
-                  type: "tween",
-                  ease: "easeInOut",
-                  duration: 0.5,
-                }}
-              >
-                <Breadcrumbs />
-                {<Outlet />}
-              </motion.div>
-            </Suspense>
+            {userData ? ( // Condición para renderizar el contenido
+              <Suspense fallback={<Loading />}>
+                <motion.div
+                  key={location.pathname}
+                  initial="pageInitial"
+                  animate="pageAnimate"
+                  exit="pageExit"
+                  variants={{
+                    pageInitial: {
+                      opacity: 0,
+                      y: 50,
+                    },
+                    pageAnimate: {
+                      opacity: 1,
+                      y: 0,
+                    },
+                    pageExit: {
+                      opacity: 0,
+                      y: -50,
+                    },
+                  }}
+                  transition={{
+                    type: "tween",
+                    ease: "easeInOut",
+                    duration: 0.5,
+                  }}
+                >
+                  <Breadcrumbs />
+                  <Outlet />
+                </motion.div>
+              </Suspense>
+            ) : (
+              <Loading /> 
+            )}
           </div>
         </div>
       </div>

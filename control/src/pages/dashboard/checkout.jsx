@@ -8,11 +8,15 @@ import { retrievePurchase, getPaymentMethods } from "@/constant/apiData";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  const { userData } = useContext(AuthContext);
+  const { userData, isAuthenticated } = useContext(AuthContext);
   const [purchaseData, setPurchaseData] = useState(null); 
   
   useEffect(() => {
     const fetchData = async () => {
+      if (!isAuthenticated) {
+        navigate("/auth/login");
+        return;
+      } 
       try {
         // Fetch purchase data and payment methods in a single request
         const [purchaseDataResponse, paymentMethodsResponse] = await Promise.all([
@@ -23,12 +27,12 @@ const CheckoutPage = () => {
         // Update states with fetched data
         setPurchaseData(purchaseDataResponse);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        navigate('/plans')
       }
     };
 
-    fetchData(); // Call the async function
-  }, []); // Run only once when the component mounts
+    fetchData(); 
+  }, [userData]); 
 
   return (
     <div className="max-w-screen bg-white">

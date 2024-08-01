@@ -1,10 +1,11 @@
 import { AuthContext } from '@/App';
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdOutlineClose } from "react-icons/md";
 import { triggerNewcomerPlan } from "@/constant/apiData"
 import { useNavigate } from "react-router-dom";
+import { getPlans } from "@/constant/apiData";
 
 // import images
 import img1 from "@/assets/images/all-img/big-shap1.png";
@@ -14,6 +15,7 @@ import img3 from "@/assets/images/all-img/big-shap3.png";
 const plans = [
   {
     title: "Starter",
+    id: null,
     price_Yearly: "6.99",
     price_Monthly: "9.99",
     button: "prueba gratuita/15 días",
@@ -34,6 +36,7 @@ const plans = [
   },
   {
     title: "Ecommerce",
+    id: null,
     price_Yearly: "10.99",
     price_Monthly: "17.99",
     button: "prueba gratuita/15 días",
@@ -56,6 +59,7 @@ const plans = [
   },
   {
     title: "Ultimate",
+    id: null,
     price_Yearly: "17.99",
     price_Monthly: "28.99",
     button: "prueba gratuita/15 días",
@@ -80,30 +84,56 @@ const plans = [
   },
 ];
 
-
-
 const PricingPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { setCheckoutSignal } = useContext(AuthContext);
   const navigate = useNavigate();
   const [check, setCheck] = useState(true);
+  const [plansData, setPlansData] = useState(plans);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getPlans();
+        plans.forEach((plan) => {
+          const stripePlan = res.data.find(
+            (p) =>
+              p.name.includes(plan.title) &&
+              (check ? p.name.includes("Anual") : p.name.includes("Mensual"))
+          );
+
+          if (stripePlan) {
+            plan.id = stripePlan.id;
+          }
+        });
+
+        // Update the state with the modified plans array
+        setPlansData(plans);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [isLoading, check]);
+
   const toggle = () => {
     setCheck(!check);
   };
 
-  const triggerCheckout = async (title, price, check) => {
+  const triggerCheckout = async (title, price, check, plan_id) => {
     setIsLoading(true);
-    const res = await triggerNewcomerPlan(title, price, check)
+    const res = await triggerNewcomerPlan(title, price, check, plan_id)
     if (res.ok) {
       setIsLoading(false);
-      setCheckoutSignal(true);
       navigate('/checkout');
     } else {
       // Display an error message to the user
       alert('Error triggering checkout. Please try again later.');
     }
   }
-  
+
   return (
     <div className="container max-w-screen-lg mx-auto">
       <div className="z-10 relative mx-auto">
@@ -142,7 +172,7 @@ const PricingPage = () => {
             </label>
           </div>
           <div className="grid md:grid-cols-3 grid-cols-1 gap-5">
-            {plans.map((item, i) => (
+            {plansData.map((item, i) => (
               <div
                 className={`${item.bg} 
             
@@ -224,12 +254,12 @@ const PricingPage = () => {
                             <span>{exclude}</span>
                           </span>
                         ) :
-                        (
-                          <span className="text-red-500 flex items-center gap-2">
-                            <MdOutlineClose className="text-red-500" />
-                            <span>{exclude}</span>
-                          </span>
-                        )}
+                          (
+                            <span className="text-red-500 flex items-center gap-2">
+                              <MdOutlineClose className="text-red-500" />
+                              <span>{exclude}</span>
+                            </span>
+                          )}
                       </li>
                     ))}
                   </ul>
@@ -241,7 +271,7 @@ const PricingPage = () => {
                       onClick={(event) => {
                         if (!isLoading) {
                           const subscriptionType = !check;
-                          triggerCheckout(item.title, subscriptionType ? item.price_Monthly : item.price_Yearly, check);
+                          triggerCheckout(item.title, subscriptionType ? item.price_Monthly : item.price_Yearly, check, item.id);
                         }
                       }}
                     />

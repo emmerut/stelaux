@@ -1,102 +1,150 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { AuthContext } from '@/App';
-import { useStripe, useElements, Elements } from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import Loading from "@/components/Loading";
 import Button from "@/components/ui/Button"
 import Modal from "@/components/ui/Modal";
 import CheckoutForm from "@/components/form/Payments/CheckoutForm"
 import { useNavigate } from "react-router-dom";
-import { createPaymentIntent } from "@/constant/apiData";
+import {
+    createPaymentIntent, getPaymentMethods, deletePaymentMethod,
+    getPlans, handlerCoupon, createSubscription
+}
+    from "@/constant/apiData";
+import Checkbox from "@/components/ui/Checkbox"
+import { toast, ToastContainer } from "react-toastify";
 
 
 function Checkout({ purchaseData, userData }) {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
-    const [paymentMethods, setPaymentMethods] = useState([]); 
-    const [cardPaymentDefault, setCardPaymentDefault] = useState(false);
-    const [googlePaymentDefault, setGooglePaymentDefault] = useState(false);
-    const [applePaymentDefault, setApplePaymentDefault] = useState(false);
+    const [paymentMethods, setPaymentMethods] = useState([]);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false); // State for loading
-    
-    const { isPaymentSet } = useContext(AuthContext);
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+    const [isPaymentSet, setIsPaymentSet] = useState(false);
+    const [isCoupon, setIsCoupon] = useState(null);
 
+    const { isPaymentSignal, setIsPaymentSignal, setIsActivePlan} = useContext(AuthContext);
     const [clientSecret, setClientSecret] = useState(null);
-
     const stripePromise = loadStripe('pk_test_51KBfHRJv2H8qjTLAIS6S63B7D2FA6xxAiqALqjgYjrTd7cdeCUxIBUjBJ4lqlgBlA3uPVSsGExqtjf7C9SyEhiz300cg6ioA1m');
 
+    const handlePaymentMethodChange = (paymentMethodId) => {
+        setSelectedPaymentMethod(paymentMethodId);
+    };
+
     const appearance = {
-        theme: 'stripe',
+        theme: 'flat',
         variables: {
-            colorPrimary: '#0570de',
-            colorBackground: '#ffffff',
-            colorText: '#30313d',
-            fontFamily: 'Arial, sans-serif',
-            spacingUnit: '2px',
+            colorPrimary: '#312e81',
         },
-        rules: {
-            '.Label': {
-                color: '#30313d',
-            }
-        }
     };
 
     useEffect(() => {
-        const fetchClientSecret = async () => {
+        const fetchData = async () => {
             try {
-                const res = await createPaymentIntent(purchaseData.total_amount, purchaseData.currency); // Replace with your actual endpoint
-                setClientSecret(res.client_secret);
+                const res = await Promise.all([
+                    createPaymentIntent(purchaseData.total_amount, purchaseData.currency,), // Replace with your actual endpoint
+                    getPaymentMethods(),
+                    getPlans()
+                ]);
+
+                setClientSecret(res[0].client_secret);
+                setPaymentMethods(res[1]); // Assuming getPaymentMethods returns an array of payment methods
+
             } catch (error) {
-                console.error('Error fetching client secret:', error);
+                console.error('Error fetching data:', error);
                 setError(error);
             }
         };
 
-        fetchClientSecret();
-    }, [purchaseData]);
+        fetchData();
+    }, [purchaseData, isPaymentSignal]);
+
+    useEffect(() => {
+        if (paymentMethods && paymentMethods.length > 0) {
+            setIsPaymentSignal(false);
+            setSelectedPaymentMethod(paymentMethods[paymentMethods.length - 1].id);
+            setIsPaymentSet(true);
+        }
+    }, [paymentMethods]);
 
     const openModal = () => {
         setShowModal(true);
     };
-
 
     const closeModal = () => {
         setShowModal(false);
     };
 
     useEffect(() => {
-        if (isPaymentSet) {
-            closeModal(); 
+        if (isPaymentSignal) {
+            closeModal();
         }
-    }, [isPaymentSet]);
+    }, [isPaymentSignal]);
 
     const [sendingForm, setSendingForm] = useState(false); // State for button loading
 
+    const handleDeletePaymentMethod = async (paymentMethodId) => {
+        try {
+            await deletePaymentMethod(paymentMethodId);
+            setIsPaymentSignal(true);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            setError(error);
+        }
+    };
+
+    const handleCoupon = async () => {
+        const couponCode = document.querySelector('input[type="text"]').value;
+        try {
+            const { data } = await handlerCoupon(couponCode);
+            setIsCoupon({
+                id: data[0].id,
+                coupon: {
+                    amount_off: data[0].coupon.amount_off,
+                    duration: data[0].coupon.duration,
+                    duration_in_months: data[0].coupon.duration_in_months,
+                    percent_off: data[0].coupon.percent_off,
+                    valid: data[0].coupon.valid
+                }
+            });
+            toast.success('Código promocional activado');
+        } catch (error) {
+            setIsCoupon(null);
+            toast.warning('Código promocional no válido');
+        }
+    };
+
     const handlePayment = async () => {
 
-        setSendingForm(true); // Set button loading state to true
-        // Your payment processing logic here
-        // ...
-        // Example:
-        // try {
-        //   const response = await axios.post('/api/payment', {
-        //     // Payment data
-        //   });
-        //   // Handle success
-        // } catch (error) {
-        //   // Handle error
-        // } finally {
-        //   setSendingForm(false); // Set button loading state to false
-        // }
+        setSendingForm(true);
+
+        try {
+            // Check if isCoupon exists before using it
+            const couponId = isCoupon ? isCoupon.id : null;
+            await createSubscription(purchaseData.id, couponId);
+            toast.success('Suscripción activada');
+            setIsActivePlan(true);
+            setTimeout(() => {
+                navigate('/console');
+              }, 4000); 
+        } catch (error) {
+            toast.warning('Error al activar la suscripción');
+        } finally {
+            setSendingForm(false); // Reset sendingForm state
+        }
+
     };
 
     return (
         <div className="flex flex-col items-center min-h-screen px-4 md:px-8 relative z-10">
+            <ToastContainer />
             {isLoading || !clientSecret ? ( // Render loading state if isLoading is true
                 <Loading />
             ) : ( // Render checkout content if isLoading is false
-                <div className="flex flex-col items-center min-h-screen px-4 md:px-8 relative z-10"> {/* Añadido padding responsive */}
+                <div className="flex flex-col items-center min-h-screen px-4 md:px-8 relative z-10 lg:w-[80%] md:w-[100%] w-[100%]"> {/* Añadido padding responsive */}
                     <h1 className="text-3xl font-bold text-gray-800 mt-10 text-center">
                         Pasarela de Pago
                     </h1>
@@ -131,63 +179,50 @@ function Checkout({ purchaseData, userData }) {
                                         </svg>
                                     </button>
                                     <div>
-                                        <span>Agregar una tarjeta de crédito o débito</span>
-                                        <p className="text-gray-500 text-sm">
-                                            Stela acepta las principales tarjetas de débito o crédito.
-                                        </p>
+                                        <span>Agregar Nuevo Metodo de Pago</span>
+
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex flex-col space-y-4">
-                                <h2 className="text-xl font-bold">Otros métodos de pago</h2>
-
-                                <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-                                    <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg flex items-center">
-                                        <svg
-                                            className="w-4 h-4"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                fillRule="evenodd"
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.707a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"
-                                                clipRule="evenodd"
-                                            ></path>
-                                        </svg>
-                                    </button>
-                                    <div>
-                                        <span>Google Pay</span>
+                            {paymentMethods.slice(-3).length === 1 ? (
+                                // Render only the payment method if there's only one
+                                <div key={paymentMethods[0].id} className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+                                    <Checkbox
+                                        id={`paymentMethod-${paymentMethods[0].id}`}
+                                        value={selectedPaymentMethod === paymentMethods[0].id}
+                                        onChange={() => handlePaymentMethodChange(paymentMethods[0].id)}
+                                        disabled={false} // Set to true if you want to disable a specific payment method
+                                    />
+                                    <label htmlFor={`paymentMethod-${paymentMethods[0].id}`} className="flex items-center ml-2">
+                                        <span className='font-oxanium'>{paymentMethods[0].provider}</span>
                                         <p className="text-gray-500 text-sm">
-                                            Acceso a ofertas exclusivas de financiación. Sin tarifa anual.
+                                            ****-****-****-{paymentMethods[0].last_4_digits}
                                         </p>
-                                    </div>
+                                    </label>
                                 </div>
-
-                                <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-                                    <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg flex items-center">
-                                        <svg
-                                            className="w-4 h-4"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                fillRule="evenodd"
-                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.707a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"
-                                                clipRule="evenodd"
-                                            ></path>
-                                        </svg>
-                                    </button>
-                                    <div>
-                                        <span>Apple Pay</span>
-                                        <p className="text-gray-500 text-sm">
-                                            Acceso a ofertas exclusivas de financiación. Sin tarifa anual.
-                                        </p>
+                            ) : (
+                                // Render all three payment methods with "Eliminar"
+                                paymentMethods.slice(-3).map((paymentMethod) => (
+                                    <div key={paymentMethod.id} className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
+                                        <Checkbox
+                                            id={`paymentMethod-${paymentMethod.id}`}
+                                            value={selectedPaymentMethod === paymentMethod.id}
+                                            onChange={() => handlePaymentMethodChange(paymentMethod.id)}
+                                            disabled={false}
+                                        />
+                                        <label htmlFor={`paymentMethod-${paymentMethod.id}`} className="flex items-center mx-2">
+                                            <span className='font-oxanium'>{paymentMethod.provider}</span>
+                                            <p className="text-gray-500 text-sm">
+                                                ****-****-****-{paymentMethod.last_4_digits}
+                                            </p>
+                                            <span className="ml-2 text-sm text-sky-500 cursor-pointer" onClick={() => handleDeletePaymentMethod(paymentMethod.id)}>
+                                                Eliminar
+                                            </span>
+                                        </label>
                                     </div>
-                                </div>
+                                ))
+                            )}
 
-                            </div>
                             <div className="flex flex-col space-y-4">
                                 <div className="flex items-center">
                                     <input
@@ -195,7 +230,7 @@ function Checkout({ purchaseData, userData }) {
                                         placeholder="Ingresa el código promocional"
                                         className="border rounded-l-md py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
-                                    <button className="bg-indigo-900 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-r-md">
+                                    <button className="bg-indigo-900 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-r-md" onClick={handleCoupon}>
                                         Usar
                                     </button>
                                 </div>
@@ -225,8 +260,6 @@ function Checkout({ purchaseData, userData }) {
                                     </dd>
                                     <dt>Subtotal:</dt>
                                     <dd className="text-right">US${purchaseData.amount}</dd>
-                                    <dt>Impuestos:</dt>
-                                    <dd className="text-right">US${purchaseData.tax_amount}</dd>
                                     <dt>Fee:</dt>
                                     <dd className="text-right">US${purchaseData.fee_amount}</dd>
                                     <dt></dt>
@@ -238,10 +271,20 @@ function Checkout({ purchaseData, userData }) {
                                     <dd className="text-right font-bold">US${purchaseData.total_amount}</dd>
                                 </dl>
                                 <hr className="my-4" />
-                                <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
-                                    <dt className="text-xs">Fecha de Importe:</dt>
-                                    <dd className="text-right text-xs">2024-03-10</dd>
-                                </dl>
+                                {isCoupon &&
+                                    <div class="text-center mt-2 text-blue-500">
+                                        < span className="text-xs">Cupón Promocional</span>
+                                    </div>}
+                                {isCoupon &&
+                                    <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
+                                        <dt className="text-xs">Descuento:</dt>
+                                        <dd className="text-right text-xs">{isCoupon.coupon.percent_off ? isCoupon.coupon.percent_off + "%" : "US$" + isCoupon.coupon.amount_off}</dd>
+                                    </dl>}
+                                {isCoupon &&
+                                    <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
+                                        <dt className="text-xs">Duración:</dt>
+                                        <dd className="text-right text-xs">{isCoupon.coupon.duration_in_months ? isCoupon.coupon.duration_in_months + " Meses" : isCoupon.coupon.duration}</dd>
+                                    </dl>}
                                 <dl className="grid grid-cols-2 gap-x-4 gap-y-2 my-3">
                                     <dt className="text-xs">Emmerut Pay</dt>
                                     <dd className="text-right text-xs">Emmerut LLC &copy;</dd>
@@ -257,12 +300,12 @@ function Checkout({ purchaseData, userData }) {
                         onClose={closeModal}
                         centered={true}
                         className="max-w-2xl modal-scroll"
-                        title="Agregar Tarjeta"
+                        title=""
                         themeClass="bg-indigo-900"
                         scrollContent={true}
                     >
                         <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
-                            <CheckoutForm userData={userData} /> {/* Pasa la función setIsPaymentSet al CheckoutForm */}
+                            <CheckoutForm userData={userData} clientSecret={clientSecret} /> {/* Pasa la función setIsPaymentSet al CheckoutForm */}
                         </Elements>
                     </Modal>
                 </div>

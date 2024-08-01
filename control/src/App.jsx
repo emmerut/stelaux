@@ -28,9 +28,6 @@ const PaymentsPage = lazy(() => import("./pages/utility/payments"));
 const Plans = lazy(() => import("./pages/dashboard/plans"));
 const Checkout = lazy(() => import("./pages/dashboard/checkout"));
 
-
-
-
 import Layout from "./layout/Layout";
 
 const sectionTitles = {
@@ -57,22 +54,25 @@ export const AuthProvider = ({ children }) => {
   });
   
   const [userData, setUserData] = useState(null);
+  const [isPaymentSignal, setIsPaymentSignal] = useState(false)
   const [isActivePlan, setIsActivePlan] = useState(false);
-  const [checkoutSignal, setCheckoutSignal] = useState(false);
-  const [isPaymentSet, setIsPaymentSet] = useState(false)
 
   // Fetch user data when the component mounts
   useEffect(() => {
     const fetchData = async () => { 
-      try {
-        const res = await getUserData(); 
-        setUserData(res); // Update user data state
-      } catch (error) {
-        console.error('Error fetching data:', error); 
+      if (!isAuthenticated) {
+        return;
+      } else{
+        try {
+          const res = await getUserData(); 
+          setUserData(res); // Update user data state
+        } catch (error) {
+          
+        }
       }
     };
     fetchData(); // Call the async function
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     localStorage.setItem("isRegistered", JSON.stringify(isRegistered));
@@ -85,14 +85,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [isAuthenticated]);
 
-  useEffect(() => {
-    if (userData && userData.active_subscription) {
-      setIsActivePlan(true);
-    } else {
-      setIsActivePlan(false);
-    }
-  }, [userData]);
-  // Función para restablecer isRegistered a false
   const resetRegistration = () => {
     setIsRegistered(false);
   };
@@ -113,12 +105,11 @@ export const AuthProvider = ({ children }) => {
       isAuthenticated,
       setIsAuthenticated,
       userData,
-      setUserData,
       isActivePlan,
-      checkoutSignal,
-      setCheckoutSignal,
-      isPaymentSet,
-      setIsPaymentSet
+      setIsActivePlan,
+      setUserData,
+      isPaymentSignal,
+      setIsPaymentSignal
     }}>
       {children}
     </AuthContext.Provider>

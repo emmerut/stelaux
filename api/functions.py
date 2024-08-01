@@ -22,6 +22,11 @@ def get_user_from_token(token):
         raise AuthenticationFailed('Token ha expirado')
     except jwt.InvalidTokenError:
         raise AuthenticationFailed('Token inválido')
+    
+    except User.DoesNotExist:
+        raise AuthenticationFailed('Usuario no encontrado')
+    except AuthenticationFailed as e:
+        raise e
 
 from datetime import datetime
 

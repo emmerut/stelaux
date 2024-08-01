@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '@/App';
 import { createPaymentMethod } from "@/constant/apiData"; // Assuming these functions handle Stripe integration
-import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
+import { useStripe, useElements, PaymentElement, CardElement } from '@stripe/react-stripe-js';
 import Loading from "@/components/PaymentsLoader";
 import Button from "@/components/ui/Button"
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,8 @@ const CheckoutForm = ({ userData }) => {
   const [isFailed, setIsFailed] = useState(false);
   const [error, setError] = useState(null); // State for errors
 
-  const { setIsPaymentSet } = useContext(AuthContext);
+  const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
+  const { setIsPaymentSignal } = useContext(AuthContext);
 
   const stripe = useStripe();
   const elements = useElements();
@@ -22,6 +23,7 @@ const CheckoutForm = ({ userData }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     setisConnect(true);
 
     if (!stripe || !elements) {
@@ -37,6 +39,7 @@ const CheckoutForm = ({ userData }) => {
 
       if (error) {
         setErrorMessage(error.message);
+        cons
       } else if (setupIntent.status === 'succeeded') {
         try {
           const res = await createPaymentMethod({
@@ -45,12 +48,17 @@ const CheckoutForm = ({ userData }) => {
           });
 
           if (res.message === "method_created_successfully") {
-            setisConnect(false);
             setIsSuccess(true);
-            setIsPaymentSet(true);
+            setTimeout(() => {
+              setisConnect(false);
+            }, 4000);
+            setIsPaymentSignal(true);
+
           } else if (res.message === "method_failed") {
-            setisConnect(false)
             setIsFailed(true);
+            setTimeout(() => {
+              setisConnect(false);
+            }, 4000);
           }
         } catch (error) {
           console.error('Error:', error);
@@ -75,11 +83,8 @@ const CheckoutForm = ({ userData }) => {
       {isSuccess && <Loading loadCall='success' />}
       {isFailed && <Loading loadCall='failed' />}
       <form onSubmit={handleSubmit}
-        className={`${isConnect || isSuccess || isFailed ? 'hidden' : ''}`}> 
-        {error && <div className="error">{error}</div>}
-        <h6 className='font-oxanium'>Titular: {userData.full_name}</h6>
+        className={`${isConnect || isSuccess || isFailed ? 'hidden' : ''}`}>
         <PaymentElement className={`my-4`} />
-        {errorMessage && <span className='text-danger-600'>{errorMessage}</span>}
         <Button
           ariaLabel="botón del formulario"
           isLoading={isConnect}
