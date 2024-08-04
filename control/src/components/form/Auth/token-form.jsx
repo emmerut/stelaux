@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import axios from 'axios';
 import { AuthContext } from '@/App';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -8,7 +8,11 @@ import { setCookie } from '@/constant/sessions';
 import Button from '@/components/ui/Button';
 
 const VerificationForm = ({ type, uid }) => {
-  const { setIsRegistered, setIsRecovery, setIsAuthenticated } = useContext(AuthContext);
+  const { setIsRegistered, setIsRecovery, isRegistered } = useContext(AuthContext);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  console.log(isRegistered)
+
   const navigate = useNavigate();
   
   const initialValues = {

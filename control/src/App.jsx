@@ -2,6 +2,7 @@ import React, { lazy, useState, useEffect, createContext, useContext } from "rea
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { getCookie } from "@/constant/sessions"
 import { getUserData } from '@/constant/apiData'
+import UseAuth from "@/components/auth/UseAuth"
 
 //auth section
 import AuthLayout from "./layout/AuthLayout";
@@ -47,43 +48,12 @@ export const AuthProvider = ({ children }) => {
     return JSON.parse(localStorage.getItem("isRegistered")) || false;
   });
   const [isRecovery, setIsRecovery] = useState(false); 
-
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    const token = getCookie('user_token');
-    return token ? true : false;
-  });
-  
-  const [userData, setUserData] = useState(null);
   const [isPaymentSignal, setIsPaymentSignal] = useState(false)
   const [isActivePlan, setIsActivePlan] = useState(false);
-
-  // Fetch user data when the component mounts
-  useEffect(() => {
-    const fetchData = async () => { 
-      if (!isAuthenticated) {
-        return;
-      } else{
-        try {
-          const res = await getUserData(); 
-          setUserData(res); // Update user data state
-        } catch (error) {
-          
-        }
-      }
-    };
-    fetchData(); // Call the async function
-  }, [isAuthenticated]);
 
   useEffect(() => {
     localStorage.setItem("isRegistered", JSON.stringify(isRegistered));
   }, [isRegistered]);
-
-  useEffect(() => {
-    const token = getCookie('user_token');
-    if (!token) {
-      setIsAuthenticated(false);
-    }
-  }, [isAuthenticated]);
 
   const resetRegistration = () => {
     setIsRegistered(false);
@@ -102,12 +72,8 @@ export const AuthProvider = ({ children }) => {
       resetAuthentication,
       isRegistered,
       setIsRegistered,
-      isAuthenticated,
-      setIsAuthenticated,
-      userData,
       isActivePlan,
       setIsActivePlan,
-      setUserData,
       isPaymentSignal,
       setIsPaymentSignal
     }}>

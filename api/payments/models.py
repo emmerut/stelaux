@@ -36,28 +36,26 @@ def create_subscription(sender, instance, created, **kwargs):
         Subscription.objects.create(user=instance)
 
 class Billing(models.Model):
-    subscription = models.OneToOneField(Subscription, on_delete=models.CASCADE, related_name='stela_billing')
-    stripe_customer_id = models.CharField(max_length=255, null=True, blank=True)  
-    stripe_subscription_id = models.CharField(max_length=255, null=True, blank=True)
-    payment_method = models.CharField(max_length=255, null=True, blank=True)  
-    last_payment_date = models.DateTimeField(null=True, blank=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='billings')
+    control_id = models.CharField(max_length=255, null=True, blank=True)
+    total_amount = models.IntegerField(default=0)  
+    subtotal = models.IntegerField(default=0)
+    amount_paid = models.IntegerField(default=0)    
+    amount_remaining = models.IntegerField(default=0)  
     next_billing_date = models.DateTimeField(null=True, blank=True)
-    amount_due = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    legal_entity = models.CharField(max_length=255, null=True, blank=True)
+    description = models.CharField(max_length=500, null=True, blank=True)
+    shipping_address = models.CharField(max_length=500, null=True, blank=True)
+    url_pdf = models.CharField(max_length=500, null=True, blank=True)
+    status = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return f"Billing for {self.subscription.user.username} - {self.subscription.plan}"
+        return f"Billing for {self.user.username} - {self.description}"
 
-    def update_billing_info(self, stripe_customer_id, stripe_subscription_id, payment_method):
-        self.stripe_customer_id = stripe_customer_id
-        self.stripe_subscription_id = stripe_subscription_id
-        self.payment_method = payment_method
-        self.save()
-
-    def calculate_next_billing_date(self):
-        if self.last_payment_date is None:  
-            self.next_billing_date = self.subscription.start_date + timedelta(days=15) 
-        else:
-            self.next_billing_date = self.last_payment_date + timedelta(days=30)  # 30-day billing cycle
+    def update_billing_info(self, shipping_address, url_pdf, status):
+        self.shipping_address = shipping_address
+        self.url_pdf = url_pdf
+        self.status = status
         self.save()
 
 class PaymentIntent(models.Model):

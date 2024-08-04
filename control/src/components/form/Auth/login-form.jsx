@@ -1,15 +1,15 @@
 import React, { useContext } from 'react';
 import { Formik, Form } from 'formik';
 import axios from 'axios';
-import { AuthContext } from '@/App';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from "react-toastify";
 import { InputLogin } from "@/components/form/Form";
 import Button from '@/components/ui/Button';
-import { setCookie } from '@/constant/sessions'
+import { setCookie } from '@/constant/sessions';
+import UseAuth from '@/components/auth/UseAuth';
 
 const Login = () => {
-  const { setIsAuthenticated } = useContext(AuthContext);
+  const { setIsAuthenticated } = UseAuth();
   const navigate = useNavigate();
 
   const initialValues = {

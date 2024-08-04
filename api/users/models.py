@@ -55,6 +55,8 @@ class Message(models.Model):
 
 class Notification(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='notifications')
+    type = models.CharField(max_length=255)
+    icon = models.CharField(max_length=255)
     message = models.CharField(max_length=255)
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)

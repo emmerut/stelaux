@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { AuthContext } from '@/App';
 import Card from "@/components/ui/Card";
 import { colors } from "@/constant/data";
 import Textinput from "@/components/ui/Textinput";
@@ -14,6 +13,7 @@ import TransactionsTable from "@/components/partials/Table/transactions";
 import SelectMonth from "@/components/partials/SelectMonth";
 import HomeBredCurbs from "@/components/finance/FinanceBredCurbs";
 import NavBredCurbs from "@/components/ui/Breadcrumbs";
+import UseAuth from "@/components/auth/UseAuth"
 
 import { financeData } from '@/constant/apiData'
 
@@ -49,7 +49,7 @@ const BankingPage = ({ mainTitle, buttonSet }) => {
   const [lastWithdrawals, setLastWithdrawals] = useState([]);
   const [lastPending, setLastPending] = useState([]);
   const navigate = useNavigate();
-  const { userData } = useContext(AuthContext);
+  const { userData } = UseAuth();
 
   useEffect(() => {
     const fetchData = async () => { 

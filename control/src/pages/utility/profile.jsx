@@ -7,14 +7,14 @@ import BasicArea from "../chart/appex-chart/BasicArea";
 import EditProfile from "@/pages/utility/settings";
 import BusinessForm from "@/components/form/Profile/BusinessForm";
 import ProfileForm from "@/components/form/Profile/ProfileForm";
-import { Context } from "@/main";
+import UseAuth from "@/components/auth/UseAuth"
 import { SkeletionTitle, SkeletionAvatar, SkeletionGrid } from "@/components/skeleton/Skeleton";
 
 // import images
 import ProfileImage from "@/assets/images/avatar/default_user.jpg";
 
 const profile = () => {
-  const { userData } = useContext(Context);
+  const { userData } = UseAuth();
 
   const [showModal, setShowModal] = useState(false);
   const [formName, setFormName] = useState(null);

@@ -1,4 +1,5 @@
 import datetime
+from users.views import send_mail
 from rest_framework import viewsets, status
 from django.utils import timezone
 from django.conf import settings
@@ -6,15 +7,19 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.utils.translation import gettext_lazy as _
 from decimal import Decimal
-from .models import PaymentIntent, PaymentMethods, Subscription
+from .models import PaymentIntent, PaymentMethods, Subscription, Billing
+from users.models import CustomUser as User, Notification
 from functions import get_user_from_token
 from .serializers import (
     PaymentIntentSerializer,
     PaymentMethodSerializer,
 )  # Import the serializer
 import stripe  # Import the Stripe SDK
+from django.views.decorators.csrf import csrf_exempt
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
 
 class PaymentsViewSet(viewsets.ViewSet):
@@ -525,7 +530,7 @@ class PaymentsViewSet(viewsets.ViewSet):
         # Find the correct Price associated with the Product
         price = stripe.Price.retrieve(product["default_price"])
 
-        #trial function
+        # trial function
         now = datetime.datetime.now()
         trial_end = now + datetime.timedelta(days=15)
         trial_end_timestamp = int(trial_end.timestamp())
@@ -537,19 +542,19 @@ class PaymentsViewSet(viewsets.ViewSet):
         )
         try:
             subscription = Subscription.objects.get(user=user)
-            subscription.plan = product['name']
+            subscription.plan = product["name"]
             subscription.plan_id = new_subscription.id
-            subscription.product_id = product['id']
+            subscription.product_id = product["id"]
             subscription.price_id = price.id
-            subscription.coupon_id = (coupon if coupon else None)
+            subscription.coupon_id = coupon if coupon else None
             subscription.is_active = True
-            
+
         except Subscription.DoesNotExist:
             subscription = Subscription.objects.create(
                 user=user,
-                plan=product['name'],
+                plan=product["name"],
                 plan_id=new_subscription.id,
-                product_id=product['id'],
+                product_id=product["id"],
                 price_id=price.id,
                 coupon_id=(coupon if coupon else None),
                 is_active=True,
@@ -560,3 +565,68 @@ class PaymentsViewSet(viewsets.ViewSet):
         user.save()
 
         return Response(status=status.HTTP_201_CREATED)
+
+    @csrf_exempt
+    @action(detail=False, methods=["post"])
+    def stripe_webhook(self, request):
+        payload = request.body
+        sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
+        event = None
+
+        try:
+            event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        except ValueError as e:
+            # Invalid payload
+            raise e
+        except stripe.error.SignatureVerificationError as e:
+            # Invalid signature
+            raise e
+
+        # Handle Billing
+        if event["type"] == "invoice.created":
+            invoice = event["data"]["object"]
+            if invoice["billing_reason"] == "subscription_cycle":
+                user = User.objects.get(customer_id=invoice["customer"])
+                new_billing = Billing.objects.create(
+                    user=user,
+                    control_id=invoice["id"],
+                    total_amount=invoice["total"],
+                    subtotal=invoice["subtotal"],
+                    amount_paid=invoice["amount_paid"],
+                    amount_remaining=invoice["amount_due"],
+                    next_billing_date=invoice["next_payment_attempt"],
+                    legal_entity=invoice["account_name"],
+                    description=invoice["data"]["description"],
+                )
+                new_billing.save()
+                invoice_pay = stripe.Invoice.pay(invoice["id"])
+                if invoice_pay:
+                    new_billing.update_billing_info(
+                        self,
+                        invoice["shipping_details"],
+                        invoice["invoice_pdf"],
+                        invoice["status"],
+                    )
+                    if invoice_pay["status"] == "paid":
+                        Notification.objects.create(
+                            user=user,
+                            type="billing",
+                            icon="fas fa-check",
+                            message=_('El pago de su suscripción ha sido completado')
+                        )
+                    else:
+                        Notification.objects.create(
+                            user=user,
+                            type="billing",
+                            icon="fas fa-times",
+                            message=_('Hubo un inconveniente para procesar su pago')
+                        )
+
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_200_OK)
+        
+        else:
+            print("Unhandled event type {}".format(event["type"]))
+
+        return Response(status=status.HTTP_200_OK)

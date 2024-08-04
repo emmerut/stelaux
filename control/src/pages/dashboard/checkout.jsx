@@ -1,20 +1,19 @@
 import React, { useState, useContext, useEffect } from "react";
-import { AuthContext } from '@/App';
 import Checkout from "@/components/payments/Checkout";
 import ParticleBackground from "@/components/ui/ParticleBackground";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { retrievePurchase, getPaymentMethods } from "@/constant/apiData";
+import UseAuth from "@/components/auth/UseAuth";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  const { userData, isAuthenticated } = useContext(AuthContext);
+  const { userData } = UseAuth();
   const [purchaseData, setPurchaseData] = useState(null); 
   
   useEffect(() => {
     const fetchData = async () => {
-      if (!isAuthenticated) {
-        navigate("/auth/login");
+      if (!userData) {
         return;
       } 
       try {

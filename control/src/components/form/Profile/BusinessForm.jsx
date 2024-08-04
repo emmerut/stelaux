@@ -3,7 +3,7 @@ import { Formik, Form, FieldArray } from 'formik';
 import axios from 'axios';
 import FixedBar from '@/components/ui/ProgressBar/FixedBarAlert'
 import { Input, FileInput, TextArea, SelectInput } from '@/components/form/Form';
-import { productData } from "@/constant/sessionData";
+import { productData } from "@/constant/apiData";
 import Buttons from '@/components/ui/Button';
 
 const MyForm = ({ objID, closeModal }) => {

@@ -45,6 +45,30 @@ class UserViewSet(viewsets.ModelViewSet):
         )
 
         return verification
+    
+    def send_email(
+        self,
+        account_sid,
+        auth_token,
+        service_sid,
+        channel,
+        recipient,
+        channel_configuration,
+    ):
+
+        # Inicializar cliente de Twilio
+        client = Client(account_sid, auth_token)
+        # Construir los argumentos dinámicamente
+        verification_args = {"to": recipient, "channel": channel}
+        if channel_configuration:
+            verification_args["channel_configuration"] = channel_configuration
+
+        # Enviar el código de verificación
+        verification = client.verify.v2.services(service_sid).verifications.create(
+            **verification_args
+        )
+
+        return verification
 
     @action(detail=False, methods=["get"])
     def user_all_data(self, request):

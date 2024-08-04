@@ -5,7 +5,7 @@ import FixedBar from '@/components/ui/ProgressBar/FixedBarAlert'
 
 // Asumiendo que tienes estos componentes definidos
 import { FileInput, DecimalInput, SelectInput, NumberInput } from '@/components/form/Form';
-import { productData } from "@/constant/sessionData";
+import { productData } from "@/constant/apiData";
 import Buttons from '@/components/ui/Button';
 
 const MyForm = ({ objID, refreshData, closeModal }) => {

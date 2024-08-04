@@ -18,19 +18,15 @@ import { ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
 import Loading from "@/components/Loading";
 import { motion, AnimatePresence } from "framer-motion";
+import UseAuth from "@/components/auth/UseAuth";
 
 const Layout = () => {
   const { width, breakpoints } = useWidth();
   const [collapsed] = useSidebar();
   const navigate = useNavigate();
-  const { isAuthenticated, userData, isActivePlan } = useContext(AuthContext);
+  const { isActivePlan } = useContext(AuthContext);
+  const {isAuthenticated, userData} = UseAuth();
   
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/auth/login");
-    }
-  }, [isAuthenticated, navigate]);
-
   useEffect(() => {
     if (!userData) {
       return;
