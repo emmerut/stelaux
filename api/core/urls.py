@@ -29,6 +29,4 @@ urlpatterns = [
     path('v1/payments/', include('payments.urls')),
     path('v1/geolocation/', include('geolocation.urls')),
     path('v1/docs', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-
-
 ]

@@ -76,7 +76,7 @@ MIDDLEWARE = [
 
 #cors auth
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173'
+    'http://stela.localhost:5173'
 ]
 
 ROOT_URLCONF = 'core.urls'
