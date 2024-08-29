@@ -2,7 +2,7 @@ from django.db import models
 
 class SimpleContent(models.Model):
     """Almacena formulario simple."""
-    section = models.CharField(max_length=255)
+    section = models.CharField(max_length=255, blank=True, null=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     content = models.TextField(blank=True, null=True)
@@ -16,7 +16,7 @@ class SimpleContent(models.Model):
 
 class DynamicField(models.Model):
     """Almacena campos dinámicos formsets."""
-    parent = models.ForeignKey(SimpleContent, on_delete=models.CASCADE, blank=True, null=True, related_name='fields')
+    parent = models.ForeignKey(SimpleContent, on_delete=models.CASCADE, related_name='fields', blank=True, null=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
     content = models.TextField(blank=True, null=True)
@@ -31,5 +31,5 @@ class DynamicField(models.Model):
     # ... otros tipos de campos según sea necesario (booleano, archivo, etc.)
 
     def __str__(self):
-        return f"{self.parent.section}: {self.get_value()}"
+        return f"{self.parent.section}: {self.parent}"
 

@@ -2,74 +2,78 @@ from rest_framework import serializers
 from .models import SimpleContent, DynamicField
 
 class DynamicFieldSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(required=False, write_only=True)  
-    value = serializers.CharField(allow_blank=True, required=False, write_only=True)  
-    file_image = serializers.ImageField(required=False, allow_null=True, write_only=True)
-    file_doc = serializers.FileField(required=False, allow_null=True, write_only=True)
-
+    
     class Meta:
         model = DynamicField
-        fields = ['id', 'parent', 'title', 'subtitle', 'content', 'options', 'number', 'decimal', 'urlfield', 'file_image', 'file_doc', 'name', 'value']
+        fields = '__all__'
+        extra_kwargs = {
+            'parent': {'required': False},
+            'file_image': {'required': False},
+            'file_doc': {'required': False},
+        }
 
-    def create(self, validated_data):
-        # Obtener el nombre del campo dinámico del diccionario de datos validados
-        field_name = validated_data.pop('name', None)
+    def to_internal_value(self, data):
+        # Manejar el caso especial de 'file_image' cuando es una cadena
+        file_image = data.get('file_image')
+        if file_image and isinstance(file_image, str):
+            if file_image.startswith('C:\\fakepath\\'):
+                data.pop('file_image')
+        return super().to_internal_value(data)
 
-        # Obtener el valor del campo dinámico basado en el tipo de campo
-        field_value = validated_data.pop('value', None)
-
-        # Crear la instancia del campo dinámico con los datos validados
-        instance = super().create(validated_data)
-
-        # Asignar el valor al campo correspondiente en el modelo
-        if field_name:
-            setattr(instance, field_name, field_value)
-
-        # Guardar la instancia del campo dinámico
-        instance.save()
-        return instance
-
-class DynamicFormEntrySerializer(serializers.ModelSerializer):
-    fields = DynamicFieldSerializer(many=True)
-    file_image = serializers.ImageField(required=False, allow_null=True, write_only=True)
-    file_doc = serializers.FileField(required=False, allow_null=True, write_only=True)
-
+class SimpleContentSerializer(serializers.ModelSerializer):
+    fields = DynamicFieldSerializer(many=True, required=False)
+    
     class Meta:
         model = SimpleContent
-        fields = ['id', 'created_at', 'fields', 'section', 'title', 'subtitle', 'content', 'options', 'number',
-                  'decimal', 'urlfield', 'file_image', 'file_doc']
+        fields = '__all__'
+        extra_kwargs = {
+            'file_image': {'required': False},
+            'file_doc': {'required': False},
+        }
+
+    def to_internal_value(self, data):
+        # Manejar el caso especial de 'file_image' cuando es una cadena
+        file_image = data.get('file_image')
+        if file_image and isinstance(file_image, str):
+            if file_image.startswith('C:\\fakepath\\'):
+                data.pop('file_image')
+        return super().to_internal_value(data)
 
     def create(self, validated_data):
-        # Extraer campos dinámicos y archivos
-        fields_data = validated_data.pop('fields')
-        file_image = validated_data.pop('file_image', None)
-        file_doc = validated_data.pop('file_doc', None)
-
-        # Crear la entrada del formulario
-        form_entry = SimpleContent.objects.create(**validated_data)
-
-        # Guardar archivos de SimpleContent
-        if file_image:
-            form_entry.file_image = file_image
-        if file_doc:
-            form_entry.file_doc = file_doc
-        form_entry.save()
-
-        # Crear campos dinámicos
+        fields_data = validated_data.pop('fields', [])
+        simple_content = SimpleContent.objects.create(**validated_data)
         for field_data in fields_data:
-            # Obtener archivos de campos anidados
-            file_image = field_data.pop('file_image', None)
-            file_doc = field_data.pop('file_doc', None)
+            DynamicField.objects.create(parent=simple_content, **field_data)
+        return simple_content
 
-            # Crear campo dinámico
-            dynamic_field = DynamicField.objects.create(parent=form_entry, **field_data)
+    def update(self, instance, validated_data):
+        fields_data = validated_data.pop('fields', [])
+        
+        # Actualizar los campos de SimpleContent
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
 
-            # Guardar archivos del campo dinámico
-            if file_image:
-                dynamic_field.file_image = file_image
-            if file_doc:
-                dynamic_field.file_doc = file_doc
-            dynamic_field.save()
+        # Actualizar o crear DynamicFields
+        existing_ids = set(instance.fields.values_list('id', flat=True))
+        for field_data in fields_data:
+            field_id = field_data.get('id')
+            if field_id:
+                if field_id in existing_ids:
+                    # Actualizar campo existente
+                    field = instance.fields.get(id=field_id)
+                    for attr, value in field_data.items():
+                        setattr(field, attr, value)
+                    field.save()
+                    existing_ids.remove(field_id)
+                else:
+                    # Crear nuevo campo con ID específico
+                    DynamicField.objects.create(parent=instance, **field_data)
+            else:
+                # Crear nuevo campo sin ID
+                DynamicField.objects.create(parent=instance, **field_data)
 
-        return form_entry
+        # Eliminar campos que ya no están en la lista
+        instance.fields.filter(id__in=existing_ids).delete()
 
+        return instance

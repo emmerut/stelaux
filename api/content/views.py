@@ -1,80 +1,131 @@
 import re
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework import status
-from .models import SimpleContent
-from .serializers import DynamicFormEntrySerializer
 from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
+from .models import SimpleContent, DynamicField
+from .serializers import SimpleContentSerializer, DynamicFieldSerializer
 
 class ContentViewSet(viewsets.ModelViewSet):
     """
-    Vista para manejar entradas de formularios dinámicos.
+    ViewSet para manejar operaciones CRUD en SimpleContent.
     """
     queryset = SimpleContent.objects.all()
-    serializer_class = DynamicFormEntrySerializer
+    serializer_class = SimpleContentSerializer
 
     def _prepare_data(self, data):
-        processed_data = {'fields': [], 'section': data.get('formData[section]') }
+        processed_data = {'fields': [], 'section': data.get('formData[section]', '')}
+        
         for key, value in data.items():
-            if key.startswith('formData[') and key.endswith(']') and '][' not in key:
-                # Campos del formulario principal
-                field_name = key[9:-1]
-                processed_data[field_name] = value
-                
-            elif key.startswith('formData[') and '[file]' not in key and '][' in key and key[8] != ']': 
-                # Campos de items anidados
-                _, index, field_name = key[8:].replace(']', '').split('[', 2)
-                index = int(index)
-                while len(processed_data['fields']) <= index:
-                    processed_data['fields'].append({})
-                processed_data['fields'][index][field_name] = value
-            
-            elif re.match(r'formData\[file]\[([^\]]+)\]$', key): 
-                field_name = key[15:-1]
-                if field_name == 'image':  
-                    processed_data['file_image'] = value
-                elif field_name == 'doc':  
-                    processed_data['file_doc'] = value
-
-            elif re.match(r'formData\[file]\[(\d+)\]\[([^\]]+)\]$', key): 
-                # Campos de items anidados
-                match = re.match(r'formData\[file]\[(\d+)\]\[([^\]]+)\]$', key)
-                index = int(match.group(1))
-                field_name = match.group(2)
-                if field_name == 'image':
-                    processed_data['fields'][index]['file_image'] = value
-                elif field_name == 'doc':
-                    processed_data['fields'][index]['file_doc'] = value
+            if key.startswith('formData['):
+                if '][' not in key:
+                    # Campos del formulario principal
+                    field_name = key[9:-1]
+                    processed_data[field_name] = value
+                elif '[file]' not in key:
+                    # Campos de items anidados
+                    _, index, field_name = key[8:].replace(']', '').split('[', 2)
+                    index = int(index)
+                    while len(processed_data['fields']) <= index:
+                        processed_data['fields'].append({})
+                    processed_data['fields'][index][field_name] = value
+                elif '[file]' in key:
+                    match = re.match(r'formData\[file]\[(\d*)\]?\[([^\]]+)\]$', key)
+                    if match:
+                        index = int(match.group(1)) if match.group(1) else None
+                        field_name = match.group(2)
+                        if index is None:
+                            processed_data[f'file_{field_name}'] = value
+                        else:
+                            processed_data['fields'][index][f'file_{field_name}'] = value
+        
         return processed_data
 
     @action(detail=False, methods=["post"])
-    def create_content(self, request):
-        """Crea una nueva entrada de formulario dinámico."""
-        # Prepara los datos del formulario
+    def create_or_update(self, request):
+        """Crea o actualiza una entrada de formulario dinámico."""
         data = self._prepare_data(request.data)
-        # Crea la entrada de formulario dinámico
-        serializer = self.get_serializer(data=data)
+    
+        instance_id = data.get('id')
+        if instance_id:
+            # Actualizar instancia existente
+            try:
+                instance = SimpleContent.objects.get(id=instance_id)
+                serializer = self.get_serializer(instance, data=data, partial=True)
+            except SimpleContent.DoesNotExist:
+                return Response({"error": "Instancia no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # Crear nueva instancia
+            serializer = self.get_serializer(data=data)
+
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK if instance_id else status.HTTP_201_CREATED)
         else:
             print(serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def _handle_dynamic_fields(self, fields_data):
+        print("Solo formulario Dynamico")
+        """Maneja la creación o actualización de múltiples DynamicFields."""
+        """ updated_fields = []
+        for field_data in fields_data:
+            field_id = field_data.get('id')
+            if field_id:
+                # Actualizar DynamicField existente
+                try:
+                    instance = DynamicField.objects.get(id=field_id)
+                    serializer = DynamicFieldSerializer(instance, data=field_data, partial=True)
+                except DynamicField.DoesNotExist:
+                    return Response({"error": f"DynamicField con ID {field_id} no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                # Crear nuevo DynamicField
+                serializer = DynamicFieldSerializer(data=field_data)
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            if serializer.is_valid():
+                serializer.save()
+                updated_fields.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(updated_fields, status=status.HTTP_200_OK) """
+    
+    def _handle_simple_content(self, data):
+        print("Solo formulario Simple")
+        """Maneja la creación o actualización de SimpleContent sin DynamicFields."""
+        """ instance_id = data.get('id')
+        if instance_id:
+            # Actualizar SimpleContent existente
+            try:
+                instance = SimpleContent.objects.get(id=instance_id)
+                serializer = SimpleContentSerializer(instance, data=data, partial=True)
+            except SimpleContent.DoesNotExist:
+                return Response({"error": "Instancia no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # Crear nuevo SimpleContent
+            serializer = SimpleContentSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK if instance_id else status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) """
 
     @action(detail=False, methods=["get"])
-    def get_content(self):
+    def get_content(self, request):
         """Obtiene todas las entradas de formularios dinámicos."""
         entries = SimpleContent.objects.all()
         serializer = self.get_serializer(entries, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["delete"])
-    def delete(self, pk=None):
+    def retrieve(self, request, *args, **kwargs):
+        """Obtiene una entrada de formulario dinámico específica."""
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
         """Elimina una entrada de formulario dinámico específica."""
-        try:
-            entry = SimpleContent.objects.get(pk=pk)
-        except SimpleContent.DoesNotExist:
-            return Response({'detail': 'Entrada no encontrada.'}, status=status.HTTP_404_NOT_FOUND)
-        entry.delete()
+        instance = self.get_object()
+        self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
