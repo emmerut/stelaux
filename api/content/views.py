@@ -65,52 +65,6 @@ class ContentViewSet(viewsets.ModelViewSet):
             print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def _handle_dynamic_fields(self, fields_data):
-        print("Solo formulario Dynamico")
-        """Maneja la creación o actualización de múltiples DynamicFields."""
-        """ updated_fields = []
-        for field_data in fields_data:
-            field_id = field_data.get('id')
-            if field_id:
-                # Actualizar DynamicField existente
-                try:
-                    instance = DynamicField.objects.get(id=field_id)
-                    serializer = DynamicFieldSerializer(instance, data=field_data, partial=True)
-                except DynamicField.DoesNotExist:
-                    return Response({"error": f"DynamicField con ID {field_id} no encontrado."}, status=status.HTTP_404_NOT_FOUND)
-            else:
-                # Crear nuevo DynamicField
-                serializer = DynamicFieldSerializer(data=field_data)
-
-            if serializer.is_valid():
-                serializer.save()
-                updated_fields.append(serializer.data)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(updated_fields, status=status.HTTP_200_OK) """
-    
-    def _handle_simple_content(self, data):
-        print("Solo formulario Simple")
-        """Maneja la creación o actualización de SimpleContent sin DynamicFields."""
-        """ instance_id = data.get('id')
-        if instance_id:
-            # Actualizar SimpleContent existente
-            try:
-                instance = SimpleContent.objects.get(id=instance_id)
-                serializer = SimpleContentSerializer(instance, data=data, partial=True)
-            except SimpleContent.DoesNotExist:
-                return Response({"error": "Instancia no encontrada."}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            # Crear nuevo SimpleContent
-            serializer = SimpleContentSerializer(data=data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK if instance_id else status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) """
-
     @action(detail=False, methods=["get"])
     def get_content(self, request):
         """Obtiene todas las entradas de formularios dinámicos."""
