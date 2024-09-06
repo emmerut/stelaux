@@ -45,31 +45,45 @@ class ContentViewSet(viewsets.ModelViewSet):
     def create_or_update(self, request):
         """Crea o actualiza una entrada de formulario dinámico."""
         data = self._prepare_data(request.data)
-    
-        instance_id = data.get('id')
-        if instance_id:
-            # Actualizar instancia existente
+        parent_data = {key: value for key, value in data.items() if key != 'fields'}
+
+        if parent_data:
+            instance_id = parent_data.get('id')
             try:
-                instance = SimpleContent.objects.get(id=instance_id)
-                serializer = self.get_serializer(instance, data=data, partial=True)
+                instance = SimpleContent.objects.get(id=instance_id) if instance_id else None
+                serializer = SimpleContentSerializer(instance, data=parent_data, partial=True)
             except SimpleContent.DoesNotExist:
                 return Response({"error": "Instancia no encontrada."}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            # Crear nueva instancia
-            serializer = self.get_serializer(data=data)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK if instance_id else status.HTTP_201_CREATED)
-        else:
-            print(serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+            if serializer.is_valid():
+                parent_instance = serializer.save()
+                status_code = status.HTTP_200_OK if instance_id else status.HTTP_201_CREATED
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if data['fields']:
+            for field in data['fields']:
+                field['parent'] = parent_instance.id  # Asignar el ID del padre
+                field_id = field.get('id')
+                try:
+                    instance = DynamicField.objects.get(id=field_id) if field_id else None
+                    serializer = DynamicFieldSerializer(instance, data=field, partial=True)
+                except DynamicField.DoesNotExist:
+                    return Response({"error": "Instancia no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+                if serializer.is_valid():
+                    serializer.save()
+                    status_code = status.HTTP_200_OK if field_id else status.HTTP_201_CREATED
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(status=status_code)
+
     @action(detail=False, methods=["get"])
     def get_content(self, request):
         """Obtiene todas las entradas de formularios dinámicos."""
         entries = SimpleContent.objects.all()
-        serializer = self.get_serializer(entries, many=True)
+        serializer = SimpleContentSerializer(entries, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
@@ -83,3 +97,4 @@ class ContentViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
