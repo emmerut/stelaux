@@ -6,31 +6,10 @@ export const menuItems = [
     title: "Website Control",
   },
   {
-    title: "Dominios",
+    title: "Portal Web",
     isHide: true,
-    icon: "clarity:world-solid-badged",
-    link: "domains",
-  },
-  {
-    title: "Templates",
-    isHide: true,
-    icon: "ic:outline-web",
-    link: "templates",
-  },
-  {
-    title: "Web Editor",
-    icon: "streamline:magic-wand-2-solid",
-    link: "#",
-    child: [
-      {
-        childtitle: "Página Principal",
-        childlink: "projects",
-      },
-      {
-        childtitle: "Documentación",
-        childlink: "projects",
-      },
-    ],
+    icon: "game-icons:oily-spiral",
+    link: "portals",
   },
   {
     title: "Inventario",

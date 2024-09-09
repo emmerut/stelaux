@@ -75,7 +75,7 @@ class BusinessData(models.Model):
 
     def __str__(self):
         return self.business_name
-    
+
 # Example of creating a notification:
 # user = CustomUser.objects.get(pk=1)  # Replace with the user you want to notify
 # notification = Notification.objects.create(user=user, message="New message received!")

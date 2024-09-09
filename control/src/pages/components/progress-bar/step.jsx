@@ -14,6 +14,12 @@ const Step = () => {
     {
       id: 3,
     },
+    {
+      id: 4,
+    },
+    {
+      id: 5,
+    },
   ];
   const handleNext = () => {
     if (stepNumber < steps.length - 1) {

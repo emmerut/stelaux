@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from rest_framework.response import Response
 from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.decorators import action
 from .serializers import (
@@ -72,6 +73,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def user_all_data(self, request):
+        user_token = request.META.get("HTTP_AUTHORIZATION")
+        user = get_user_from_token(user_token)
+
+        data = UserSerializer(user).data
+        return Response(data)
+
+    @action(detail=False, methods=["get"])
+    def user_all_portals(self, request):
         user_token = request.META.get("HTTP_AUTHORIZATION")
         user = get_user_from_token(user_token)
 

@@ -28,6 +28,8 @@ const Profile = lazy(() => import("./pages/utility/profile"));
 const PaymentsPage = lazy(() => import("./pages/utility/payments"));
 const Plans = lazy(() => import("./pages/dashboard/plans"));
 const Checkout = lazy(() => import("./pages/dashboard/checkout"));
+const PortalPage = lazy(() => import("./pages/dashboard/portals"));
+const PortalConfigure = lazy(() => import("./pages/subsections/portal/PortalConfigure"));
 
 import Layout from "./layout/Layout";
 
@@ -39,6 +41,9 @@ const sectionTitles = {
   orders: "ordenes",
   users: "central de usuarios",
   payments: "configuración de pagos",
+  domains: "gestión de dominios",
+  portals: "administrador de portales",
+  portalSubtitle: "En esta sección puedes desarrollar tu sitio web en pocos segundos"
 };
 
 export const AuthContext = createContext();
@@ -131,6 +136,8 @@ function App() {
 
           <Route path="/*" element={<Layout />}>
             <Route path="console" element={<Ecommerce />} />
+            <Route path="portals" element={<PortalPage mainTitle={sectionTitles.portals} subtitle={sectionTitles.portalSubtitle} buttonSet={'portalButtons'} />} />
+            <Route path="portals/configure" element={<PortalConfigure />} />
             <Route path="products" element={<InventoryPage mainTitle={sectionTitles.products} buttonSet={'productButtons'} tableType={'products'} />} />
             <Route path="services" element={<InventoryPage mainTitle={sectionTitles.services} buttonSet={'serviceButtons'} tableType={'services'} />} />
             <Route path="finance" element={<BankingPage mainTitle={sectionTitles.billing} buttonSet={'billingButton'} />} />

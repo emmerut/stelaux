@@ -1,7 +1,9 @@
 import re
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+from functions import get_user_from_token
 from django.shortcuts import get_object_or_404
 from .models import SimpleContent, DynamicField
 from .serializers import SimpleContentSerializer, DynamicFieldSerializer
@@ -13,8 +15,8 @@ class ContentViewSet(viewsets.ModelViewSet):
     queryset = SimpleContent.objects.all()
     serializer_class = SimpleContentSerializer
 
-    def _prepare_data(self, data):
-        processed_data = {'fields': [], 'section': data.get('formData[section]', '')}
+    def _prepare_data(self, data, user):
+        processed_data = {'fields': [], 'section': data.get('formData[section]', ''), 'user_id': user.id}
         
         for key, value in data.items():
             if key.startswith('formData['):
@@ -41,10 +43,19 @@ class ContentViewSet(viewsets.ModelViewSet):
         
         return processed_data
 
+    @action(detail=False, methods=["get"])
+    def get_content(self, request):
+        """Obtiene todas las entradas de formularios dinámicos."""
+        entries = SimpleContent.objects.all()
+        serializer = SimpleContentSerializer(entries, many=True)
+        return Response(serializer.data)
+
     @action(detail=False, methods=["post"])
     def create_or_update(self, request):
         """Crea o actualiza una entrada de formulario dinámico."""
-        data = self._prepare_data(request.data)
+        user_token = request.META.get("HTTP_AUTHORIZATION")
+        user = get_user_from_token(user_token)
+        data = self._prepare_data(request.data, user)
         parent_data = {key: value for key, value in data.items() if key != 'fields'}
 
         if parent_data:
@@ -79,22 +90,8 @@ class ContentViewSet(viewsets.ModelViewSet):
 
         return Response(status=status_code)
 
-    @action(detail=False, methods=["get"])
-    def get_content(self, request):
-        """Obtiene todas las entradas de formularios dinámicos."""
-        entries = SimpleContent.objects.all()
-        serializer = SimpleContentSerializer(entries, many=True)
-        return Response(serializer.data)
-
-    def retrieve(self, request, *args, **kwargs):
-        """Obtiene una entrada de formulario dinámico específica."""
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
-
-    def destroy(self, request, *args, **kwargs):
-        """Elimina una entrada de formulario dinámico específica."""
-        instance = self.get_object()
-        self.perform_destroy(instance)
+    @action(detail=False, methods=["delete"])
+    def delete_content(self, request):
+        print(request.data)
         return Response(status=status.HTTP_204_NO_CONTENT)
 

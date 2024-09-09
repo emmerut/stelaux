@@ -2,6 +2,7 @@ from django.db import models
 
 class SimpleContent(models.Model):
     """Almacena formulario simple."""
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='user_content')
     section = models.CharField(max_length=255, blank=True, null=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
