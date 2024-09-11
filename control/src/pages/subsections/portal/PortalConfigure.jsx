@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Step from '@/components/ui/Steps';
 import Button from "@/components/ui/Button";
 import Domains from "@/pages/subsections/portal/Domains"
+import PortalForm from "@/pages/subsections/portal/PortalForm"
 
 const PortalConfigurePage = () => {
   const [currentStep, setCurrentStep] = useState(0);
+  const [formErrors, setFormErrors] = useState(null);
+  const [signalNext, setSignalNext] = useState(false);
+
+  const handleFormErrors = (errors) => {
+    setFormErrors(errors);
+  };
+
+  const portalFormRef = useRef(null);
 
   const steps = [
     { id: 1, name: 'Paso 1' },
@@ -15,8 +24,19 @@ const PortalConfigurePage = () => {
   ];
 
   const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+    if (currentStep === 1) {
+      const dynamicForm = portalFormRef.current;
+      dynamicForm.submitForm();
+      // Verificar si hay errores DESPUÉS de enviar el formulario
+      if (dynamicForm.dirty) {
+        if (dynamicForm.isValid) {
+          setCurrentStep(currentStep + 1);
+        }
+      }
+    } else {
+      if (currentStep < steps.length - 1) {
+        setCurrentStep(currentStep + 1);
+      }
     }
   };
 
@@ -38,7 +58,13 @@ const PortalConfigurePage = () => {
       case 1:
         return (
           <>
-            <p>¡Genial! Ahora establece la identidad que le dará forma.</p>
+            <p className='mt-7 mb-0 mx-4'>¡Genial! Ahora establece la identidad que le dará forma.</p>
+            <div className="p-5">
+              <PortalForm
+                onFormErrors={handleFormErrors}
+                ref={portalFormRef}
+              />
+            </div>
           </>
         );
       case 2:
@@ -79,13 +105,14 @@ const PortalConfigurePage = () => {
         />
         {/* Botón condicional */}
         {currentStep === steps.length - 1 ? (
+          // Último paso: Mostrar botón "Desplegar"
           <Button
-            text="Desplegar" // Texto "Finalizar"
+            text="Desplegar"
             className='text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md'
-            // Puedes agregar una acción al hacer clic en "Finalizar"
-            onClick={() => console.log('¡Proceso finalizado!')} 
+            onClick={() => console.log('¡Proceso finalizado!')}
           />
         ) : (
+          // Otros pasos: Mostrar botón "Siguiente" normal
           <Button
             text="Siguiente"
             className='text-oxanium bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md'

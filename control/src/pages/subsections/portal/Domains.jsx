@@ -25,7 +25,7 @@ export default function DomainsPage({ mainTitle }) {
 
     return (
         <div className="container mx-auto p-4 space-y-6">
-            <p>¡Hola! Vamos a crearle un nombre a tu sitio.</p>
+            <p>¡Ok! Vamos a crearle un nombre a tu sitio.</p>
             <Card title="Registra tu Dominio" noborder>
                 <div className="flex gap-2">
                 <input

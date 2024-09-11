@@ -418,4 +418,31 @@ export const deletePaymentMethod = async (pay_id) => {
   }
 };
 
+export const deleteContent = async (object_id) => {
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/v1/stela-editor/delete_content/`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRF('csrftoken'),
+        },
+        body: JSON.stringify({
+          token: getCookie('user_token'),
+          object_id,
+        }),
+      }
+    );
 
+    if (!response.ok) {
+      throw new Error('Error:', response.status);
+    }
+
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.error('Error during checkout:', error);
+  }
+};

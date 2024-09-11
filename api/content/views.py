@@ -16,7 +16,7 @@ class ContentViewSet(viewsets.ModelViewSet):
     serializer_class = SimpleContentSerializer
 
     def _prepare_data(self, data, user):
-        processed_data = {'fields': [], 'section': data.get('formData[section]', ''), 'user_id': user.id}
+        processed_data = {'fields': [], 'section': data.get('formData[section]', ''), 'user': user.id}
         
         for key, value in data.items():
             if key.startswith('formData['):
@@ -32,14 +32,17 @@ class ContentViewSet(viewsets.ModelViewSet):
                         processed_data['fields'].append({})
                     processed_data['fields'][index][field_name] = value
                 elif '[file]' in key:
-                    match = re.match(r'formData\[file]\[(\d*)\]?\[([^\]]+)\]$', key)
-                    if match:
+                    index = re.search(r'\[(\d+)\]', key)
+                    if index:
+                        match = re.search(r'\[(\d+)\]\[([^\]]+)\]$', key)
                         index = int(match.group(1)) if match.group(1) else None
                         field_name = match.group(2)
-                        if index is None:
-                            processed_data[f'file_{field_name}'] = value
-                        else:
-                            processed_data['fields'][index][f'file_{field_name}'] = value
+                        processed_data['fields'][index][f'file_{field_name}'] = value
+                    else:
+                        match = re.search(r'\[file]\[(.*)\]', key)
+                        field_name = match.group(1)
+                        processed_data[f'file_{field_name}'] = value
+                        
         
         return processed_data
 
@@ -70,6 +73,7 @@ class ContentViewSet(viewsets.ModelViewSet):
                 parent_instance = serializer.save()
                 status_code = status.HTTP_200_OK if instance_id else status.HTTP_201_CREATED
             else:
+                print(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         if data['fields']:
@@ -86,6 +90,7 @@ class ContentViewSet(viewsets.ModelViewSet):
                     serializer.save()
                     status_code = status.HTTP_200_OK if field_id else status.HTTP_201_CREATED
                 else:
+                    print(serializer.errors)
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(status=status_code)
