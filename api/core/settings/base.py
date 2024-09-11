@@ -61,7 +61,8 @@ INSTALLED_APPS = [
     'marketing',
     'stelai',
     'cities_light',
-    'payments'
+    'payments',
+    'portals',
 ]
 
 MIDDLEWARE = [

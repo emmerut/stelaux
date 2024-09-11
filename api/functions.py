@@ -1,4 +1,4 @@
-import jwt
+import jwt, re
 from django.conf import settings
 from rest_framework.exceptions import AuthenticationFailed
 from django.db.models import Q
@@ -31,6 +31,37 @@ def get_user_from_token(token):
         return Response({'error': 'Token inválido'}, status=status.HTTP_401_UNAUTHORIZED)
     except AuthenticationFailed as e:
         return Response({'error': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+
+def prepare_data(self, data, user):
+        processed_data = {'fields': [], 'section': data.get('formData[section]', ''), 'user': user.id}
+        
+        for key, value in data.items():
+            if key.startswith('formData['):
+                if '][' not in key:
+                    # Campos del formulario principal
+                    field_name = key[9:-1]
+                    processed_data[field_name] = value
+                elif '[file]' not in key:
+                    # Campos de items anidados
+                    _, index, field_name = key[8:].replace(']', '').split('[', 2)
+                    index = int(index)
+                    while len(processed_data['fields']) <= index:
+                        processed_data['fields'].append({})
+                    processed_data['fields'][index][field_name] = value
+                elif '[file]' in key:
+                    index = re.search(r'\[(\d+)\]', key)
+                    if index:
+                        match = re.search(r'\[(\d+)\]\[([^\]]+)\]$', key)
+                        index = int(match.group(1)) if match.group(1) else None
+                        field_name = match.group(2)
+                        processed_data['fields'][index][f'file_{field_name}'] = value
+                    else:
+                        match = re.search(r'\[file]\[(.*)\]', key)
+                        field_name = match.group(1)
+                        processed_data[f'file_{field_name}'] = value
+                        
+        
+        return processed_data
 
 from datetime import datetime
 

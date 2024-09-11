@@ -1,9 +1,9 @@
-import re
+
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from functions import get_user_from_token
+from functions import get_user_from_token, prepare_data
 from django.shortcuts import get_object_or_404
 from .models import SimpleContent, DynamicField
 from .serializers import SimpleContentSerializer, DynamicFieldSerializer
@@ -14,37 +14,6 @@ class ContentViewSet(viewsets.ModelViewSet):
     """
     queryset = SimpleContent.objects.all()
     serializer_class = SimpleContentSerializer
-
-    def _prepare_data(self, data, user):
-        processed_data = {'fields': [], 'section': data.get('formData[section]', ''), 'user': user.id}
-        
-        for key, value in data.items():
-            if key.startswith('formData['):
-                if '][' not in key:
-                    # Campos del formulario principal
-                    field_name = key[9:-1]
-                    processed_data[field_name] = value
-                elif '[file]' not in key:
-                    # Campos de items anidados
-                    _, index, field_name = key[8:].replace(']', '').split('[', 2)
-                    index = int(index)
-                    while len(processed_data['fields']) <= index:
-                        processed_data['fields'].append({})
-                    processed_data['fields'][index][field_name] = value
-                elif '[file]' in key:
-                    index = re.search(r'\[(\d+)\]', key)
-                    if index:
-                        match = re.search(r'\[(\d+)\]\[([^\]]+)\]$', key)
-                        index = int(match.group(1)) if match.group(1) else None
-                        field_name = match.group(2)
-                        processed_data['fields'][index][f'file_{field_name}'] = value
-                    else:
-                        match = re.search(r'\[file]\[(.*)\]', key)
-                        field_name = match.group(1)
-                        processed_data[f'file_{field_name}'] = value
-                        
-        
-        return processed_data
 
     @action(detail=False, methods=["get"])
     def get_content(self, request):
@@ -58,7 +27,7 @@ class ContentViewSet(viewsets.ModelViewSet):
         """Crea o actualiza una entrada de formulario dinámico."""
         user_token = request.META.get("HTTP_AUTHORIZATION")
         user = get_user_from_token(user_token)
-        data = self._prepare_data(request.data, user)
+        data = prepare_data(request.data, user)
         parent_data = {key: value for key, value in data.items() if key != 'fields'}
 
         if parent_data:
