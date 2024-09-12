@@ -32,7 +32,7 @@ def get_user_from_token(token):
     except AuthenticationFailed as e:
         return Response({'error': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
-def prepare_data(self, data, user):
+def prepare_data(data, user):
         processed_data = {'fields': [], 'section': data.get('formData[section]', ''), 'user': user.id}
         
         for key, value in data.items():

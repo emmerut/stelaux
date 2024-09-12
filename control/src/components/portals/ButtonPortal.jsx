@@ -6,7 +6,7 @@ function PortalButtons() {
   const navigate = useNavigate();
 
   const redirect = () => {
-    navigate('/portals/configure');
+    navigate('/portals/new');
   };
 
   return (

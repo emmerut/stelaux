@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Formik, Form, FieldArray } from 'formik';
 import getInitialValues from '@/components/form/DynamicForm/InitialValues';
 import Modal from "@/components/ui/NotifyModal"
-
+import TextArea from "@/components/ui/RichTextEditor"
 // Asumiendo que tienes estos componentes definidos
 import FixedBar from '@/components/ui/ProgressBar/FixedBarAlert';
 import { getCookie } from '@/constant/sessions'
@@ -12,16 +12,15 @@ import { getCookie } from '@/constant/sessions'
 // Asumiendo que tienes estos componentes definidos
 import {
   Input,
-  FileInput,
   SelectInput,
-  TextArea,
   DecimalInput,
   Checkbox,
   CheckboxInput,
   BirthDateField,
   CountrySelect,
   NumberInput,
-  DatePicker
+  DatePicker,
+  ColorPickerInput
 } from './Fields';
 
 import DropFile from '@/components/form/DynamicForm/DropFile';
@@ -53,7 +52,6 @@ const BaseFormset = forwardRef(({
   const [delObj, setdelObj] = useState(null);
   const [itemName, setItemName] = useState(null);
 
-  
   const handleSubmit = async (values) => {
     setSendingForm(true);
     const formData = new FormData();
@@ -124,9 +122,6 @@ const BaseFormset = forwardRef(({
       if (!response.status >= 200 && response.status < 300) {
         throw new Error(`Error en la solicitud: ${response.status}`);
       }
-      if (successCallback) {
-        successCallback();
-      }
     } catch (error) {
       console.error('Error al enviar el formulario:', error);
     } finally {
@@ -141,11 +136,10 @@ const BaseFormset = forwardRef(({
   };
 
   const validateField = (field, value, selectedFiles, existingFiles, index) => {
-
-    const { name, type, required, maxLength, minLength, min, max } = field;
+    const { name, type, required, maxLength, minLength, min, max, label } = field;
     let error = null;
     if (required && !value) {
-      error = `El campo ${name} es requerido`;
+      error = `El campo ${label} es requerido`;
     } else if (value !== undefined) {
       switch (type) {
         case 'textarea':
@@ -157,25 +151,36 @@ const BaseFormset = forwardRef(({
           break;
 
         case 'file':
-          if (existingFiles && existingFiles[name]) {
-
-            break;
-          }
-
-          if (!value) {
-            error = `El campo ${name} es requerido`;
+          const file_name = `formData[file][${name}]`
+          const file_index = `formData[file][${index}][${name}]`
+          if (existingFiles[file_name] || existingFiles[file_index]) {
+            if (value) {
+              // Validar el nuevo archivo seleccionado
+              const fileSizeMB = value.size / 1024 / 1024; // Tamaño del archivo en MB
+              const allowedExtensions = ['jpeg', 'jpg', 'webp', 'png'];
+              const fileExtension = value.name.split('.').pop().toLowerCase();
+              if (fileSizeMB > 1) {
+                error = 'El archivo no debe exceder 1MB';
+              } else if (!allowedExtensions.includes(fileExtension)) {
+                error = 'El archivo debe ser .jpeg, .jpg, .webp o .png';
+              }
+            }
           } else {
-            // Validar el nuevo archivo seleccionado
-            const fileSizeMB = value.size / 1024 / 1024; // Tamaño del archivo en MB
-            const allowedExtensions = ['jpeg', 'jpg', 'webp', 'png'];
-            const fileExtension = value.name.split('.').pop().toLowerCase();
-
-            if (fileSizeMB > 1) {
-              error = 'El archivo no debe exceder 1MB';
-            } else if (!allowedExtensions.includes(fileExtension)) {
-              error = 'El archivo debe ser .jpeg, .jpg, .webp o .png';
+            if (!value) {
+              error = `El campo ${label} es requerido`;
+            } else {
+              // Validar el nuevo archivo seleccionado
+              const fileSizeMB = value.size / 1024 / 1024; // Tamaño del archivo en MB
+              const allowedExtensions = ['jpeg', 'jpg', 'webp', 'png'];
+              const fileExtension = value.name.split('.').pop().toLowerCase();
+              if (fileSizeMB > 1) {
+                error = 'El archivo no debe exceder 1MB';
+              } else if (!allowedExtensions.includes(fileExtension)) {
+                error = 'El archivo debe ser .jpeg, .jpg, .webp o .png';
+              }
             }
           }
+
           break;
 
         case 'number':
@@ -299,9 +304,10 @@ const BaseFormset = forwardRef(({
                       );
                     case 'textarea':
                       return (
-                        <div key={index}>
+                        <>
                           <TextArea
-                            initialValue={textData?.formData[fieldName] ?? ''}
+                            key={index}
+                            initialValue={textData.formData[name]}
                             name={fieldName}
                             label={label}
                             onEditorChange={(content) => setFieldValue(fieldName, content)}
@@ -312,7 +318,7 @@ const BaseFormset = forwardRef(({
                               {errors[fieldName]}
                             </div>
                           )}
-                        </div>
+                        </>
                       );
                     case 'decimal':
                       return (
@@ -376,6 +382,23 @@ const BaseFormset = forwardRef(({
                           label={label}
                           {...rest}
                         />
+                      );
+                    case 'colorpicker':
+                      return (
+                        <>
+                          <ColorPickerInput
+                            key={index}
+                            label={label}
+                            name={fieldName}
+                            value="#000"
+                            {...rest}
+                          />
+                          {errors[fieldName] && (
+                            <div className="text-red-500 text-xs mt-0">
+                              {errors[fieldName]}
+                            </div>
+                          )}
+                        </>
                       );
                     case 'date':
                       switch (subtype) {
@@ -447,6 +470,22 @@ const BaseFormset = forwardRef(({
                                               </div>
                                             )}
                                           </div>
+                                        );
+                                      case 'colorpicker':
+                                        return (
+                                          <>
+                                            <ColorPickerInput
+                                              key={subFieldIndex}
+                                              label={subField.label}
+                                              name={subFieldName}
+                                              {...rest}
+                                            />
+                                            {errors[subFieldName] && (
+                                              <div className="text-red-500 text-xs mt-1">
+                                                {errors[subFieldName]}
+                                              </div>
+                                            )}
+                                          </>
                                         );
                                       case 'date':
                                         switch (subtype) {

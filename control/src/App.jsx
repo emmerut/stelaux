@@ -137,7 +137,8 @@ function App() {
           <Route path="/*" element={<Layout />}>
             <Route path="console" element={<Ecommerce />} />
             <Route path="portals" element={<PortalPage mainTitle={sectionTitles.portals} subtitle={sectionTitles.portalSubtitle} buttonSet={'portalButtons'} />} />
-            <Route path="portals/configure" element={<PortalConfigure />} />
+            <Route path="portals/new" element={<PortalConfigure />} />
+            <Route path="portals/:portalid" element={<PortalConfigure />} />
             <Route path="products" element={<InventoryPage mainTitle={sectionTitles.products} buttonSet={'productButtons'} tableType={'products'} />} />
             <Route path="services" element={<InventoryPage mainTitle={sectionTitles.services} buttonSet={'serviceButtons'} tableType={'services'} />} />
             <Route path="finance" element={<BankingPage mainTitle={sectionTitles.billing} buttonSet={'billingButton'} />} />

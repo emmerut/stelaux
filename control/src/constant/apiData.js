@@ -1,5 +1,6 @@
 import { getCookie } from '@/constant/sessions'
 import { Navigate } from 'react-router-dom';
+import { apiGetDataReqPortal, apiGetPortal, apiDeletePortalUrl } from '@/constant/apiUrl'
 
 function getCSRF(name) {
   let cookieValue = null;
@@ -138,6 +139,33 @@ export const ordersData = async () => {
   }
 };
 
+export const getPortal = async (portal_id) => {
+  const csrftoken = getCSRF('csrftoken');
+  const userToken = getCookie('user_token');
+
+  try {
+    const url = portal_id ? `${apiGetPortal}?portal_id=${portal_id}` : apiGetPortal;
+    const response = await fetch(url, { // Adjust URL if needed
+      method: 'GET',
+      headers: {
+        'X-CSRFToken': csrftoken,
+        'Authorization': `${userToken}`
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Error fetching service data');
+    }
+
+    const data = await response.json();
+
+    return data; // Return only the service data
+  } catch (error) {
+    console.error("Error fetching service data:", error);
+    return;
+  }
+};
+
 export const getUserData = async () => {
   const csrftoken = getCSRF('csrftoken');
   const userToken = getCookie('user_token');
@@ -162,6 +190,34 @@ export const getUserData = async () => {
     return;
   }
 };
+
+export const getPortalRequirement = async () => {
+  const csrftoken = getCSRF('csrftoken');
+  const userToken = getCookie('user_token');
+
+  try {
+    const response = await fetch(apiGetDataReqPortal, { // Adjust URL if needed
+      method: 'GET',
+      headers: {
+        'X-CSRFToken': csrftoken,
+        'Authorization': `${userToken}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Error fetching service data');
+    }
+
+    const data = await response.json();
+
+    return data; // Return only the service data
+  } catch (error) {
+    return;
+  }
+};
+
+export const getProducts = async () => {
+} 
 
 export const retrievePurchase = async () => {
   const csrftoken = getCSRF('csrftoken');
@@ -431,6 +487,35 @@ export const deleteContent = async (object_id) => {
         body: JSON.stringify({
           token: getCookie('user_token'),
           object_id,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Error:', response.status);
+    }
+
+    const data = await response.json();
+    return data;
+
+  } catch (error) {
+    console.error('Error during checkout:', error);
+  }
+};
+
+export const apiDeletePortal = async (portal_id) => {
+  try {
+    const response = await fetch(
+      apiDeletePortalUrl,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRF('csrftoken'),
+        },
+        body: JSON.stringify({
+          token: getCookie('user_token'),
+          portal_id,
         }),
       }
     );

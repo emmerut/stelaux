@@ -78,3 +78,39 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.format-buttons.h-full button {
+  flex-basis: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  /* Tamaño de botones en pantallas pequeñas */
+  .format-buttons button {
+    padding: 10px;
+    border-radius: 5px;
+  }
+  .format-buttons {
+    height: 45px;
+    overflow-y:hidden
+  }
+  .format-buttons.open {
+    height: auto;
+    overflow-y:auto;
+  }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  /* Tamaño de botones en pantallas medianas */
+  .format-buttons button {
+    padding: 15px;
+    border-radius: 10px;
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  /* Tamaño de botones en pantallas grandes */
+  .format-buttons button {
+    padding: 20px;
+    border-radius: 15px;
+  }
+}

@@ -15,7 +15,7 @@ const getInitialValues = (formFields) => {
             case 'decimal':
                 initialValues.formData[name] = defaultValue || 0;
             case 'email':
-                initialValues.formData[name] = defaultValue || '';     
+                initialValues.formData[name] = defaultValue || '';
             case 'textarea':
                 initialValues.formData[name] = defaultValue || '';
             case 'file':
@@ -25,6 +25,9 @@ const getInitialValues = (formFields) => {
                 initialValues.formData[name] = defaultValue || false;
                 break;
             case 'select':
+                initialValues.formData[name] = defaultValue || '';
+                break;
+            case 'colorpicker':
                 initialValues.formData[name] = defaultValue || '';
                 break;
             case 'fieldarray':

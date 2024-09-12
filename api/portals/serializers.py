@@ -26,7 +26,7 @@ class PortalRequirementsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PortalRequirements
-        fields = ['id', 'project_type', 'branding_logo', 'primary_color', 'alternate_color', 'domain', 'project_voice', 'user']
+        fields = ['id', 'project_type', 'file_image', 'primary_color', 'alternate_color', 'project_voice', 'user']
 
 class DomainRegistrationSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
@@ -39,10 +39,15 @@ class PortalsSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     domain_registration = DomainRegistrationSerializer(read_only=True)
     template_model = TemplateDataSerializer(read_only=True)
+    requirement_data = PortalRequirementsSerializer(read_only=True)
 
     class Meta:
         model = Portals
-        fields = ['id', 'user', 'domain_registration', 'template_model']
+        fields = ['id', 'user', 'domain_registration', 'template_model', 'requirement_data', 'status', 'current_step']
+
+    def get_requirement_data(self, obj):
+        user_id = self.context['used_id']
+        return PortalRequirements.objects.filter(user_id=user_id, id=obj.requirement_data.id).values()
 
 class CreateTemplateDataSerializer(serializers.ModelSerializer):
     class Meta:
@@ -52,7 +57,7 @@ class CreateTemplateDataSerializer(serializers.ModelSerializer):
 class CreatePortalRequirementsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PortalRequirements
-        fields = ['user', 'status', 'project_type', 'branding_logo', 'primary_color', 'alternate_color', 'domain', 'project_voice', 'user']
+        fields = ['user', 'project_type', 'file_image', 'primary_color', 'alternate_color', 'project_voice', 'user']
 
 class CreateDomainRegistrationSerializer(serializers.ModelSerializer):
     class Meta:

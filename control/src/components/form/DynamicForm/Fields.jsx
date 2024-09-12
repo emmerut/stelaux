@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import { useFormikContext, Field, ErrorMessage } from 'formik';
 import { useField } from 'formik';
 import { useRef } from 'react';
+import { HexColorPicker } from "react-colorful";
 import { Editor } from '@tinymce/tinymce-react';
 import Icon from '@/components/ui/Icon';
 import CheckImage from "@/assets/images/icon/ck-white.svg";
@@ -13,6 +14,57 @@ import { Spanish } from 'flatpickr/dist/l10n/es'
 const currentYear = new Date().getFullYear();
 const startYear = 1950;
 const adultYear = currentYear - 18;
+
+const ColorPickerInput = memo(({ label, labelClass, className, showErrorMsg, ...props }) => {
+  const [field, meta] = useField(props);
+  const [primaryColor, setPrimaryColor] = useState(field.value);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleChange = (e) => {
+    setPrimaryColor(e.target.value);
+    field.onChange(e);
+  };
+
+  return (
+    <div className={`relative ${meta.touched && meta.error ? "error" : ""}`}>
+      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
+        {label}
+      </label>
+      <div
+        className="relative h-10 border border-gray-300 rounded-md overflow-hidden"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
+        <input
+          type="text"
+          value={primaryColor}
+          onChange={handleChange}
+          style={{ color: primaryColor }}
+          className="w-full h-full px-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <div className="absolute inset-y-0 right-0 flex items-center">
+          <input
+            type="color"
+            value={primaryColor}
+            onChange={handleChange}
+            className={`w-[60vw] h-[50px] border-none cursor-pointer transition-all duration-300 ease-in-out ${isHovering ? '-translate-x-1/2' : 'translate-x-full'
+              }`}
+            name={props.name}
+          />
+          <div
+            className="absolute inset-y-0 right-0 w-10"
+            style={{ backgroundColor: primaryColor }}
+          ></div>
+        </div>
+      </div>
+      {meta.touched && meta.error && showErrorMsg && (
+        <p className="mt-2 text-sm text-red-600" id="email-error">
+          {meta.error}
+        </p>
+      )}
+    </div>
+  );
+});
 
 const InputLogin = memo(({ type, label, placeholder = "Add placeholder", classLabel = "form-label", className = "", classGroup = "", readOnly, error, icon, disabled, id, horizontal, validate, isMask, msgTooltip, description, hasIcon, options, onFocus, defaultValue, ...props }) => {
   const [open, setOpen] = useState(false);
@@ -179,49 +231,6 @@ const Input = memo(({ label, labelClass, className, helpText, showErrorMsg, ...p
   );
 });
 
-const TextArea = memo(({ label, labelClass, className, onEditorChange, showErrorMsg, ...props }) => {
-  const editorRef = useRef(null);
-  const { setFieldValue, values } = useFormikContext();
-
-  const handleEditorChange = (content) => {
-    // Update the Formik field value
-    setFieldValue(props.name, content);
-    if (onEditorChange) {
-      // Call the original onEditorChange if it exists
-      onEditorChange(content);
-
-    }
-  };
-
-  return (
-    <div className='my-6'>
-      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
-        {label}
-      </label>
-      <Editor
-        apiKey='jilhl78tlomd3250tf5ncjjywse6ibcq3uu862mlml03ve6w'
-        htmlFor={props.id || props.name}
-        onInit={(_evt, editor) => editorRef.current = editor}
-        initialValue={props.initialValue} // Ensure initialValue is a string
-        init={{
-          height: 300,
-          menubar: false,
-          directionality: 'ltr', // for left-to-right text direction
-          plugins: [
-            'advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
-            'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',
-            'media', 'table', 'emoticons', 'help'
-          ],
-          toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent |' +
-            'bullist numlist | table',
-          content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-        }}
-        onEditorChange={handleEditorChange}
-      />
-    </div>
-  );
-});
-
 const Checkbox = memo(({ label, labelClass, className, ...props }) => {
   const [field, meta] = useField(props);
 
@@ -287,7 +296,7 @@ const CheckboxInput = memo(({ label, classLabel = "form-label", className = "", 
 const FileInput = ({ name, className, helpText, onFileChange, existingFile, ...props }) => {
   const [file, setFile] = useState(null);
   const [meta] = useField(props);
-  
+
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     setFile(selectedFile);
@@ -489,9 +498,9 @@ const DatePicker = memo(({ label, labelClass, name, placeholder = "Seleccionar f
   return (
     <div className={`formGroup ${meta.touched && meta.error ? "has-error" : ""}`}>
       <div className="relative">
-      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
-        {label}
-      </label>
+        <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
+          {label}
+        </label>
         <Flatpickr
           ref={fpRef}
           className={`form-control py-2 ${className} ${meta.touched && meta.error ? "border-red-500" : ""}`}
@@ -526,7 +535,8 @@ FileInput.defaultProps = {
 };
 
 export {
-  Input, TextArea, Checkbox, FileInput, SelectInput,
+  Input, Checkbox, FileInput, SelectInput,
   NumberInput, DecimalInput, NestedSelectInput, InputLogin,
-  CheckboxInput, BirthDateField, CountrySelect, DatePicker
+  CheckboxInput, BirthDateField, CountrySelect, DatePicker,
+  ColorPickerInput
 }; 
