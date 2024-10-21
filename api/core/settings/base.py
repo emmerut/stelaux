@@ -103,10 +103,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-postgres_test = {
+postgres_local = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'steladb',
+        'NAME': 'data_local',
         'USER': 'stelaux',
         'PASSWORD': env('LOCAL_PASSWORD'),
         'HOST': env('LOCAL_HOST'),
@@ -115,10 +115,22 @@ postgres_test = {
 
 }
 
+postgres_test = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'stela_data_test',
+        'USER': 'stelaux',
+        'PASSWORD': env('CLOUD_PASSWORD'),
+        'HOST': env('CLOUD_HOST'),
+        'PORT': '5432',
+    },
+
+}
+
 postgres_line = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'db_line',
+        'NAME': 'stelaux_line',
         'USER': 'stelaux',
         'PASSWORD': env('CLOUD_PASSWORD'),
         'HOST': env('CLOUD_HOST'),

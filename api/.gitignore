@@ -56,6 +56,8 @@ venv/
 .idea/vcs.xml
 .requirements.zip
 node_modules
+.serverless
+package-size/
 # Miscellaneous
 *.swp
 *.bak
