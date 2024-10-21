@@ -54,7 +54,8 @@ venv/
 .idea/workspace.xml
 .idea/modules.xml
 .idea/vcs.xml
-
+.requirements.zip
+node_modules
 # Miscellaneous
 *.swp
 *.bak
