@@ -34,7 +34,7 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const res = await axios.post('http://localhost:8000/v1/auth/login/', values);
+      const res = await axios.post('https://api.stelaux.com/v1/auth/login/', values);
       const authToken = res.data.token;
       setCookie('user_token', authToken, 1);
       toast.success('Autenticación exitosa');

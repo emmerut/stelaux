@@ -1,0 +1,23 @@
+# Utiliza la imagen de Python 3.9 como base
+FROM python:3.9-slim
+
+# Establece el directorio de trabajo
+WORKDIR /app
+
+# Copia los archivos del proyecto
+COPY . /app
+
+# Instala las dependencias
+RUN pip install -r requirements.txt
+
+# Establece las variables de entorno
+ENV DEBUG=False
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+ENV DJANGO_SETTINGS_MODULE=core.settings.base
+
+# Exposes el puerto 8000
+EXPOSE 8000
+
+# Comando para ejecutar la aplicación
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

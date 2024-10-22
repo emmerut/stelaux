@@ -78,6 +78,25 @@ MIDDLEWARE = [
 
 #cors auth
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 ROOT_URLCONF = 'core.urls'
 
@@ -129,16 +148,16 @@ postgres_test = {
 
 postgres_line = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'stelaux_line',
-        'USER': 'stelaux',
-        'PASSWORD': env('CLOUD_PASSWORD'),
-        'HOST': env('CLOUD_HOST'),
-        'PORT': '5432',
-    },
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+    }
 }
 
-DATABASES = postgres_test
+DATABASES = postgres_line
 
 AUTH_PASSWORD_VALIDATORS = [
     {

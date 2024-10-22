@@ -1,0 +1,49 @@
+# Lista de pasos a ejecutar en la construcción
+steps:
+  # Paso 1: Construye la imagen de Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'envsubst'
+    args:
+      - 'cat'
+      - 'Dockerfile'
+      - '|'
+      - 'docker'
+      - 'build'
+      - '-t'
+      - 'gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:latest'
+      - '.'
+    env:
+      # Lee variables de entorno desde el archivo .env
+      - $(cat .env | xargs -d '\n' -I {} echo {} | sed 's/=/ /')
+
+  # Paso 2: Imprime la imagen de Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:latest'
+
+  # Paso 3: Despliega la imagen de Docker en Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image'
+      - 'gcr.io/${PROJECT_ID}/${_SERVICE_NAME}:latest'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--region'
+      - '${_REGION}'
+
+# Opciones de construcción
+options:
+  substitution_option: '_SERVICE_NAME'
+  _SERVICE_NAME: 'stelaux-api'
+  PROJECT_ID: 'emmerut-project-388621'
+  _REGION: 'us-central1'
+
+# Variables de entorno compartidas entre pasos
+env:
+  - $(cat .env | xargs -d '\n' -I {} echo {} | sed 's/=/ /')

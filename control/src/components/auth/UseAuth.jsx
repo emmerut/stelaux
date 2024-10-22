@@ -23,7 +23,7 @@ const useAuthentication = () => {
       // Check for token presence and validity
       if (token) {
         try {
-          const res = await fetch('http://127.0.0.1:8000/v1/users/user_all_data/', { // Replace with your token verification endpoint
+          const res = await fetch('https:/api.stelaux.com/v1/users/user_all_data/', { // Replace with your token verification endpoint
             headers: {
               'Authorization': `Bearer ${token}`
             }
