@@ -29,9 +29,9 @@ const SidebarLogo = ({ menuHover }) => {
         <div className="flex items-center space-x-4">
           <div className="logo-icon">
             {!isDark && !isSemiDark ? (
-              <img src="https://stelacdn.s3.amazonaws.com/static/img/stela/stela-light.png" width="150" alt="" />
+              <img src="assets/img/logo/stela_white.png" width="150" alt="" />
             ) : (
-              <img src="https://stelacdn.s3.amazonaws.com/static/img/stela/stela-dark.png" width="150" alt="" />
+              <img src="assets/img/logo/stela_dark.png" width="150" alt="" />
             )}
           </div>
 
