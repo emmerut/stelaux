@@ -1,3 +1,0 @@
-docker push emmerut/stelaux-api
-docker tag stelaux-gateaway emmerut/stelaux-api
-docker build -t stelaux-api .

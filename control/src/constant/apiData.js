@@ -22,7 +22,7 @@ export const productData = async () => {
   const csrftoken = getCookie('csrftoken');
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/v1/inventory/list_product_all/', { // Adjust URL if needed
+    const response = await fetch('https://api.stelaux.com/v1/inventory/list_product_all/', { // Adjust URL if needed
       method: 'GET',
       headers: {
         'X-CSRFToken': csrftoken
@@ -53,7 +53,7 @@ export const serviceData = async () => {
   const csrftoken = getCookie('csrftoken');
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/v1/inventory/list_service_all/', { // Adjust URL if needed
+    const response = await fetch('https://api.stelaux.com/v1/inventory/list_service_all/', { // Adjust URL if needed
       method: 'GET',
       headers: {
         'X-CSRFToken': csrftoken
@@ -86,7 +86,7 @@ export const financeData = async () => {
   const userToken = getCookie('user_token');
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/v1/finance/finance_all_data/', { // Adjust URL if needed
+    const response = await fetch('https://api.stelaux.com/v1/finance/finance_all_data/', { // Adjust URL if needed
       method: 'GET',
       headers: {
         'X-CSRFToken': csrftoken,
@@ -111,7 +111,7 @@ export const ordersData = async () => {
   const csrftoken = getCookie('csrftoken');
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/v1/inventory/list_service_all/', { // Adjust URL if needed
+    const response = await fetch('https://api.stelaux.com/v1/inventory/list_service_all/', { // Adjust URL if needed
       method: 'GET',
       headers: {
         'X-CSRFToken': csrftoken
@@ -171,7 +171,7 @@ export const getUserData = async () => {
   const userToken = getCookie('user_token');
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/v1/users/user_all_data/', { // Adjust URL if needed
+    const response = await fetch('https://api.stelaux.com/v1/users/user_all_data/', { // Adjust URL if needed
       method: 'GET',
       headers: {
         'X-CSRFToken': csrftoken,
@@ -224,7 +224,7 @@ export const retrievePurchase = async () => {
   const userToken = getCookie('user_token');
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/v1/payments/get_purchase/', { // Adjust URL if needed
+    const response = await fetch('https://api.stelaux.com/v1/payments/get_purchase/', { // Adjust URL if needed
       method: 'GET',
       headers: {
         'X-CSRFToken': csrftoken,
@@ -250,7 +250,7 @@ export const getPaymentMethods = async () => {
   const userToken = getCookie('user_token');
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/v1/payments/get_payment_methods/', { // Adjust URL if needed
+    const response = await fetch('https://api.stelaux.com/v1/payments/get_payment_methods/', { // Adjust URL if needed
       method: 'GET',
       headers: {
         'X-CSRFToken': csrftoken,
@@ -276,7 +276,7 @@ export const getPlans = async () => {
   const userToken = getCookie('user_token');
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/v1/payments/get_plans/', { // Adjust URL if needed
+    const response = await fetch('https://api.stelaux.com/v1/payments/get_plans/', { // Adjust URL if needed
       method: 'GET',
       headers: {
         'X-CSRFToken': csrftoken,
@@ -301,7 +301,7 @@ export const getPlans = async () => {
 export const triggerNewcomerPlan = async (title, price, check, plan_id) => {
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/v1/payments/create_purchase/`,
+      `https://api.stelaux.com/v1/payments/create_purchase/`,
       {
         method: 'POST',
         headers: {
@@ -336,7 +336,7 @@ export const createPaymentIntent = async () => {
   const userToken = getCookie('user_token');
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/v1/payments/create_setup_intent/', {
+    const res = await fetch('https://api.stelaux.com/v1/payments/create_setup_intent/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -362,7 +362,7 @@ export const createPaymentMethod = async ({ type, setup_id }) => {
   const userToken = getCookie('user_token');
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/v1/payments/create_payment_method/', {
+    const res = await fetch('https://api.stelaux.com/v1/payments/create_payment_method/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -393,7 +393,7 @@ export const handlerCoupon = async (couponCode) => {
   const userToken = getCookie('user_token');
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/v1/payments/handler_coupon/', {
+    const res = await fetch('https://api.stelaux.com/v1/payments/handler_coupon/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -420,7 +420,7 @@ export const createSubscription = async (plan_id, coupon) => {
   const userToken = getCookie('user_token');
 
   try {
-    const res = await fetch('http://127.0.0.1:8000/v1/payments/create_subscription/', {
+    const res = await fetch('https://api.stelaux.com/v1/payments/create_subscription/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -448,7 +448,7 @@ export const createSubscription = async (plan_id, coupon) => {
 export const deletePaymentMethod = async (pay_id) => {
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/v1/payments/delete_payment_method/`,
+      `https://api.stelaux.com/v1/payments/delete_payment_method/`,
       {
         method: 'DELETE',
         headers: {
@@ -477,7 +477,7 @@ export const deletePaymentMethod = async (pay_id) => {
 export const deleteContent = async (object_id) => {
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/v1/stela-editor/delete_content/`,
+      `https://api.stelaux.com/v1/stela-editor/delete_content/`,
       {
         method: 'DELETE',
         headers: {

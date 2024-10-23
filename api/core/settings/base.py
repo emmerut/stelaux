@@ -12,32 +12,32 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'users.CustomUser'
 
 #security
-SECRET_KEY = env.str('SECRET_KEY')
-STRIPE_SECRET_KEY = env.str('STRIPE_SECRET_KEY')
-STRIPE_WEBHOOK_SECRET = env.str('WEBHOOK_SECRET_KEY')
-PAYPAL_CLIENT = env.str('PAYPAL_CLIENT')
-PAYPAL_SECRET = env.str('PAYPAL_SECRET')
-META_ID = env.str('META_ID')
-META_SECRET = env.str('META_SECRET')
-META_TOKEN = env.str('META_TOKEN')
-ENOM_USER = env('ENOM_USER')
-ENOM_KEY = env('ENOM_KEY')
-VES_MONITOR = env('VES_MONITOR')
-API_KEY = env('API_KEY')
-DEFAULT_EMAIL = env('DEFAULT_EMAIL')
-NEWSLETTER_EMAIL = env('NEWSLETTER_EMAIL')
-SUPPORT_EMAIL = env('SUPPORT_EMAIL')
-STELA_EMAIL = env('STELA_EMAIL')
-MAIN_EMAIL = env('MAIN_EMAIL')
-TWILIO_SID = env('TWILIO_SID')
-TWILIO_AUTH = env('TWILIO_AUTH')
-TWILIO_SERVICE_TOKEN = env('TWILIO_SERVICE_TOKEN')
-SENDGRID_KEY = env('SENDGRID_KEY')
-DOMAIN_CLOUDFLARE_TOKEN = env('DOMAIN_CLOUDFLARE_TOKEN')
+SECRET_KEY = os.environ.get('SECRET_KEY')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = os.environ.get('WEBHOOK_SECRET_KEY')
+PAYPAL_CLIENT = os.environ.get('PAYPAL_CLIENT')
+PAYPAL_SECRET = os.environ.get('PAYPAL_SECRET')
+META_ID = os.environ.get('META_ID')
+META_SECRET = os.environ.get('META_SECRET')
+META_TOKEN = os.environ.get('META_TOKEN')
+ENOM_USER = os.environ.get('ENOM_USER')
+ENOM_KEY = os.environ.get('ENOM_KEY')
+VES_MONITOR = os.environ.get('VES_MONITOR')
+API_KEY = os.environ.get('API_KEY')
+DEFAULT_EMAIL = os.environ.get('DEFAULT_EMAIL')
+NEWSLETTER_EMAIL = os.environ.get('NEWSLETTER_EMAIL')
+SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL')
+STELA_EMAIL = os.environ.get('STELA_EMAIL')
+MAIN_EMAIL = os.environ.get('MAIN_EMAIL')
+TWILIO_SID = os.environ.get('TWILIO_SID')
+TWILIO_AUTH = os.environ.get('TWILIO_AUTH')
+TWILIO_SERVICE_TOKEN = os.environ.get('TWILIO_SERVICE_TOKEN')
+SENDGRID_KEY = os.environ.get('SENDGRID_KEY')
+DOMAIN_CLOUDFLARE_TOKEN = os.environ.get('DOMAIN_CLOUDFLARE_TOKEN')
 
 
 INSTALLED_APPS = [
@@ -127,8 +127,8 @@ postgres_local = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'data_local',
         'USER': 'stelaux',
-        'PASSWORD': env('LOCAL_PASSWORD'),
-        'HOST': env('LOCAL_HOST'),
+        'PASSWORD': os.environ.get('LOCAL_PASSWORD'),
+        'HOST': os.environ.get('LOCAL_HOST'),
         'PORT': '5432',
     },
 
@@ -139,8 +139,8 @@ postgres_test = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'stela_data_test',
         'USER': 'stelaux',
-        'PASSWORD': env('CLOUD_PASSWORD'),
-        'HOST': env('CLOUD_HOST'),
+        'PASSWORD': os.environ.get('CLOUD_PASSWORD'),
+        'HOST': os.environ.get('CLOUD_HOST'),
         'PORT': '5432',
     },
 
@@ -149,11 +149,11 @@ postgres_test = {
 postgres_line = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'NAME': 'stelaux_line',
+        'USER': 'stelaux',
+        'PASSWORD': os.environ.get('CLOUD_PASSWORD'),
+        'HOST': os.environ.get('CLOUD_HOST'),
+        'PORT': '5432',
     }
 }
 

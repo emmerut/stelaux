@@ -33,7 +33,7 @@ const VerificationForm = ({ type, uid }) => {
       let response;
 
       if (type === 'email' || type === 'phone') {
-        response = await axios.post('http://localhost:8000/v1/auth/verify/', {
+        response = await axios.post('https://api.stelaux.com/v1/auth/verify/', {
           code,
           twilio_sid: import.meta.env.VITE_TWILIO_SID,
           twilio_auth_token: import.meta.env.VITE_TWILIO_AUTH_TOKEN,
@@ -53,7 +53,7 @@ const VerificationForm = ({ type, uid }) => {
           toast.error('Error al recibir el token de autenticación');
         }
       } else if (type === 'email_reset' || type === 'phone_reset') {
-        response = await axios.post('http://localhost:8000/v1/auth/password_reset_confirm/', {
+        response = await axios.post('https://api.stelaux.com/v1/auth/password_reset_confirm/', {
           code,
           twilio_sid: import.meta.env.VITE_TWILIO_SID,
           twilio_auth_token: import.meta.env.VITE_TWILIO_AUTH_TOKEN,

@@ -78,7 +78,7 @@ const SignupForm = () => {
       service_sid_email: import.meta.env.VITE_TWILIO_SERVICE_SID_EMAIL
     };
     try {
-      const res = await axios.post('http://localhost:8000/v1/auth/register/', customValues);
+      const res = await axios.post('https://api.stelaux.com/v1/auth/register/', customValues);
       setIsRegistered(true);
       toast.success('Cuenta creada exitosamente');
       navigate(`/auth/verify?type=${res.data.call}&uid=${res.data.token}`);

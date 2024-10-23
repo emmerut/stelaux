@@ -32,7 +32,7 @@ const NewPassword = ({ uid }) => {
             token: uid
         };
         try {
-            const res = await axios.post('http://localhost:8000/v1/auth/new_password/', customValues);
+            const res = await axios.post('https://api.stelaux.com/v1/auth/new_password/', customValues);
             toast.success(res.data.detail);
             navigate(`/console`);
             setIsRecovery(false);
