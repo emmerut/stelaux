@@ -3,7 +3,8 @@ import axios from 'axios';
 import { Formik, Form, FieldArray } from 'formik';
 
 // Asumiendo que tienes estos componentes definidos
-import { Input, FileInput, NumberInput, DecimalInput, TextArea, SelectInput } from '@/components/form/Form';
+import { Input, FileInput, NumberInput, DecimalInput, SelectInput } from '@/components/form/Form';
+import TextArea from '@/components/ui/RichTextEditor';
 import { serviceData } from "@/constant/apiData";
 import Buttons from '@/components/ui/Button';
 import FixedBar from '@/components/ui/ProgressBar/FixedBarAlert'

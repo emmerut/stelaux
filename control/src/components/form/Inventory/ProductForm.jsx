@@ -4,7 +4,8 @@ import axios from 'axios';
 import FixedBar from '@/components/ui/ProgressBar/FixedBarAlert'
 
 // Asumiendo que tienes estos componentes definidos
-import { Input, FileInput, NestedSelectInput, TextArea, DecimalInput, NumberInput, SelectInput } from '@/components/form/Form';
+import { Input, FileInput, NestedSelectInput, DecimalInput, NumberInput, SelectInput } from '@/components/form/Form';
+import TextArea from '@/components/ui/RichTextEditor';
 import { productData } from "@/constant/apiData";
 import Buttons from '@/components/ui/Button';
 

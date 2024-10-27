@@ -27,12 +27,12 @@ const RichTextEditor = memo(({ label, labelClass, className, initialValue, onEdi
     };
 
     return (
-        <Card className="w-full shadow-lg">
+        <Card className="w-full" bodyClass='py-3'>
             <label htmlFor={props.id || props.name} className={`block mb-3 text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
                 {label}
             </label>
             <div
-                className={`flex flex-wrap gap-1 p-2 bg-muted rounded-t-lg bg-black-50 shadow-md format-buttons ${isFullScreen ? 'open' : ''}`}
+                className={`flex flex-wrap gap-1 p-2 bg-muted rounded-t-lg text-slate-50 bg-indigo-900 shadow-b-lg format-buttons ${isFullScreen ? 'open' : ''}`}
             >
                 {/* Botones de formato */}
                 <Button
@@ -107,46 +107,6 @@ const RichTextEditor = memo(({ label, labelClass, className, initialValue, onEdi
                 >
                     <AlignJustify className={`h-4 w-4 ${isFullScreen ? 'h-6' : 'h-4'}`} />
                 </Button>
-                <Button
-                    onClick={() => applyFormat('indent')}
-                    variant="ghost"
-                    size="sm"
-                    className={`text-primary ${isFullScreen ? 'h-12' : 'h-4'}`}
-                >
-                    <Indent className={`h-4 w-4 ${isFullScreen ? 'h-6' : 'h-4'}`} />
-                </Button>
-                <Button
-                    onClick={() => applyFormat('outdent')}
-                    variant="ghost"
-                    size="sm"
-                    className={`text-primary ${isFullScreen ? 'h-12' : 'h-4'}`}
-                >
-                    <Outdent className={`h-4 w-4 ${isFullScreen ? 'h-6' : 'h-4'}`} />
-                </Button>
-                <Button
-                    onClick={() => applyFormat('insertUnorderedList')}
-                    variant="ghost"
-                    size="sm"
-                    className={`text-primary ${isFullScreen ? 'h-12' : 'h-4'}`}
-                >
-                    <List className={`h-4 w-4 ${isFullScreen ? 'h-6' : 'h-4'}`} />
-                </Button>
-                <Button
-                    onClick={() => applyFormat('insertOrderedList')}
-                    variant="ghost"
-                    size="sm"
-                    className={`text-primary ${isFullScreen ? 'h-12' : 'h-4'}`}
-                >
-                    <ListOrdered className={`h-4 w-4 ${isFullScreen ? 'h-6' : 'h-4'}`} />
-                </Button>
-                <Button
-                    onClick={() => applyFormat('insertTable')}
-                    variant="ghost"
-                    size="sm"
-                    className={`text-primary ${isFullScreen ? 'h-12' : 'h-4'}`}
-                >
-                    <Table className={`h-4 w-4 ${isFullScreen ? 'h-6' : 'h-4'}`} />
-                </Button>
                 {/* Botón para abrir en pantalla completa */}
                 <Button
                     onClick={toggleFullScreen}
@@ -161,7 +121,7 @@ const RichTextEditor = memo(({ label, labelClass, className, initialValue, onEdi
                 ref={editorRef}
                 contentEditable
                 onInput={handleContentChange}
-                className={`min-h-[200px] p-4 focus:outline-blue-300 shadow-md rounded-lg ${isFullScreen ? 'h-[40vh]' : ''}`}
+                className={`min-h-[200px] p-4 shadow-md rounded-b-lg focus:outline-blue-500 bg-black-50 text-slate-950 ${isFullScreen ? 'h-[40vh]' : ''}`}
                 aria-label="Área de edición de texto enriquecido"
             >
                 {initialValue}
