@@ -1,23 +1,14 @@
 # Utiliza la imagen de Python 3.9 como base
 FROM python:3.10.6-slim-buster
 
-# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos del proyecto
 COPY . /app
 
-# Establece las variables de entorno
 COPY .env /app/core/settings/.env
 
-#Dependencias
 COPY requirements.txt requirements.txt
 
-# Instala las dependencias
 RUN pip install -r requirements.txt
 
-# Exposes el puerto 8000
-EXPOSE 8000
-
-# Comando para ejecutar la aplicación
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "1", "--timeout", "300"]

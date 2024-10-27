@@ -5,8 +5,6 @@ environ.Env.read_env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-DEBUG = True
-
 AUTHENTICATION_BACKENDS = (
     'users.authentication.CustomBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -156,8 +154,6 @@ postgres_line = {
         'PORT': '5432',
     }
 }
-
-DATABASES = postgres_line
 
 AUTH_PASSWORD_VALIDATORS = [
     {

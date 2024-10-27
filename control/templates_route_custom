@@ -1,0 +1,34 @@
+elementos principales: 
+ - Info Banner
+ - Interactive-banners
+ - Tab
+ - Image Gallery
+ - Fancy Text Box
+ - Portfolio-slider (portfolio)
+ - Portfolio-colorful-three-column (portfolio)
+ - portfolio-overlay-three-column (portfolio)
+ - blog-post-layout-02 (blog-single 'gallery')
+ - blog-standard-post (blog-single)
+ - blog-youtube-video-post (blog-single 'Youtube)
+ - latest-news (blog-timeline)
+ - single_project_page (Elements) (Single Service)
+
+elementos complementarios: 
+ - Pie Chart
+ - Accordions 
+ - Team (Normal - Carousel) 
+ - Testimonials (Normal - Carousel) 
+ - Google Map Style
+ - Instagram Feed
+ - Services
+ - Only-categories (Shop)
+ - Shop-wide (Shop)
+ - Left-sidebar (Shop Filter)
+ - Shopping-cart (Shop)
+ - Checkout (Shop)
+
+elementos funcionales: 
+ - modal footer cookies (features)
+ - modal subscription (features)
+ - error-404 (pages)
+ - coming Soon v1-v2 (pages)
