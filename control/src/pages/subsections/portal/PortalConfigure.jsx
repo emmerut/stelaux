@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import Step from '@/components/ui/Steps';
 import Button from "@/components/ui/Button";
 import Domains from "@/pages/subsections/portal/Domains"
-import PortalForm from "@/pages/subsections/portal/PortalForm"
+import PortalForm from "@/components/form/Portal/PortalForm"
 import { getPortal } from '@/constant/apiData';
 import Loading from "@/components/Loading";
 

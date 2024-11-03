@@ -13,8 +13,6 @@ const RichTextEditor = memo(({ label, labelClass, className, initialValue, onEdi
         editorRef.current.focus();
     };
 
-    console.log(initialValue)
-
     const handleContentChange = () => {
         const content = editorRef.current.innerHTML;
         if (onEditorChange) {

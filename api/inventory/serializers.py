@@ -26,6 +26,7 @@ class ProductSerializer(serializers.ModelSerializer):
 class VariantSerializer(serializers.ModelSerializer):
     parent = serializers.SerializerMethodField()
     render_color = serializers.SerializerMethodField()
+    label = serializers.SerializerMethodField()
     class Meta:
         model = Variant
         fields = '__all__'
@@ -37,6 +38,9 @@ class VariantSerializer(serializers.ModelSerializer):
     def get_render_color(self, obj):
         """Renderiza el color del variante."""
         return obj.get_color()
+    def get_label(self, obj):
+        """Obtiene el label del variante."""
+        return obj.get_label()
     
 
 #Categories
@@ -62,9 +66,14 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 class ServiceVariantSerializer(serializers.ModelSerializer):
     parent = serializers.SerializerMethodField()
+    label = serializers.SerializerMethodField()
     class Meta:
         model = ServiceVariant
         fields = '__all__'
     
     def get_parent(self, obj):
         return obj.get_parent()
+    
+    def get_label(self, obj):
+        """Obtiene el label del service variant."""
+        return obj.get_label()

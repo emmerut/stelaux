@@ -30,6 +30,8 @@ const Plans = lazy(() => import("./pages/dashboard/plans"));
 const Checkout = lazy(() => import("./pages/dashboard/checkout"));
 const PortalPage = lazy(() => import("./pages/dashboard/portals"));
 const PortalConfigure = lazy(() => import("./pages/subsections/portal/PortalConfigure"));
+const InvoicePreviewPage = lazy(() => import("./pages/dashboard/Invoice"));
+const InvoiceConfigurePage = lazy(() => import("./pages/subsections/invoice/InvoiceConfigure"));
 
 import Layout from "./layout/Layout";
 
@@ -142,6 +144,9 @@ function App() {
             <Route path="products" element={<InventoryPage mainTitle={sectionTitles.products} buttonSet={'productButtons'} tableType={'products'} />} />
             <Route path="services" element={<InventoryPage mainTitle={sectionTitles.services} buttonSet={'serviceButtons'} tableType={'services'} />} />
             <Route path="finance" element={<BankingPage mainTitle={sectionTitles.billing} buttonSet={'billingButton'} />} />
+            <Route path="invoice-preview" element={<InvoicePreviewPage />} />
+            <Route path="create-invoice" element={<InvoiceConfigurePage />} />
+            {/* <Route path="finance/invoice/:invoiceid" element={<InvoicePreviewPage />} /> */}
             <Route path="orders" element={<OrdersPage mainTitle={sectionTitles.orders} />} />
             <Route path="users" element={<UsersPage mainTitle={sectionTitles.users} />} />
             <Route path="profile" element={<Profile />} />

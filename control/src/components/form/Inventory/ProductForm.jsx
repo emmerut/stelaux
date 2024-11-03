@@ -313,7 +313,7 @@ const MyForm = ({ objID, refreshData, closeModal }) => {
         console.log('Valores del formulario:', formDataObject);
         
         try {
-            const response = await axios.post('http://127.0.0.1:8000/v1/inventory/create_product/', formData, {
+            const response = await axios.post('https://api.stelaux.com/v1/inventory/create_product/', formData, {
               onUploadProgress: (event) => {
                 const percent = Math.round((event.loaded / event.total) * 100);
                 setProgress(percent);

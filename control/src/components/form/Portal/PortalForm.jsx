@@ -3,8 +3,6 @@ import BaseForm from '@/components/form/DynamicForm/DynamicForm';
 import { apiCreateReqPortal } from "@/constant/apiUrl"
 import { getPortalRequirement } from '@/constant/apiData';
 
-
-
 const PortalForm = forwardRef(({ onFormErrors, draft }, ref) => {
   const [isLoadingForm, setIsLoadingForm] = useState(false);
   const [existingFiles, setExistingFiles] = useState({});

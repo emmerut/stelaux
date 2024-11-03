@@ -118,6 +118,10 @@ class Variant(models.Model):
             return color_code
         else:
             return ""  # Devuelve una cadena vacía si no hay color
+    
+    def get_label(self):
+        """Returns a label with the title and price of the Variant."""
+        return f"{self.product.title} - {self.color} - {self.size}: ${self.price:.2f}"
 
     def save(self, *args, **kwargs):
         if not self.sku:
@@ -174,6 +178,10 @@ class ServiceVariant(models.Model):
             total_price=models.Sum('price')
         )['total_price']
         return total_sales or 0  # Return 0 if no sales found
+    
+    def get_label(self):
+        """Returns a label with the title and price of the ServiceVariant."""
+        return f"{self.service.title}: ${self.price:.2f}"
     
 class Order(models.Model):
     """ user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) """
