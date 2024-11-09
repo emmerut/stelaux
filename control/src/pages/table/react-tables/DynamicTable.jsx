@@ -21,7 +21,7 @@ import ProductVariantForm from "@/components/form/Inventory/VariantProductForm";
 import AlertModal from '@/components/ui/ModalAlert'
 
 const IndeterminateCheckbox = React.forwardRef(
-  ({ indeterminate, ...rest }, ref) => {
+  ({ indeterminate, editMode, ...rest }, ref) => {
     const defaultRef = React.useRef();
     const resolvedRef = ref || defaultRef;
 
@@ -34,6 +34,7 @@ const IndeterminateCheckbox = React.forwardRef(
         <input
           type="checkbox"
           ref={resolvedRef}
+          disabled={!editMode}
           {...rest}
           className="table-checkbox"
         />
@@ -49,7 +50,12 @@ const forms = {
   'productVariant': ProductVariantForm,
 };
 
-const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType, refreshData }) => {
+const Table = ({
+  COLUMNS, dataTable, loadModal, dataLoaded,
+  dataFetched, moduleType, refreshData, serviceMode,
+  productMode, clientMode, editMode, services,
+  products, clients, setClients, setServices, setProducts
+}) => {
   const [filter, setFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [formPK, setFormPK] = useState(null);
@@ -57,8 +63,6 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType, refres
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedParent, setSelectedParent] = useState(false);
-
-
 
   useEffect(() => {
     if (dataLoaded && dataFetched) {
@@ -78,7 +82,7 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType, refres
     return updatedColumns;
   }
 
-  const actionColumn = {
+  const editColumn = editMode ? {
     Header: "acción",
     accessor: "action",
     Cell: (row) => {
@@ -117,16 +121,85 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType, refres
         </div>
       );
     },
-  };
+  } : {};
 
-  const actions = [
+  const itemColumn = serviceMode ? {
+    Header: "acción",
+    accessor: "action",
+    Cell: (row) => {
+      return (
+        <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          {actions.map((item, i) => (
+            <div key={i}
+              onClick={() => loadService(row.cell.row.index, row.data)}
+              className={"hover:text-white hover:bg-indigo-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-50 w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex  space-x-2 items-center rtl:space-x-reverse"}
+            >
+              <span className="text-base">
+                <Icon icon={item.icon} />
+              </span>
+              <span>{item.name}</span>
+            </div>
+          ))}
+        </div>
+      );
+    },
+  } : productMode ? {
+    Header: "acción",
+    accessor: "action",
+    Cell: (row) => {
+      return (
+        <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          {actions.map((item, i) => (
+            <div
+              onClick={() => loadProduct(row.cell.row.index, row.data)}
+              className={"hover:text-white hover:bg-indigo-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-50 w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex  space-x-2 items-center rtl:space-x-reverse"}
+            >
+              <span className="text-base">
+                <Icon icon={item.icon} />
+              </span>
+              <span>{item.name}</span>
+            </div>
+          ))}
+        </div>
+      );
+    },
+  } : clientMode ? {
+    Header: "acción",
+    accessor: "action",
+    Cell: (row) => {
+      return (
+        <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          {actions.map((item, i) => (
+            <div
+              onClick={() => loadClient(row.cell.row.index, row.data)}
+              className={"hover:text-white hover:bg-indigo-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-50 w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex  space-x-2 items-center rtl:space-x-reverse"}
+            >
+              <span className="text-base">
+                <Icon icon={item.icon} />
+              </span>
+              <span>{item.name}</span>
+            </div>
+          ))}
+        </div>
+      );
+    },
+  } : {};
+
+  const clearColumns = editMode ? modifyColumns(COLUMNS, editColumn) : modifyColumns(COLUMNS, itemColumn);
+
+  const actions = editMode ? [
     {
       name: "edit",
       icon: "heroicons:pencil-square",
     },
+    // adiciona más acciones si es necesario
+  ] : [
+    // acciones diferentes cuando editMode es false
+    {
+      name: "cargar",
+      icon: "heroicons:plus",
+    },
   ];
-
-  const clearColumns = modifyColumns(COLUMNS, actionColumn);
 
   const closeModal = () => {
     setShowModal(false);
@@ -139,6 +212,39 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType, refres
     setFormPK(actionData[rowIndex].id);
     setShowModal(true);
   };
+
+  const loadData = (state, dataAction) => {
+    if (!state) {
+      state = [];
+    }
+    const newState = [...state];
+    const existingItemIndex = newState.findIndex(item => item.id === dataAction.id);
+
+    if (existingItemIndex !== -1) {
+      newState[existingItemIndex] = dataAction;
+    } else {
+      newState.push(dataAction);
+    }
+    console.log(newState)
+    return newState;
+  };
+
+  const loadClient = (rowIndex, dataAction) => {
+    const newClients = loadData(clients, dataAction);
+    setClients(newClients);
+  };
+
+  const loadService = (rowIndex, dataAction) => {
+    const newServices = loadData(services, dataAction);
+    setServices(newServices);
+  };
+
+  const loadProduct = (rowIndex, dataAction) => {
+    const newProducts = loadData(products, dataAction);
+    setProducts(newProducts);
+  };
+
+
 
   const filteredData = useMemo(() => {
     if (!filter) return data;
@@ -165,12 +271,12 @@ const Table = ({ COLUMNS, dataTable, dataLoaded, dataFetched, moduleType, refres
           id: "selection",
           Header: ({ getToggleAllRowsSelectedProps }) => (
             <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} editMode={editMode} />
             </div>
           ),
           Cell: ({ row }) => (
             <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} editMode={editMode} />
             </div>
           ),
         },

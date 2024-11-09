@@ -526,6 +526,30 @@ const DatePicker = memo(({ label, labelClass, name, placeholder = "Seleccionar f
   );
 });
 
+const LabelInput = memo(({ label, labelClass, className, helpText, showErrorMsg, ...props }) => {
+  const [field, meta] = useField(props);
+
+  return (
+    <div className={`relative ${meta.touched && meta.error ? "error" : ""}`}>
+      <label htmlFor={props.id || props.name} className={`block text-sm font-medium text-gray-700 dark:text-slate-300 ${labelClass}`}>
+        {label}
+      </label>
+      <span
+        className={`bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 
+        ${meta.touched && meta.error ? "border-red-500" : ""} ${className}`}
+      >
+        {meta.value}
+      </span>
+      {helpText && <span className="text-gray-500 text-sm mt-1">{helpText}</span>}
+      {meta.touched && meta.error && showErrorMsg && (
+        <p className="mt-2 text-sm text-red-600" id="email-error">
+          {meta.error}
+        </p>
+      )}
+    </div>
+  );
+});
+
 DecimalInput.defaultProps = {
   showErrorMsg: true,
 };
@@ -538,5 +562,5 @@ export {
   Input, Checkbox, FileInput, SelectInput,
   NumberInput, DecimalInput, NestedSelectInput, InputLogin,
   CheckboxInput, BirthDateField, CountrySelect, DatePicker,
-  ColorPickerInput
+  ColorPickerInput, LabelInput
 }; 

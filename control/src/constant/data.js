@@ -39,7 +39,7 @@ export const menuItems = [
     link: "orders",
   },
   {
-    title: "Usuarios",
+    title: "Clientes",
     isHide: true,
     icon: "mdi:users",
     link: "users",
