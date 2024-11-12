@@ -1,6 +1,6 @@
 import { getCookie } from '@/constant/sessions'
 import { Navigate } from 'react-router-dom';
-import { apiGetDataReqPortal, apiGetPortal, apiDeletePortalUrl } from '@/constant/apiUrl'
+import { apiGetDataReqPortal, apiGetPortal, apiDeletePortalUrl, apiGetFinance } from '@/constant/apiUrl'
 
 function getCSRF(name) {
   let cookieValue = null;
@@ -166,6 +166,30 @@ export const getPortal = async (portal_id) => {
   }
 };
 
+export const getCustomer = async (customer_id) => {
+  const csrftoken = getCSRF('csrftoken');
+  const userToken = getCookie('user_token');
+  try {
+    const url = customer_id ? `${apiGetFinance}/get_customer/?id=${customer_id}` : `${apiGetFinance}/get_customer/`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'X-CSRFToken': csrftoken,
+        'Authorization': `${userToken}`
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Error fetching customer data');
+    }
+    const data = await response.json();
+    return data; // Return only the customer data
+  } catch (error) {
+    console.error("Error fetching customer data:", error);
+    return;
+  }
+};
+
+
 export const getUserData = async () => {
   const csrftoken = getCSRF('csrftoken');
   const userToken = getCookie('user_token');
@@ -217,7 +241,7 @@ export const getPortalRequirement = async () => {
 };
 
 export const getProducts = async () => {
-} 
+}
 
 export const retrievePurchase = async () => {
   const csrftoken = getCSRF('csrftoken');
@@ -384,6 +408,37 @@ export const createPaymentMethod = async ({ type, setup_id }) => {
 
   } catch (error) {
     console.error('Error creating payment method:', error);
+  }
+};
+
+export const createNewBilling = async (billingData) => {
+
+  const csrftoken = getCookie('csrftoken');
+  const userToken = getCookie('user_token');
+
+  try {
+    const res = await fetch('http://localhost:8000/v1/finance/create_billing/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+        'Authorization': `${userToken}`
+      },
+      body: JSON.stringify(billingData)
+    });
+
+    if (res.status === 201) {
+      const data = await res.json();
+      return data;
+    } else if (res.status === 400) {
+      const error = await res.json();
+      throw new Error('Error en la solicitud:', error);
+    } else {
+      throw new Error('Error inesperado:', res.status);
+    }
+  } catch (error) {
+    console.error('Error creating payment method:', error);
+    throw error;
   }
 };
 

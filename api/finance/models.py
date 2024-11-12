@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import CustomUser
-from inventory.models import Product, Service
+from inventory.models import Variant, ServiceVariant
 
 # Create your models here.
 class CashBalance(models.Model):
@@ -38,34 +38,45 @@ class Customer(models.Model):
     phone = models.CharField(max_length=20)
     email = models.EmailField(max_length=255)
     fiscal_id = models.CharField(max_length=20)
+    created_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Info de cliente de {self.user.first_name} con ID: {self.user.id}"
+        return f"Info de cliente de {self.owner.first_name} con ID: {self.owner.id}"
     
 class Order(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders')
-    product = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='product_orders', blank=True, null=True)
-    service = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='service_orders', blank=True, null=True)
-    qty = models.IntegerField()  # cantidad
-    price = models.DecimalField(max_digits=10, decimal_places=2)  
-    tax = models.DecimalField(max_digits=10, decimal_places=2)  
-    total = models.DecimalField(max_digits=10, decimal_places=2)  
-
+    customer = models.ForeignKey(Customer, on_delete=models.SET_DEFAULT, related_name='orders', default=None)
+    invoice_id = models.CharField(max_length=255, blank=True)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)  
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)  
+    tax = models.DecimalField(max_digits=10, decimal_places=2, default=0)  
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)  
+    created_at = models.DateTimeField(auto_now=True)
+    delivery_date = models.DateField(default=None, blank=True, null=True)
+    
     def __str__(self):
         return f"Orden de {self.customer.name} con ID: {self.id}"
-
-    # podrías agregar una propiedad para calcular el total automáticamente
-    @property
-    def calculate_total(self):
-        return self.price * self.qty + self.tax
+    
+    @classmethod
+    def generate_invoice_id(cls):
+        last_invoice_id = Order.objects.all().order_by('-invoice_id').first()
+        if last_invoice_id:
+            new_invoice_id = int(last_invoice_id.invoice_id.lstrip('INV-')) + 1
+        else:
+            new_invoice_id = 1
+        return f"INV-{new_invoice_id:08d}"
     
     def save(self, *args, **kwargs):
-        self.total = self.price * self.qty + self.tax
+        if not self.invoice_id:
+            self.invoice_id = self.generate_invoice_id()
         super().save(*args, **kwargs)
 
 class BillingItems(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='billing_items')
-    total = models.DecimalField(max_digits=10, decimal_places=2)
+    product = models.ForeignKey(Variant, on_delete=models.CASCADE, related_name='product_item', blank=True, null=True)
+    service = models.ForeignKey(ServiceVariant, on_delete=models.CASCADE, related_name='service_item', blank=True, null=True)
+    qty = models.IntegerField()  # cantidad
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    
 
     @property
     def owner_id(self):
@@ -74,6 +85,3 @@ class BillingItems(models.Model):
     def __str__(self):
         return f"Ítem de facturación de la orden {self.order.id}"
     
-    def save(self, *args, **kwargs):
-        self.total = self.order.total
-        super().save(*args, **kwargs)

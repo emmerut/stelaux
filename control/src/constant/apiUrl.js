@@ -6,3 +6,4 @@ export const apiGetDataReqPortal = "https://api.stelaux.com/v1/portals/requireme
 export const apiCreatePortal = "https://api.stelaux.com/v1/portals/templates/create_or_update/";
 export const apiGetPortal = "https://api.stelaux.com/v1/portals/get_portal_data/";
 export const apiDeletePortalUrl = "https://api.stelaux.com/v1/portals/delete_portal/";
+export const apiGetFinance = "http://localhost:8000/v1/finance";

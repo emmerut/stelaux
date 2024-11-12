@@ -6,23 +6,24 @@ import BillingTable from "@/pages/components/tables/TableData"
 import Button from "@/components/ui/button"
 import Textarea from "@/components/ui/Textarea"
 import Icon from "@/components/ui/Icon";
-
-import { Formik, Form, useFormikContext } from 'formik';
+import { Formik, Form } from 'formik';
 import { Input } from '@/components/form/Form';
-import axios from 'axios';
+import { createNewBilling } from '@/constant/apiData'
+import { toast } from "sonner"
 
 
 export default function Component() {
   const [typeTable, setTypeTable] = useState(''); // o cualquier valor por defecto que desees
   const [showModal, setShowModal] = useState(false);
+  const [client, setClient] = useState([]);
   const [products, setProducts] = useState([])
   const [services, setServices] = useState([])
-  const [client, setClient] = useState(null)
   const [subtotal, setSubtotal] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [tax, setTax] = useState(0);
   const [total, setTotal] = useState(0);
   const formRef = useRef(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleServiceChange = (index, property, value) => {
     const newServices = [...services];
@@ -122,9 +123,11 @@ export default function Component() {
     return errors;
   };
 
-  const onSubmit = async (values, { setSubmitting }) => {
+  const onSubmit = async (values) => {
     try {
+      setIsSubmitting(true);
       const data = {
+        client_id: client?.id,
         client: values,
         services: services?.[0],
         products: products?.[0],
@@ -133,17 +136,27 @@ export default function Component() {
         tax: tax.toFixed(2),
         total: total.toFixed(2)
       };
-
-      const response = await axios.post('tu-url-endpoint', data);
-      if (response.status === 200) {
-        console.log('Factura creada exitosamente');
-        setSubmitting(false);
-      } else {
-        console.log('Error al crear la factura');
-      }
-      console.log(data)
+      await createNewBilling(data);
+      toast.success('Factura creada con éxito!', {
+        classNames: {
+          success: 'bg-green-500 text-white',
+        },
+        position: 'bottom-right',
+        duration: 5000,
+      });
+      setServices([]);
+      setProducts([]);
+      setClient([]);
+      setSubtotal(0);
+      setDiscount(0);
+      setTax(0);
+      setTotal(0);
+      formRef.current.resetForm();
+      closeModal();
     } catch (error) {
       console.log('Error al crear la factura:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -163,7 +176,7 @@ export default function Component() {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium text-gray-900">Datos Cliente:</h3>
               <div className="flex gap-2">
-                <Button onClick={() => loadTable('products')} className="bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md smc:px-2 smc:py-2 smc:text-xxs"><User className="w-5 mr-2" /><span className="mt-1 md:mt-0">Cargar Cliente</span></Button>
+                <Button onClick={() => loadTable('customer')} className="bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md smc:px-2 smc:py-2 smc:text-xxs"><User className="w-5 mr-2" /><span className="mt-1 md:mt-0">Cargar Cliente</span></Button>
               </div>
             </div>
             <div>
@@ -173,7 +186,7 @@ export default function Component() {
                 onSubmit={onSubmit}
                 innerRef={formRef}
               >
-                {({ isSubmitting, errors, submitForm }) => (
+                {({ errors }) => (
                   <Form>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div className="space-y-2">
@@ -378,6 +391,7 @@ export default function Component() {
             {(services.length || products.length) ? (
               <Button
                 onClick={handleSendForm}
+                isLoading={isSubmitting}
                 className="bg-indigo-900 text-white hover:bg-black-100 hover:text-indigo-900 shadow-md smc:px-2 smc:py-2 smc:text-xxs"
               >
                 <ReceiptText className="w-4 mr-2" />
@@ -393,7 +407,7 @@ export default function Component() {
         onClose={closeModal}
         centered={true} // Set this to true for centered modal
         className="max-w-4xl modal-scroll" // Increase width for a larger modal
-        title="Agregar items"
+        title=""
         themeClass="bg-indigo-900"
         scrollContent={true}
       >
@@ -401,7 +415,7 @@ export default function Component() {
         {/* Condicionar tablas de servicios, productos o clientes */}
         {typeTable === 'services' && <BillingTable tableType="billing_services" service_data={services} service_state={setServices} loadModal={setShowModal} />}
         {typeTable === 'products' && <BillingTable tableType="billing_products" product_data={products} product_state={setProducts} loadModal={setShowModal} />}
-        {typeTable === 'clients' && <BillingTable tableType="clients" client_data={client} clients_state={setClient} loadModal={setShowModal} />}
+        {typeTable === 'customer' && <BillingTable tableType="customer" clients_data={client} clients_state={setClient} formRef={formRef} loadModal={setShowModal} />}
       </Modal>
 
     </>

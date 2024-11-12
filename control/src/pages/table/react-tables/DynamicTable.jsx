@@ -5,6 +5,7 @@ import Dropdown from "@/components/ui/Dropdown";
 import Modal from "@/components/ui/Modal";
 import Button from '@/components/ui/Button';
 import { Menu } from "@headlessui/react";
+import { toast } from "sonner"
 import {
   useTable,
   useRowSelect,
@@ -54,7 +55,8 @@ const Table = ({
   COLUMNS, dataTable, loadModal, dataLoaded,
   dataFetched, moduleType, refreshData, serviceMode,
   productMode, clientMode, editMode, services,
-  products, clients, setClients, setServices, setProducts
+  products, clients, setClients, setServices, setProducts,
+  formRef
 }) => {
   const [filter, setFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -171,7 +173,7 @@ const Table = ({
         <div className="divide-y divide-slate-100 dark:divide-slate-800">
           {actions.map((item, i) => (
             <div
-              onClick={() => loadClient(row.cell.row.index, row.data)}
+              onClick={() => loadClient(row.data)}
               className={"hover:text-white hover:bg-indigo-900 dark:hover:bg-slate-600 dark:hover:bg-opacity-50 w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm  last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex  space-x-2 items-center rtl:space-x-reverse"}
             >
               <span className="text-base">
@@ -219,32 +221,52 @@ const Table = ({
     }
     const newState = [...state];
     const existingItemIndex = newState.findIndex(item => item.id === dataAction.id);
-
     if (existingItemIndex !== -1) {
       newState[existingItemIndex] = dataAction;
     } else {
       newState.push(dataAction);
     }
-    console.log(newState)
     return newState;
   };
 
-  const loadClient = (rowIndex, dataAction) => {
-    const newClients = loadData(clients, dataAction);
-    setClients(newClients);
+  const loadClient = (dataAction) => {
+    // Obtén la referencia al formulario de Formik
+    const formikRef = formRef.current;
+    setClients(dataAction[0])
+    // Establece los valores en el formulario
+    if (formikRef) {
+      formikRef.setValues({
+        fiscal_id: dataAction[0].fiscal_id,
+        name: dataAction[0].name,
+        email: dataAction[0].email,
+        phone: dataAction[0].phone,
+        address: dataAction[0].address,
+      });
+    }
+    loadModal(false);
   };
 
   const loadService = (rowIndex, dataAction) => {
     const newServices = loadData(services, dataAction);
     setServices(newServices);
+    toast.success('Servicio añadido', {
+      classNames: {
+        success: 'bg-green-500 text-white',
+      },
+      position: 'top-right',
+    });
   };
 
   const loadProduct = (rowIndex, dataAction) => {
     const newProducts = loadData(products, dataAction);
     setProducts(newProducts);
+    toast.success('Producto añadido', {
+      classNames: {
+        success: 'bg-green-500 text-white',
+      },
+      position: 'top-right',
+    });
   };
-
-
 
   const filteredData = useMemo(() => {
     if (!filter) return data;

@@ -1,6 +1,6 @@
 from core.settings.base import *
 
-DEBUG = False
-ALLOWED_HOSTS = ['stelaux.com', 'api.stelaux.com']
+DEBUG = True
+ALLOWED_HOSTS = ['*']
 
 DATABASES = postgres_line

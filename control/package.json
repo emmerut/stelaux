@@ -76,6 +76,7 @@
     "recharts": "^2.3.2",
     "sass": "^1.56.1",
     "simplebar-react": "^2.4.3",
+    "sonner": "^1.7.0",
     "sort-by": "^0.0.2",
     "styled-components": "^6.1.11",
     "sweetalert2": "^11.10.8",

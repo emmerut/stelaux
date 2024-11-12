@@ -14,8 +14,7 @@ const buttonSet = {
 
 const HomeBredCurbs = ({ title, subtitle, setID,  }) => { // Se agrega "subtitle" como prop
   const ActiveButtons = setID ? buttonSet[setID] : null;
-  console.log(setID)
- 
+
   /* const [value, setValue] = useState({
       startDate: new Date(),
       endDate: new Date().setMonth(11),

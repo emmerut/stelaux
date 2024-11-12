@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import DynamicTable from "@/pages/table/react-tables/DynamicTable";
-import { serviceData } from '@/constant/apiData';
+import { serviceData, productData, getCustomer } from '@/constant/apiData';
+import { Show } from "@chakra-ui/react";
 
 const ClearTable = ({ 
   tableType, service_state, product_state, 
   clients_state, service_data, product_data, 
-  clients_data, loadModal 
+  clients_data, formRef, loadModal 
 }) => {
   const [dataFetched, setDataFetched] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -13,12 +14,14 @@ const ClearTable = ({
   const [dataServiceTable, setDataServiceTable] = useState([]);
   const [service, setService] = useState([]);
   const [product, setProduct] = useState([]);
+  const [customer, setCustomer] = useState([]);
   const [service_billing, setServiceBilling] = useState([]);
   const [product_billing, setProductBilling] = useState([]);
   const [productVariant, setProductVariant] = useState([]);
   const [serviceVariant, setServiceVariant] = useState([]);
   const [billingProductTable, setBillingProductDataTable] = useState([]);
   const [billingServiceTable, setBillingServiceDataTable] = useState([]);
+  const [customerTable, setCustomerTable] = useState([]);
   const [dataProductVariantTable, setProductVariantDataTable] = useState([]);
   const [dataServiceVariantTable, setDataServiceVariantTable] = useState([]);
   const [filterMap, setFilterMap] = useState("usa");
@@ -91,6 +94,15 @@ const ClearTable = ({
           price: item.price,
           qty: 1,
           discount: 0,
+        };
+      } else if (tableType === 'customer') {
+        tableRow = {
+          id: item.id,
+          fiscal_id: item.fiscal_id,
+          name: item.name,
+          email: item.email,
+          phone: item.phone,
+          address: item.address,
         };
       }
       table.push(tableRow);
@@ -193,6 +205,20 @@ const ClearTable = ({
     } catch (error) {
       setDataFetched(true);
     }
+  } else if (tableType === 'customer'){
+    try {
+      const res = await getCustomer();
+      if (res.customer) {
+        setCustomer(res.customer);
+        updateTableData(res.customer, setCustomerTable);
+        setDataFetched(true);
+      } else {
+        console.warn("Missing data in customer response. Customer:", res.customer);
+        setDataFetched(true);
+      }
+    } catch (error) {
+      setDataFetched(true);
+    }
   }
 }, [tableType]);
 
@@ -203,7 +229,7 @@ const ClearTable = ({
 
   useEffect(() => {
     setDataLoaded(true);
-  }, [service, product, productVariant, serviceVariant, service_billing, product_billing]);
+  }, [service, product, productVariant, serviceVariant, service_billing, product_billing, customer]);
 
   const SERVICECOLUMNS = [
     {
@@ -680,6 +706,44 @@ const ClearTable = ({
     },
   ];
 
+  const CUSTOMERCOLUMNS = [
+    {
+      Header: "Id",
+      accessor: "id",
+      Cell: (row) => {
+        return <span>{row?.cell?.value}</span>;
+      },
+    },
+    {
+      Header: "RIF o ID",
+      accessor: "fiscal_id",
+      Cell: (row) => {
+        return <span>{row?.cell?.value}</span>;
+      },
+    },
+    {
+      Header: "Nombre",
+      accessor: "name",
+      Cell: (row) => {
+        return <span>{row?.cell?.value}</span>;
+      },
+    },
+    {
+      Header: "Email",
+      accessor: "email",
+      Cell: (row) => {
+        return <span className="lowercase">{row?.cell?.value}</span>;
+      },
+    },
+    {
+      Header: "Teléfono",
+      accessor: "phone",
+      Cell: (row) => {
+        return <span>{row?.cell?.value}</span>;
+      },
+    },
+  ];
+
   const tableComponent = tableType === 'services'
     ? (
       <>
@@ -763,6 +827,25 @@ const ClearTable = ({
                 services={service_data}
                 loadModal={loadModal}
                 setServices={service_state}
+              />
+            </>
+          )
+          : tableType === 'customer'
+          ? (
+            <>
+              <DynamicTable
+                COLUMNS={CUSTOMERCOLUMNS}
+                dataTable={customerTable}
+                dataLoaded={dataLoaded}
+                dataFetched={dataFetched}
+                refreshData={fetchData} // Add this line
+                moduleType="client"
+                itemMode={true}
+                clientMode={true}
+                clients={clients_data}
+                loadModal={loadModal}
+                setClients={clients_state}
+                formRef={formRef}
               />
             </>
           )

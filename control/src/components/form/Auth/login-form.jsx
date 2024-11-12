@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Formik, Form } from 'formik';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { toast } from "react-toastify";
+import { toast } from "sonner"
 import { InputLogin } from "@/components/form/Form";
 import Button from '@/components/ui/Button';
 import { setCookie } from '@/constant/sessions';
@@ -37,12 +37,19 @@ const Login = () => {
       const res = await axios.post('https://api.stelaux.com/v1/auth/login/', values);
       const authToken = res.data.token;
       setCookie('user_token', authToken, 1);
-      toast.success('Autenticación exitosa');
       setIsAuthenticated(true);
       navigate("/console");
       setSubmitting(false);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error de autenticación');
+      toast.error(
+        error.response?.data?.detail || 'Error de autenticación',
+        {
+          classNames: {
+            error: 'bg-red-500 text-white',
+          },
+          position: 'top-right',
+        }
+      );
       setSubmitting(false);
     }
   };
